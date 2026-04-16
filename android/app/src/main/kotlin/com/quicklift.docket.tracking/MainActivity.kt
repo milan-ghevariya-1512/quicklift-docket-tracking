@@ -1,4 +1,4 @@
-package com.quicklift_docket_tracking
+package com.quicklift.docket.tracking
 
 import io.flutter.embedding.android.FlutterActivity
 

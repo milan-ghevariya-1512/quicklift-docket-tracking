@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import '../widgets/common_widget.dart';
 import 'app_colors.dart';
 import 'package:intl/intl.dart';
 
@@ -50,17 +51,53 @@ class Utils {
     _toast(msg, const Color(0xFF303030));
   }
 
-  static void _toast(String msg, Color bg,
-      {bool exit = true}) {
-    Get.showSnackbar(GetSnackBar(
-      message: msg,
-      padding: EdgeInsets.symmetric(vertical: 8, horizontal: Get.width * 0.03),
-      backgroundColor: bg,
-      duration: const Duration(seconds: 2),
-      snackStyle: SnackStyle.FLOATING,
-      dismissDirection: DismissDirection.horizontal,
-      isDismissible: true,
-    ));
+  static OverlayEntry? activeToast;
+
+  static void _toast(String msg, Color bg, {bool exit = true}) {
+    BuildContext? context = Get.overlayContext;
+    context ??= Get.context;
+    if (context == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _toast(msg, bg, exit: exit);
+      });
+      return;
+    }
+    OverlayState? overlay;
+    try {
+      overlay = Overlay.of(context, rootOverlay: true);
+    } catch (e) {
+      try {
+        final navigator = Navigator.of(context, rootNavigator: true);
+        overlay = navigator.overlay;
+      } catch (e2) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _toast(msg, bg, exit: exit);
+        });
+        debugPrint('Toast: Could not find Overlay, retrying - $e2');
+        return;
+      }
+    }
+    if (overlay == null) {
+      debugPrint('Toast: Overlay is null');
+      return;
+    }
+    activeToast?.remove();
+    activeToast = null;
+    late OverlayEntry overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (_) => ToastWidget(
+        message: msg,
+        backgroundColor: bg,
+        onDismiss: () {
+          if (overlayEntry.mounted) overlayEntry.remove();
+          if (activeToast == overlayEntry) {
+            activeToast = null;
+          }
+        },
+      ),
+    );
+    activeToast = overlayEntry;
+    overlay.insert(overlayEntry);
   }
 
   static showLoadingDialog() {

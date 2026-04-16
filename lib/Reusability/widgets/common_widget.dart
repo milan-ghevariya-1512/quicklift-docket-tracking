@@ -233,7 +233,114 @@ class NoData extends StatelessWidget {
   }
 }
 
+class ToastWidget extends StatefulWidget {
+  final String message;
+  final Color backgroundColor;
+  final VoidCallback onDismiss;
 
+  const ToastWidget({
+    super.key,
+    required this.message,
+    required this.backgroundColor,
+    required this.onDismiss,
+  });
+
+  @override
+  State<ToastWidget> createState() => _ToastWidgetState();
+}
+
+class _ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+      reverseDuration: const Duration(milliseconds: 300),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, -1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+
+    _controller.forward();
+
+    Future.delayed(const Duration(seconds: 2), () async {
+      if (!mounted || _controller.status == AnimationStatus.dismissed) return;
+
+      try {
+        await _controller.reverse();
+        if (mounted) {
+          widget.onDismiss();
+        }
+      } catch (e) {
+        debugPrint('Toast reverse error: $e');
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    if (_controller.isAnimating) {
+      _controller.stop();
+    }
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 10,
+      left: 16,
+      right: 16,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Dismissible(
+            key: const ValueKey("toast_widget"),
+            direction: DismissDirection.up,
+            onDismissed: (_) {
+              if (mounted) {
+                widget.onDismiss();
+              }
+            },
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: widget.backgroundColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    )
+                  ],
+                ),
+                child: Text(
+                  widget.message,
+                  style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.whiteColor),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 
 
