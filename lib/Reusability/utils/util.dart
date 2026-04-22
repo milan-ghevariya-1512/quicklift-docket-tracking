@@ -1,9 +1,15 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:quicklift_docket_tracking/Reusability/utils/storage_util.dart';
+import '../../app/data/service/field_setup_service.dart';
+import '../../app/routes/app_pages.dart';
 import '../widgets/common_widget.dart';
 import 'app_colors.dart';
 import 'package:intl/intl.dart';
@@ -33,9 +39,9 @@ class Utils {
 
   String? getToken() {
     try {
-      return "${box.read("token")}";
+      return "${box.read(StorageUtil.token)}";
     } catch (e) {
-      return null;
+      return '';
     }
   }
 
@@ -112,6 +118,42 @@ class Utils {
   static Widget loader({Color? loaderColor}) {
     return Center(child: CircularProgressIndicator(
         color: loaderColor ?? AppColors.primaryColor));
+  }
+
+  static Future<PackageInfo> getPackageInfo() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    log('packageInfo----> ${packageInfo.version}');
+    return packageInfo;
+  }
+
+  logOutUser() async {
+    if (Get.isRegistered<FieldSetupController>()) {
+      Get.find<FieldSetupController>().clearCache();
+    }
+    Utils().setLogin(false);
+    Get.offNamedUntil(Routes.LOGIN, (route) => false);
+  }
+
+  Future<bool> hasInternetConnection({bool navigateToCheck = false}) async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult.contains(ConnectivityResult.mobile)) {
+      return true;
+    } else if (connectivityResult.contains(ConnectivityResult.wifi)) {
+      return true;
+    } else if (connectivityResult.contains(ConnectivityResult.ethernet)) {
+      return true;
+    } else{
+      if(Get.isDialogOpen ?? false) Get.back();
+      FocusScope.of(Get.context!).unfocus();
+      if (navigateToCheck) {
+        if (Get.currentRoute != Routes.INTERNET_CHECK){
+          Get.offNamed(Routes.INTERNET_CHECK);
+        }
+      } else{
+        Utils.toastWarning("No internet connection");
+      }
+    }
+    return false;
   }
 
   static String dateFormat = "d MMM y hh:mm a";

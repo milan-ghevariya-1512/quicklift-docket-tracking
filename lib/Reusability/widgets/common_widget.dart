@@ -22,6 +22,58 @@ class CommonWidget{
 
 }
 
+class AppPageHeader extends StatelessWidget {
+  final String title;
+  final Widget? leading;
+  final VoidCallback? onBack;
+
+  const AppPageHeader({super.key, required this.title, this.onBack, this.leading});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        if (onBack != null)
+          GestureDetector(
+            onTap: onBack,
+            child: Container(
+              height: Get.height * 0.046,
+              width: Get.height * 0.046,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceColor,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.borderColor),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.textBlackColor.withOpacity(0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              alignment: Alignment.center,
+              child: Image.asset(
+                AppImage.backIcon,
+                height: Get.height * 0.024,
+                width: Get.height * 0.024,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        if (onBack != null) WBox(Get.width * 0.03),
+        Expanded(
+          child: Text(
+            title,
+            style: AppTextStyle.regularTextStyle.copyWith(fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: -0.3, height: 1.3),
+          ),
+        ),
+        if (leading != null) WBox(Get.width * 0.03),
+        if (leading != null) leading ?? SizedBox.shrink()
+      ],
+    );
+  }
+}
+
 class HBox extends StatelessWidget {
   final double? height;
   HBox(this.height, {super.key});

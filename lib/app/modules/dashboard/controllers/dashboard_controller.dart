@@ -29,10 +29,7 @@ class DashboardController extends GetxController {
   getOrganization({bool filter = false}) async {
     isLoaded.value = true;
     organizationList.clear();
-    Map<String, String> headers = {
-      'Content-Type': 'application/json',
-    };
-    var result = await dashBoardService.getOrganization(header: headers);
+    var result = await dashBoardService.getOrganization();
     if(result != null) {
       if (filter) {
         result.forEach((element) {
@@ -67,15 +64,7 @@ class DashboardController extends GetxController {
         docketController.text.trim()
       ]
     };
-    print("Utils().box.read('token') ${Utils().getToken()}");
-    var token = await Utils().getToken();
-    Map<String, String> headers = {
-      'Content-Type': 'application/json',
-      'Authorization' : "Bearer $token"
-      // 'username' : 'QUICKAPI',
-      // 'password' : 'QUi(&*qe3&.01!'
-    };
-    var result = await dashBoardService.searchDocket(body: body,header: headers);
+    var result = await dashBoardService.searchDocket(body: body);
     if(Get.isDialogOpen!) Get.back();
     if(result != null
         && result.isNotEmpty

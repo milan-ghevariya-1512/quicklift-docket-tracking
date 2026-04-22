@@ -7,9 +7,9 @@ import '../../../Reusability/utils/storage_util.dart';
 import '../../../Reusability/utils/util.dart';
 import 'exception.dart';
 
-class NetworkHandler {
+class NetworkHandlerStander {
 
-  Future<dynamic> post(String url, http.Client client, token, {dynamic model, bool isResponseVersion = false, bool showError = true,bool navigateToCheck = false}) async {
+  Future<dynamic> post(String url, http.Client client, token, {dynamic model, bool isResponseVersion = false,bool showError = true, bool navigateToCheck = false}) async {
     bool isConnected = await Utils().hasInternetConnection(navigateToCheck: navigateToCheck);
     if (isConnected) {
       var version = Utils().box.read(StorageUtil.appVersion);
@@ -47,15 +47,15 @@ class NetworkHandler {
     }
   }
 
-  Future<dynamic> get(String url, http.Client client, token, {bool isResponseVersion = false, bool showError = true, bool navigateToCheck = false}) async {
+  Future<dynamic> get(String url, http.Client client, token, {bool showError = true, bool isResponseVersion = false, bool navigateToCheck = false}) async {
     bool isConnected = await Utils().hasInternetConnection(navigateToCheck: navigateToCheck);
     if (isConnected) {
       var version = Utils().box.read(StorageUtil.appVersion);
       Map<String, String> headers = {
         'Content-Type': 'application/json',
         'Authorization': "Bearer $token",
-        'AppVersion': version,
         if(isResponseVersion)'ResponseVersion': "2.0",
+        'AppVersion': version
       };
       var responseData;
       try {
@@ -78,7 +78,7 @@ class NetworkHandler {
       var version = Utils().box.read(StorageUtil.appVersion);
       Map<String, String> headers = {
         "Authorization": "Bearer $token",
-        'Content-Type': 'application/json',
+      'Content-Type': 'application/json',
         'AppVersion': version
       };
 
@@ -119,7 +119,7 @@ class NetworkHandler {
         var request = http.MultipartRequest('POST', Uri.parse(url));
         request.headers[HttpHeaders.contentTypeHeader] = 'application/json';
         request.headers['AppVersion'] = version;
-        if(isResponseVersion)request.headers['ResponseVersion'] = "2.0";
+        if(isResponseVersion)request.headers['ResponseVersion'] = '2.0';
         if(token != null){
           request.headers[HttpHeaders.authorizationHeader] = "Bearer $token";
         }
@@ -136,8 +136,8 @@ class NetworkHandler {
 
         logApiCall(
           url: url,
-          response: data,
           header: request.headers.toString(),
+          response: data,
           method: 'MULTIPART POST',
           requestPayload: model != null ? jsonEncode(model) : null,
         );
@@ -180,8 +180,8 @@ class NetworkHandler {
         logApiCall(
           url: url,
           response: data,
-          header: request.headers.toString(),
           method: 'MULTIPART PUT',
+          header: request.headers.toString(),
           requestPayload: model != null ? jsonEncode(model) : null,
         );
 
@@ -264,10 +264,7 @@ class NetworkHandler {
     bool isConnected = await Utils().hasInternetConnection(navigateToCheck: navigateToCheck);
     if (isConnected) {
       var version = Utils().box.read(StorageUtil.appVersion);
-      Map<String, String> headers = {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'AppVersion': version
-      };
+      Map<String, String> headers = {'Content-Type': 'application/json; charset=UTF-8','AppVersion': version};
       var responseData;
       try {
         final http.Response response = await client.post(Uri.parse(url),
@@ -294,24 +291,7 @@ class NetworkHandler {
     if(Get.isDialogOpen ?? false) {
       Get.back();
     }
-    if (response.statusCode != 200) {
-      Utils.toastError("Server error (${response.statusCode})");
-    }
-    dynamic decoded;
-    try {
-      decoded = jsonDecode(response.body);
-    } catch (e) {
-      if (showError) {
-        Utils.toastError("Invalid response format");
-      }
-      return null;
-    }
-    int apiStatusCode = decoded['StatusCode'] ?? 0;
-    String errorMessage = '';
-    if (decoded['ErrorDetail'] != null && decoded['ErrorDetail'] is List && decoded['ErrorDetail'].isNotEmpty) {
-      errorMessage = decoded['ErrorDetail'][0]['ErrorMessage'];
-    }
-    switch (apiStatusCode) {
+    switch (response.statusCode) {
       case 200:
         var responseJson = response.body;
         return responseJson;
@@ -319,27 +299,27 @@ class NetworkHandler {
         var responseJson = response.body;
         return responseJson;
       case 400:
-        if(showError && errorMessage.isNotEmpty)Utils.toastError(errorMessage);
+        if(showError)Utils.toastError(jsonDecode(response.body) ?? "");
         return null;
       case 401:
         if(showError)Utils.toastError(jsonDecode(response.body) ?? "");
         return null;
       case 403:
-        if(showError && errorMessage.isNotEmpty)Utils.toastError(errorMessage);
+        if(showError)Utils.toastError(jsonDecode(response.body) ?? "");
         var responseJson = response.body;
         return responseJson;
       case 404:
-        if(showError && errorMessage.isNotEmpty)Utils.toastError(errorMessage);
+        if(showError)Utils.toastError(jsonDecode(response.body) ?? "");
         return null;
       case 405:
-        if(showError && errorMessage.isNotEmpty)Utils.toastError(errorMessage);
+        if(showError)Utils.toastError(jsonDecode(response.body) ?? "");
         var responseJson = response.body;
         return responseJson;
       case 500:
-        if(showError && errorMessage.isNotEmpty)Utils.toastError(errorMessage);
+        if(showError)Utils.toastError(jsonDecode(response.body) ?? "");
         return null;
       default:
-        if(showError && errorMessage.isNotEmpty)Utils.toastError(errorMessage);
+        if(showError)Utils.toastError(jsonDecode(response.body) ?? "");
         return null;
     }
   }
@@ -350,18 +330,19 @@ class NetworkHandler {
     required String method,
     required String header,
     String? requestPayload,
+    String? userId,
   }) {
     log("url: $url");
-    log("model: $requestPayload");
     log("header: $header");
+    log("model: $requestPayload");
     log("status code: ${response.statusCode}");
     log("response: ${response.body}");
     log("method: $method");
   }
 
   void logoutUser() {
-    Utils().logOutUser();
-    Utils.toastWarning("Session Expired! Please Login Again..");
+    Utils().isLogin();
+    Utils.toastWarning("Session Expired! Please Login Again..".tr);
   }
 
 }

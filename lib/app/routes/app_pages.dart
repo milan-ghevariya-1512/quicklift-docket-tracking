@@ -9,6 +9,8 @@ import '../modules/docket_search/views/docket_search_view.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 
 import '../modules/dashboard/bindings/dashboard_binding.dart';
+import '../modules/internetCheck/bindings/internet_check_binding.dart';
+import '../modules/internetCheck/views/internet_check_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 part 'app_routes.dart';
@@ -44,6 +46,11 @@ class AppPages {
       name: _Paths.LOGIN,
       page: () =>  LoginView(),
       binding: LoginBinding(),
+    ),
+    GetPage(
+      name: _Paths.INTERNET_CHECK,
+      page: () => InternetCheckView(),
+      binding: InternetCheckBinding(),
     ),
   ];
 }

@@ -19,4 +19,7 @@ class AppImage{
   static const String visitIcon = '${base}visit.png';
   static const String quickLift = '${base}quicklift.jpg';
 
+  static const String background = '${base}background.png';
+  static const String backIcon = '${base}backIcon.png';
+
 }
