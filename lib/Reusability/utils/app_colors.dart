@@ -23,4 +23,8 @@ class AppColors {
   // --- Borders & dividers ---
   static const Color borderColor = Color(0xffe2e8f0);
   static const Color dividerColor = Color(0xfff1f5f9);
+
+  // --- Shimmer ---
+  static const Color shimmerBase = Color(0xfff8fafc);
+  static const Color shimmerBaseDark = Color(0xffe2e8f0);
 }

@@ -322,6 +322,7 @@ class NetworkHandler {
         if(showError && errorMessage.isNotEmpty)Utils.toastError(errorMessage);
         return null;
       case 401:
+        logoutUser();
         if(showError)Utils.toastError(jsonDecode(response.body) ?? "");
         return null;
       case 403:

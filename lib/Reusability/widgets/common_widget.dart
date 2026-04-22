@@ -106,35 +106,44 @@ class CommonButton extends StatelessWidget {
   final double? btnRadius;
   final TextStyle? style;
   final Color? bgColor;
-  final Color? bColor;
   final Widget? child;
-  const CommonButton(
-      {super.key,
-        this.onPressed,
-        required this.textVal,
-        this.style,
-        this.btnRadius,
-        this.btnHeight,
-        this.btnWidth,
-        this.bgColor,
-        this.bColor,
-        this.child,
-      });
+  CommonButton({
+    super.key,
+    this.onPressed,
+    this.bgColor,
+    required this.textVal,
+    this.style,
+    this.btnRadius,
+    this.btnHeight,
+    this.btnWidth,
+    this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onPressed ?? () {},
       child: Container(
-        height:btnHeight,
-        width: btnWidth,
-        padding: EdgeInsets.symmetric(vertical: Get.height*0.013,horizontal: Get.width*0.05),
+        height: btnHeight ?? Get.height * 0.058,
+        width: btnWidth ?? Get.width,
         decoration: BoxDecoration(
           color: bgColor ?? AppColors.primaryColor,
-          borderRadius: BorderRadius.circular(btnRadius ?? 6),
-          border: Border.all(color: bColor ?? AppColors.primaryColor)
+          borderRadius: BorderRadius.circular(btnRadius ?? 30),
+          boxShadow: [
+            if (bgColor == null || bgColor == AppColors.primaryColor)
+              BoxShadow(
+                color: AppColors.primaryColor.withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+          ],
         ),
-        child: Center(child: Text(textVal, style: style ?? AppTextStyle.regularTextStyle.copyWith(fontSize: 16,color: AppColors.whiteColor,fontWeight: FontWeight.w600))),
+        child: Center(
+          child: Text(
+            textVal.tr,
+            style: style ?? AppTextStyle.regularTextStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: 0.5, color: AppColors.whiteColor),
+          ),
+        ),
       ),
     );
   }
@@ -163,44 +172,50 @@ class TextFField extends StatelessWidget {
   final FocusNode? focusNode;
   final int? maxLength;
   final int? maxLine;
+  final double? radius;
+  final EdgeInsetsGeometry? margin;
   final TextInputAction? textInputAction;
 
-    const TextFField({
-    this.hintText,
-    this.prefixIcon,
-    this.initialValue,
-    this.readOnly,
-    this.onTap,
-    this.controller,
-    this.icon,
-    this.enabled,
-    this.errorText,
-    this.focusNode,
-    this.inputFormatters,
-    this.keyboardType,
-    this.maxLength,
-    this.maxLine,
-    this.obscureText,
-    this.onChanged,
-    this.fillColor,
-    this.onSaved,
-    this.onEditingComplete,
-    this.textInputAction,
-    this.suffixIcon,this.suffixIconColor,this.validator,
-    super.key});
+  const TextFField(
+      {this.hintText,
+        this.maxLine,
+        this.prefixIcon,
+        this.initialValue,
+        this.margin,
+        this.readOnly,
+        this.onTap,
+        this.controller,
+        this.icon,
+        this.enabled,
+        this.errorText,
+        this.focusNode,
+        this.inputFormatters,
+        this.keyboardType,
+        this.maxLength,
+        this.obscureText,
+        this.onChanged,
+        this.fillColor,
+        this.radius,
+        this.onSaved,
+        this.onEditingComplete,
+        this.textInputAction,
+        this.suffixIcon,
+        this.suffixIconColor,
+        this.validator,
+        super.key});
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       maxLength: maxLength,
       focusNode: focusNode,
-      maxLines: maxLine ?? 1,
       enabled: enabled,
+      maxLines: maxLine ?? 1,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       keyboardType: keyboardType,
       readOnly: readOnly ?? false,
       initialValue: initialValue,
-      style: AppTextStyle.regularTextStyle.copyWith(overflow: TextOverflow.ellipsis,color:AppColors.textBlackColor,fontSize: 14,fontWeight:FontWeight.w500),
+      style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
       controller: controller,
       onChanged: onChanged,
       onTap: onTap,
@@ -209,54 +224,45 @@ class TextFField extends StatelessWidget {
       obscureText: obscureText ?? false,
       validator: validator,
       onSaved: onSaved,
+      obscuringCharacter: "*",
       textInputAction: textInputAction,
+      onTapOutside: (event) {
+        FocusScope.of(context).unfocus();
+      },
       decoration: InputDecoration(
         counterText: "",
         filled: true,
-        fillColor: fillColor ?? AppColors.backgroundColor,
+        fillColor: fillColor ?? AppColors.whiteColor,
         errorText: errorText,
-        contentPadding: EdgeInsets.symmetric(
-            vertical: Get.height * 0.01, horizontal: Get.width * 0.05),
+        contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
         hintText: hintText,
-        hintStyle: AppTextStyle.regularTextStyle.copyWith(color:AppColors.hintTextColor,fontSize: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none
-        ),
-        disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide.none
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide.none
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide.none
-        ),
+        hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(radius ?? 30), borderSide: BorderSide(color: AppColors.hintTextColor)),
+        disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(radius ?? 30), borderSide: BorderSide(color: AppColors.borderColor)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(radius ?? 30), borderSide: BorderSide(color: AppColors.borderColor)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(radius ?? 30), borderSide: BorderSide(color: AppColors.borderColor)),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(radius ?? 30),
           borderSide: const BorderSide(width: 1, color: AppColors.redColor),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(width: 1.5, color: AppColors.redColor),
+          borderRadius: BorderRadius.circular(radius ?? 30),
+          borderSide: const BorderSide(width: 1, color: AppColors.redColor),
         ),
-        errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor),
-        prefixIcon: prefixIcon ,
-        prefixIconColor: AppColors.greyColor,
+        errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
+        prefixIcon: prefixIcon,
+        prefixIconColor: AppColors.hintTextColor,
         prefixIconConstraints: BoxConstraints(
-          maxHeight: Get.height * 0.045,
-          maxWidth: Get.width * 0.2,
-          minWidth: Get.width * 0.16,
+          maxHeight: Get.height * 0.04,
+          maxWidth: Get.width * 0.16,
+          minWidth: Get.width * 0.14,
         ),
         suffixIcon: suffixIcon,
-        suffixIconColor:suffixIconColor ,
+        suffixIconColor: suffixIconColor,
         suffixIconConstraints: BoxConstraints(
-          maxHeight: Get.height * 0.052,
-          maxWidth: Get.width * 0.2,
-          minWidth: Get.width * 0.16,
+          maxHeight: Get.height * 0.055,
+          maxWidth: Get.width * 0.1,
+          minWidth: Get.width * 0.1,
         ),
         // suffixIcon: Icon(Icons.arrow_drop_down)
       ),
@@ -394,7 +400,63 @@ class _ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStat
   }
 }
 
+class FieldScrollWrapper extends StatefulWidget {
+  final Widget child;
+  const FieldScrollWrapper({super.key, required this.child});
 
+  @override
+  State<FieldScrollWrapper> createState() => _FieldScrollWrapperState();
+}
+
+class _FieldScrollWrapperState extends State<FieldScrollWrapper> {
+
+  void _scrollToField(BuildContext ctx) {
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+
+      Scrollable.ensureVisible(
+        ctx,
+        alignment: 0.1,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.linear,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Builder(
+      builder: (ctx) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => _scrollToField(ctx),
+          child: Focus(
+            onFocusChange: (hasFocus) {
+              if (hasFocus) {
+                _scrollToField(ctx);
+              }
+            },
+            child: widget.child,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class CommonDivider extends StatelessWidget {
+
+  const CommonDivider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color: AppColors.borderColor,
+    );
+  }
+}
 
 
 

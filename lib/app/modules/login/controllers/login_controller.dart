@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:quicklift_docket_tracking/Reusability/utils/util.dart';
 import 'package:quicklift_docket_tracking/app/data/service/api_services.dart';
 
+import '../../../../Reusability/utils/storage_util.dart';
 import '../../../routes/app_pages.dart';
 
 class LoginController extends GetxController {
@@ -71,7 +72,7 @@ class LoginController extends GetxController {
     pinController.text = "";
     Utils.showLoadingDialog();
     var body = {
-      "OrganizationId" : "1",
+      "OrganizationId" : "e", // 1
       "MobileNo": noController.text.trim()
     };
     var result = await DashBoardService().login(body: body);
@@ -98,16 +99,17 @@ class LoginController extends GetxController {
   verifyOtp() async {
     Utils.showLoadingDialog();
     var body = {
-      "OrganizationId" : "1",
+      "OrganizationId" : "e", // 1
       "MobileNo": noController.text.trim(),
       "OTP": pinController.text
     };
     var result = await DashBoardService().verifyOtp(body: body);
     if(Get.isDialogOpen!) Get.back();
     if(result != null && result['Success'] == true) {
-      print("result['Data']['Token'] ${result['Data']['Token']}");
       Utils().setBox("token", result['Data']['Token']);
       Utils.toastOk(result['Message']);
+      Utils().setLogin(true);
+      Utils().box.remove(StorageUtil.keyFieldSetup);
       Get.offAllNamed(Routes.DASHBOARD);
     } else{
       Utils.toastWarning(result['Message']);

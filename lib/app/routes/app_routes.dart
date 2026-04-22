@@ -9,7 +9,7 @@ abstract class Routes {
   static const DOCKETDETAILS = _Paths.DOCKETDETAILS;
   static const LOGIN = _Paths.LOGIN;
   static const INTERNET_CHECK = _Paths.INTERNET_CHECK;
-
+  static const VEHICLE_REQUEST = _Paths.VEHICLE_REQUEST;
 }
 
 abstract class _Paths {
@@ -20,4 +20,5 @@ abstract class _Paths {
   static const DOCKETDETAILS = '/docketDetails';
   static const LOGIN = '/login';
   static const INTERNET_CHECK = '/internet-check';
+  static const VEHICLE_REQUEST = '/vehicle-request';
 }

@@ -644,7 +644,6 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
                   },
                   textVal: "GR Details",
                   bgColor: controller.isType.value == 0 ? AppColors.primaryColor : Colors.transparent,
-                  bColor: controller.isType.value  == 0 ? AppColors.primaryColor : Colors.transparent,
                   style: AppTextStyle.regularTextStyle.copyWith(fontSize: 12,color: controller.isType.value == 0 ? AppColors.whiteColor : AppColors.textBlackColor,fontWeight: FontWeight.w600),
                 ),
 
@@ -657,7 +656,6 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
                   },
                   textVal: "Movement",
                   bgColor: controller.isType.value == 1 ? AppColors.primaryColor : Colors.transparent,
-                  bColor: controller.isType.value  == 1 ? AppColors.primaryColor : Colors.transparent,
                   style: AppTextStyle.regularTextStyle.copyWith(fontSize: 12,color: controller.isType.value == 1 ? AppColors.whiteColor : AppColors.textBlackColor,fontWeight: FontWeight.w600),
                 ),
 
@@ -670,7 +668,6 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
                   },
                   textVal: "Status",
                   bgColor: controller.isType.value == 2 ? AppColors.primaryColor : Colors.transparent,
-                  bColor: controller.isType.value  == 2 ? AppColors.primaryColor : Colors.transparent,
                   style: AppTextStyle.regularTextStyle.copyWith(fontSize: 12,color: controller.isType.value == 2 ? AppColors.whiteColor : AppColors.textBlackColor,fontWeight: FontWeight.w600),
                 ),
 

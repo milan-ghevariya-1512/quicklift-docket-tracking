@@ -158,6 +158,20 @@ class Utils {
 
   static String dateFormat = "d MMM y hh:mm a";
 
+  String formatDateTime(DateTime? dateTime) {
+    if (dateTime == null) return "";
+    int hour = dateTime.hour;
+    String amPm = hour >= 12 ? "PM" : "AM";
+    int hour12 = hour % 12;
+    if (hour12 == 0) hour12 = 12;
+    return "${dateTime.day.toString().padLeft(2, '0')}-"
+        "${dateTime.month.toString().padLeft(2, '0')}-"
+        "${dateTime.year} "
+        "${hour12.toString().padLeft(2, '0')}:"
+        "${dateTime.minute.toString().padLeft(2, '0')} "
+        "$amPm";
+  }
+
   static String setDate(String date) {
     var formattedDate = DateFormat(dateFormat).format(DateTime.parse(date));
     return formattedDate;

@@ -60,8 +60,7 @@ class DashboardView extends GetView<DashboardController> {
                   ],
                 ),
               ),
-              // HBox(Get.height*0.005),
-              // Text(" Shree Azad Group",textAlign: TextAlign.start,style: AppTextStyle.regularTextStyle.copyWith(fontWeight: FontWeight.w500,fontSize: 16,color: AppColors.textBlackColor)),
+
               HBox(Get.height*0.015),
 
               Expanded(
@@ -75,101 +74,6 @@ class DashboardView extends GetView<DashboardController> {
                       Center(child: Image.asset(AppImage.quickLift,fit: BoxFit.contain,height: Get.height*0.27)),
 
                       HBox(Get.height*0.025),
-
-                      /*Obx(() => controller.isLoaded.value ?
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: Get.height*0.18),
-                        child: Utils.loader(),
-                      ) :
-                      controller.organizationList.isEmpty ?
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: Get.height*0.16),
-                        child: NoData(),
-                      ) :
-                      ListView.separated(
-                        itemCount: controller.organizationList.length,
-                        shrinkWrap: true,
-                        reverse: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.zero,
-                        itemBuilder: (context, index) {
-                          return GestureDetector(
-                            onTap: () {
-                              print("controller.organizationList[index] ${controller.organizationList[index].organizationId}");
-                              Get.toNamed(Routes.DOCKETSEARCH,arguments: [controller.organizationList[index]]);
-                            },
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-
-                                Container(
-                                    decoration: BoxDecoration(
-                                        color: AppColors.whiteColor,
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color: AppColors.whiteColor,
-                                              blurRadius: 20,
-                                              blurStyle: BlurStyle.inner
-                                          )
-                                        ],
-                                        borderRadius: BorderRadius.circular(12)
-                                    ),
-                                    child: Image.asset(AppImage.dashOrgImage)),
-
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-
-                                    WBox(Get.width*0.02),
-
-                                    Image.memory(
-                                      Utils.convertBase64Image(controller.organizationList[index].mobileAppLogo ?? ''),
-                                      gaplessPlayback: true,
-                                      width: Get.width*0.25,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.error_outline_outlined,color: AppColors.primaryColor,),
-                                    ),
-
-                                    WBox(Get.width*0.02),
-
-                                    Expanded(
-                                        child: Text("${controller.organizationList[index].organizationName ?? ''}",maxLines: 3,overflow: TextOverflow.ellipsis,textAlign: TextAlign.start,style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor,fontSize: 14))
-                                    ),
-
-                                    WBox(Get.width*0.01),
-
-                                    Image.asset(AppImage.dashArrowImage,fit: BoxFit.cover,height: Get.height*0.035,width: Get.height*0.035,),
-
-                                    WBox(Get.width*0.03),
-
-                                  ],
-                                ),
-
-
-                                // Container(
-                                //   padding: EdgeInsets.all(Get.height*0.01),
-                                //   margin: EdgeInsets.symmetric(horizontal: Get.width*0.02,vertical: Get.height*0.01),
-                                //   decoration: BoxDecoration(
-                                //       color: AppColors.whiteColor,
-                                //       boxShadow: [
-                                //         BoxShadow(
-                                //           color: AppColors.greyColor.withOpacity(0.5),
-                                //           blurRadius: 5.0,
-                                //         )
-                                //       ],
-                                //       borderRadius: BorderRadius.circular(8)
-                                //   ),
-                                //   child:
-                                // ),
-                              ],
-                            ),
-                          );
-                        },
-                        separatorBuilder: (context, index) {
-                          return HBox(Get.height*0.02);
-                        },
-                      )),*/
 
                       Text(" Docket Code",textAlign: TextAlign.start,style: AppTextStyle.regularTextStyle.copyWith(fontWeight: FontWeight.w500,fontSize: 14,color: AppColors.textBlackColor)),
                       HBox(Get.height*0.012),
@@ -193,12 +97,15 @@ class DashboardView extends GetView<DashboardController> {
                         onPressed: controller.validate,
                         textVal: "Track",
                         bgColor: AppColors.primaryColor,
-                        bColor: AppColors.primaryColor,
                       ),
-                      HBox(Get.height*0.025),
-                      // Align(
-                      //     alignment: Alignment.centerRight,
-                      //     child: Text("Learn More About QuickLift",textAlign: TextAlign.end,style: AppTextStyle.regularTextStyle.copyWith(fontWeight: FontWeight.w500,fontSize: 12,color: AppColors.textBlackColor))),
+                      HBox(Get.height*0.015),
+                      CommonButton(
+                        onPressed: () => Get.toNamed(Routes.VEHICLE_REQUEST),
+                        textVal: "Vehicle Request",
+                        bgColor: AppColors.primaryColor.withOpacity(0.2),
+                        style: AppTextStyle.regularTextStyle.copyWith(fontSize: 16,color: AppColors.primaryColor,fontWeight: FontWeight.w600),
+                      ),
+                      HBox(Get.height*0.01),
                     ],
                   ),
                 )

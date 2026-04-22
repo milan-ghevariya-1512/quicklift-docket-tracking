@@ -302,6 +302,7 @@ class NetworkHandlerStander {
         if(showError)Utils.toastError(jsonDecode(response.body) ?? "");
         return null;
       case 401:
+        logoutUser();
         if(showError)Utils.toastError(jsonDecode(response.body) ?? "");
         return null;
       case 403:
@@ -341,7 +342,7 @@ class NetworkHandlerStander {
   }
 
   void logoutUser() {
-    Utils().isLogin();
+    Utils().logOutUser();
     Utils.toastWarning("Session Expired! Please Login Again..".tr);
   }
 

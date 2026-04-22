@@ -77,7 +77,6 @@ class DocketSearchView extends GetView<DocketSearchController> {
                             onPressed: controller.validate,
                             textVal: "Track",
                             bgColor: AppColors.primaryColor,
-                            bColor: AppColors.primaryColor,
                           ),
                           HBox(Get.height*0.01),
                         ],

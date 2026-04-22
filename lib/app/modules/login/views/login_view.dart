@@ -171,7 +171,7 @@ class _LoginViewState extends State<LoginView> {
                         ],
                       ),
                       HBox(Get.height*0.04),
-                      CommonButton(bgColor: Color(0xffed1b24),bColor: Color(0xffed1b24),textVal: "Verify",onPressed: () => controller.validate1(context)),
+                      CommonButton(bgColor: Color(0xffed1b24),textVal: "Verify",onPressed: () => controller.validate1(context)),
 
                       HBox(Get.height*0.02),
                       HBox(MediaQuery.of(context).padding.bottom + Get.height*0.04),
@@ -250,7 +250,7 @@ class _LoginViewState extends State<LoginView> {
                           )),
 
                       HBox(Get.height*0.05),
-                      CommonButton(bgColor: Color(0xffed1b24),bColor: Color(0xffed1b24),textVal: "Request OTP",onPressed: () => controller.validate()),
+                      CommonButton(bgColor: Color(0xffed1b24),textVal: "Request OTP",onPressed: () => controller.validate()),
 
                       HBox(Get.height*0.02),
                       HBox(MediaQuery.of(context).padding.bottom + Get.height*0.06),

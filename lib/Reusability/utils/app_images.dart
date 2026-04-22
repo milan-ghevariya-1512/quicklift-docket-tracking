@@ -21,5 +21,10 @@ class AppImage{
 
   static const String background = '${base}background.png';
   static const String backIcon = '${base}backIcon.png';
+  static const String searchIcon = '${base}searchIcon.png';
+  static const String radioIcon = '${base}radioIcon.png';
+  static const String radioSelectIcon = '${base}radioSelectIcon.png';
+  static const String calendarIcon = '${base}calendarIcon.png';
+  static const String orderTimeIcon = '${base}orderTimeIcon.png';
 
 }
