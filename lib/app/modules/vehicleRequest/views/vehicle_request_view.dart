@@ -56,7 +56,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                           buildStageFirst(context),
                           buildStageSecond(context),
                           buildStageThird(context),
-                          Container(),
+                          buildStageFourth(context),
                           Container(),
                         ],
                       );
@@ -607,25 +607,25 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                   ))
                 ],
               ),
-              if (c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false))HBox(Get.height * 0.01),
+              if (c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false))HBox(Get.height * 0.02),
 
               if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)Obx(() => TextFField(
                 readOnly: true,
                 controller: TextEditingController(
-                  text: Utils().formatDateTime(c.requestDateTime.value),
+                  text: Utils().formatDateTime(c.biddingStartDateTime.value),
                 ),
                 onTap: () {
                   Get.dialog(
                     CommonDateTimePicker(
                       minDate: DateTime.now().subtract(const Duration(days: 5)),
-                      initialDateTime: c.requestDateTime.value,
+                      initialDateTime: c.biddingStartDateTime.value,
                       onDateTimeSelected: (dateTime) {
-                        c.requestDateTime.value = dateTime;
+                        c.biddingStartDateTime.value = dateTime;
                       },
                     ),
                   );
                 },
-                hintText: c.getFieldData("VR_REQUESTDATE")?.fieldCaption,
+                hintText: "Bidding Start Date",
                 suffixIcon: Padding(
                   padding: EdgeInsets.only(right: Get.width * 0.04),
                   child: Image.asset(
@@ -636,14 +636,168 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                   ),
                 ),
                 validator: (v) {
-                  if (c.getFieldData("VR_REQUESTDATE")?.isRequired == true) {
-                    if (c.requestDateTime.value == null) {
-                      return "Required";
-                    }
+                  if (c.biddingStartDateTime.value == null) {
+                    return "Required";
                   }
                   return null;
                 },
               )),
+              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)HBox(Get.height * 0.015),
+              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)Obx(() => TextFField(
+                readOnly: true,
+                controller: TextEditingController(
+                  text: Utils().formatDateTime(c.biddingEndDateTime.value),
+                ),
+                onTap: () {
+                  Get.dialog(
+                    CommonDateTimePicker(
+                      minDate: DateTime.now().subtract(const Duration(days: 5)),
+                      initialDateTime: c.biddingEndDateTime.value,
+                      onDateTimeSelected: (dateTime) {
+                        c.biddingEndDateTime.value = dateTime;
+                      },
+                    ),
+                  );
+                },
+                hintText: "Bidding End Date",
+                suffixIcon: Padding(
+                  padding: EdgeInsets.only(right: Get.width * 0.04),
+                  child: Image.asset(
+                    AppImage.calendarIcon,
+                    height: Get.height * 0.045,
+                    width: Get.height * 0.045,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                validator: (v) {
+                  if (c.biddingEndDateTime.value == null) {
+                    return "Required";
+                  }
+                  return null;
+                },
+              )),
+              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)HBox(Get.height * 0.01),
+
+              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)Obx(() => buildDynamicField("VR_ISCAPRATE",
+                customInput: Row(
+                  children: [
+                    InkWell(
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        onTap: () {
+                          c.isMaxAmount.value = !c.isMaxAmount.value;
+                          c.update();
+                        },
+                        child: Image.asset(c.isMaxAmount.value ? AppImage.radioSelectIcon : AppImage.radioIcon, color: AppColors.primaryColor, height: Get.height * 0.025, width: Get.height * 0.025, fit: BoxFit.contain)),
+                    WBox(Get.width * 0.02),
+                    Expanded(child: TextFField(
+                      controller: c.maxAmountController,
+                      hintText: c.getFieldData("VR_ISCAPRATE")?.fieldCaption ?? '',
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      enabled: c.isMaxAmount.value,
+                      readOnly: !c.isMaxAmount.value,
+                      fillColor: c.isMaxAmount.value ? AppColors.whiteColor : AppColors.borderColor.withOpacity(0.5),
+                      validator: (value) {
+                        if(c.getFieldData("VR_ISCAPRATE")?.isRequired==true){
+                          if(value == null || value.trim().isEmpty){
+                            return "Required";
+                          }
+                        }
+                        return null;
+                      },
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'),),
+                      ],
+                      suffixIcon: Padding(
+                        padding: EdgeInsets.only(right: Get.width * 0.05),
+                        child: Icon(Icons.currency_rupee),
+                      ),
+                    ))
+                  ],
+                ),
+              )),
+
+              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)buildDynamicField("VR_BIDDINGNOTE", controller: c.biddingNoteController),
+              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)buildDynamicField("VR_ACCEPTBIDFROM", customInput: Obx(() => Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          InkWell(
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () {
+                                c.acceptBidFrom.value = 'AOO';
+                                c.update();
+                              },
+                              child: Image.asset(c.acceptBidFrom.value == 'AOO' ? AppImage.radioSelectIcon : AppImage.radioIcon, color: AppColors.primaryColor, height: Get.height * 0.025, width: Get.height * 0.025, fit: BoxFit.contain)),
+                          WBox(Get.width * 0.02),
+                          Expanded(child: Text(
+                            'Lane Wise',
+                            style: AppTextStyle.regularTextStyle.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textBlackColor,
+                            ),
+                          ))
+                        ],
+                      ),
+                    ),
+                    WBox(Get.width * 0.02),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          InkWell(
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () {
+                                c.acceptBidFrom.value = 'AOP';
+                                c.update();
+                              },
+                              child: Image.asset(c.acceptBidFrom.value == "AOP" ? AppImage.radioSelectIcon : AppImage.radioIcon, color: AppColors.primaryColor, height: Get.height * 0.025, width: Get.height * 0.025, fit: BoxFit.contain)),
+                          WBox(Get.width * 0.02),
+                          Expanded(child: Text(
+                            'Specific Vendor',
+                            style: AppTextStyle.regularTextStyle.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textBlackColor,
+                            ),
+                          ))
+                        ],
+                      ),
+                    ),
+                  ],
+                ))),
+
+              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)buildDynamicField("VR_BIDVENDOR", controller: c.vendorController),
+
+              HBox(MediaQuery.of(context).padding.bottom + Get.height * 0.035)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildStageFourth(context){
+    return Form(
+      key: controller.formKey4,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: Get.width * 0.05),
+          child: Column(
+            children: [
+
+              buildDynamicField("VR_REQUIRED_VEH",
+                controller: c.noOfVehicleController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                ],
+                suffixIcon: Text("Unit", style: AppTextStyle.regularTextStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w600))
+              ),
 
               HBox(MediaQuery.of(context).padding.bottom + Get.height * 0.035)
             ],

@@ -45,6 +45,15 @@ class VehicleRequestController extends GetxController {
   Rxn<DateTime> vehicleExpReportingDateTime = Rxn<DateTime>();
 
   var isBiddingRequired = false.obs;
+  Rxn<DateTime> biddingStartDateTime = Rxn<DateTime>();
+  Rxn<DateTime> biddingEndDateTime = Rxn<DateTime>();
+  var isMaxAmount = false.obs;
+  TextEditingController maxAmountController = TextEditingController();
+  TextEditingController biddingNoteController = TextEditingController();
+  var acceptBidFrom = 'AOO'.obs;
+  TextEditingController vendorController = TextEditingController();
+
+  TextEditingController noOfVehicleController = TextEditingController();
 
   @override
   void onInit() {
