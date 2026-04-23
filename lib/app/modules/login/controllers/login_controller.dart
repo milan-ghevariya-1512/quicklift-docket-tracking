@@ -92,7 +92,7 @@ class LoginController extends GetxController {
         }
       });
     } else{
-      Utils.toastWarning(result['Message']);
+      Utils.toastWarning(result['ErrorDetail'][0]['ErrorMessage']);
     }
     update();
   }
@@ -113,7 +113,7 @@ class LoginController extends GetxController {
       Utils().box.remove(StorageUtil.keyFieldSetup);
       Get.offAllNamed(Routes.DASHBOARD);
     } else{
-      Utils.toastWarning(result['Message']);
+      Utils.toastWarning(result['ErrorDetail'][0]['ErrorMessage']);
     }
     update();
   }

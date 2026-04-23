@@ -16,7 +16,7 @@ class SplashController extends GetxController {
 
   Future<void> getPackageInfo() async {
     // final packageInfo = await Utils.getPackageInfo();
-    Utils().box.write(StorageUtil.appVersion, '1.0.0');
+    Utils().box.write(StorageUtil.appVersion, '1.0.14');
     // Utils().box.write(StorageUtil.appVersion, packageInfo.version.toString());
   }
 

@@ -617,6 +617,55 @@ class VehicleRequestController extends GetxController {
 
   createVehicleRequest() async {
     Utils.showLoadingDialog();
+    List pickupPoints = [];
+    List deliveryPoints = [];
+    if(selectPreferenceType.value == 'google'){
+      for(int i=0; i < startPointList.length; i++){
+        pickupPoints.add({
+          "PointSequence" : i + 1,
+          "PointAddress" : (startPointList[i].pointAddress ?? '').isEmpty ? null : startPointList[i].pointAddress ?? '',
+          "PointCity" : (startPointList[i].pointCity ?? '').isEmpty ? null : startPointList[i].pointCity ?? '',
+          "PointState" : (startPointList[i].pointState ?? '').isEmpty ? null : startPointList[i].pointState ?? '',
+          "PointCountry" : (startPointList[i].pointCountry ?? '').isEmpty ? null : startPointList[i].pointCountry ?? '',
+          "PointPincode" : (startPointList[i].pointPincode ?? '').isEmpty ? null : startPointList[i].pointPincode ?? '',
+          "PointAreaName" : (startPointList[i].pointAreaName ?? '').isEmpty ? null : startPointList[i].pointAreaName ?? '',
+        });
+      }
+      for(int j=0; j < startPointList.length; j++){
+        deliveryPoints.add({
+          "PointSequence" : j + 1,
+          "PointAddress" : (endPointList[j].pointAddress ?? '').isEmpty ? null : endPointList[j].pointAddress ?? '',
+          "PointCity" : (endPointList[j].pointCity ?? '').isEmpty ? null : endPointList[j].pointCity ?? '',
+          "PointState" : (endPointList[j].pointState ?? '').isEmpty ? null : endPointList[j].pointState ?? '',
+          "PointCountry" : (endPointList[j].pointCountry ?? '').isEmpty ? null : endPointList[j].pointCountry ?? '',
+          "PointPincode" : (endPointList[j].pointPincode ?? '').isEmpty ? null : endPointList[j].pointPincode ?? '',
+          "PointAreaName" : (endPointList[j].pointAreaName ?? '').isEmpty ? null : endPointList[j].pointAreaName ?? '',
+        });
+      }
+    } else if(selectPreferenceType.value == 'custom'){
+      for(int p=0; p < selectedStartCustomAddress.length; p++){
+        pickupPoints.add({
+          "PointSequence" : p + 1,
+          "PointAddress" : (selectedStartCustomAddress[p]?.address ?? '').isEmpty ? null : selectedStartCustomAddress[p]?.address ?? '',
+          "PointCity" : (selectedStartCustomAddress[p]?.cityName ?? '').isEmpty ? null : selectedStartCustomAddress[p]?.cityName ?? '',
+          "PointState" : null,
+          "PointCountry" : null,
+          "PointPincode" : (selectedStartCustomAddress[p]?.pinCode ?? '').isEmpty ? null : selectedStartCustomAddress[p]?.pinCode ?? '',
+          "PointAreaName" : null,
+        });
+      }
+      for(int q=0; q < selectedEndCustomAddress.length; q++){
+        deliveryPoints.add({
+          "PointSequence" : q + 1,
+          "PointAddress" : (selectedEndCustomAddress[q]?.address ?? '').isEmpty ? null : selectedEndCustomAddress[q]?.address ?? '',
+          "PointCity" : (selectedEndCustomAddress[q]?.cityName ?? '').isEmpty ? null : selectedEndCustomAddress[q]?.cityName ?? '',
+          "PointState" : null,
+          "PointCountry" : null,
+          "PointPincode" : (selectedEndCustomAddress[q]?.pinCode ?? '').isEmpty ? null : selectedEndCustomAddress[q]?.pinCode ?? '',
+          "PointAreaName" : null,
+        });
+      }
+    }
     var body = {
       "YearId": (Utils().box.read(StorageUtil.yearId) ?? '').toString(),
       "CurrencyId": (Utils().box.read(StorageUtil.currencyId) ?? '').toString(),
@@ -645,7 +694,7 @@ class VehicleRequestController extends GetxController {
       "BidStartDate": biddingStartDateTime.value,
       "BidEndDate": biddingEndDateTime.value,
       "IsCapRate": true,
-      "MaximumRate": 50000, //
+      "MaximumRate": maxAmountController.text.isEmpty ? 0 : maxAmountController.text,
       "BiddingNote": biddingNoteController.text.isEmpty ? null : biddingNoteController.text,
       "AcceptBidFrom": acceptBidFrom.value,
       "LaneType": null, //["LOCAL", "NATIONAL"],
@@ -658,46 +707,8 @@ class VehicleRequestController extends GetxController {
       "RateAmount": freightChargeRateController.text.isEmpty ? 0 : freightChargeRateController.text,
       "RateTypeId": "R1",
       "FreightCharge": freightChargeTotalController.text.isEmpty ? 0 : freightChargeTotalController.text,
-      "PickupPoints": [
-        {
-          "PointSequence": 1,
-          "PointAddress": "Surat, Gujarat, India",
-          "PointCity": "Surat",
-          "PointState": "Gujarat",
-          "PointCountry": "India",
-          "PointPincode": null,
-          "PointAreaName": "Surat"
-        },
-        {
-          "PointSequence": 2,
-          "PointAddress": "Pune, Maharashtra, India",
-          "PointCity": "Pune",
-          "PointState": "Maharashtra",
-          "PointCountry": "India",
-          "PointPincode": null,
-          "PointAreaName": "Pune"
-        }
-      ],
-      "DeliveryPoints": [
-        {
-          "PointSequence": 1,
-          "PointAddress": "Mumbai, Maharashtra, India",
-          "PointCity": "Mumbai",
-          "PointState": "Maharashtra",
-          "PointCountry": "India",
-          "PointPincode": null,
-          "PointAreaName": "Mumbai"
-        },
-        {
-          "PointSequence": 2,
-          "PointAddress": "Chennai, Tamil Nadu, India",
-          "PointCity": "Chennai",
-          "PointState": "Tamil Nadu",
-          "PointCountry": "India",
-          "PointPincode": null,
-          "PointAreaName": "Chennai"
-        }
-      ],
+      "PickupPoints": pickupPoints,
+      "DeliveryPoints": deliveryPoints,
       "Legs": null //[{"LegNumber": 1,"FromCityId": "AMD","FromPlace": "Ahmedabad","ToCityId": MUM","ToPlace": "Mum
     };
     var result = await VehicleService().createVehicleRequest(body: body, navigateToCheck: false);
