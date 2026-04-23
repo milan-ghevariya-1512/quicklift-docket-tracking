@@ -2,6 +2,7 @@ import 'dart:convert';
 import '../../../Reusability/utils/util.dart';
 import '../model/fieldSetupModel.dart';
 import '../model/getAutoCompleteCustomerModel.dart';
+import '../model/getAutoCompleteLegLocationModel.dart';
 import '../model/getAutoCompleteLocationModel.dart';
 import '../model/getAutoCompleteServiceModeModel.dart';
 import '../model/getAutoCompleteVehicleFtlTypeModel.dart';
@@ -44,6 +45,20 @@ class VehicleService {
       List data1 = jsonDecode(result);
       List<GetAutoCompleteCustomerModel> customerList = data1.map((e) => GetAutoCompleteCustomerModel.fromJson(e)).toList();
       return customerList;
+    } else {
+      return null;
+    }
+  }
+
+  Future<GetAutoCompleteLegLocationModel?> getAutoCompleteAddress({client, body, bool navigateToCheck = false}) async {
+    client ??= http.Client();
+    String token = Utils().getToken() ?? '';
+
+    var url = ApiUrlList.getAutoCompleteAddressApi;
+    var result = await networkHandlerStander.post(url, client, model: body, token, navigateToCheck: navigateToCheck);
+
+    if(result != null) {
+      return GetAutoCompleteLegLocationModel.fromJson(jsonDecode(result));
     } else {
       return null;
     }
@@ -146,6 +161,20 @@ class VehicleService {
 
     if(result != null) {
       return GetLoginClaimModel.fromJson(jsonDecode(result));
+    } else {
+      return null;
+    }
+  }
+
+  createVehicleRequest({client, body, bool navigateToCheck = false}) async {
+    client ??= http.Client();
+    String token = Utils().getToken() ?? '';
+
+    var url = ApiUrlList.createVehicleRequestApi;
+    var result = await networkHandlerStander.post(url, model: body,client,token, navigateToCheck: navigateToCheck);
+
+    if(result != null) {
+      return jsonDecode(result);
     } else {
       return null;
     }

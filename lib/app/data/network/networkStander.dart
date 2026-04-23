@@ -237,13 +237,14 @@ class NetworkHandlerStander {
     }
   }
 
-  Future<dynamic> getWithoutToken(String url, http.Client client, {bool showError = true, bool navigateToCheck = false, String? loggingUserId}) async {
+  Future<dynamic> getWithoutToken(String url, http.Client client, {bool showError = true, bool isResponseVersion = false, bool navigateToCheck = false, String? loggingUserId}) async {
     bool isConnected = await Utils().hasInternetConnection(navigateToCheck: navigateToCheck);
     if (isConnected) {
       var version = Utils().box.read(StorageUtil.appVersion);
       Map<String, String> headers = {
         'Content-Type': 'application/json; charset=UTF-8',
-        'AppVersion': version
+        'AppVersion': version,
+        if(isResponseVersion)'ResponseVersion': "2.0",
       };
       var responseData;
       try {
@@ -260,11 +261,11 @@ class NetworkHandlerStander {
     }
   }
 
-  Future<dynamic> postWithoutToken(String url, http.Client client, {dynamic model,bool showError = true, bool navigateToCheck = false, String? loggingUserId}) async {
+  Future<dynamic> postWithoutToken(String url, http.Client client, {dynamic model,bool showError = true, bool isResponseVersion = false, bool navigateToCheck = false, String? loggingUserId}) async {
     bool isConnected = await Utils().hasInternetConnection(navigateToCheck: navigateToCheck);
     if (isConnected) {
       var version = Utils().box.read(StorageUtil.appVersion);
-      Map<String, String> headers = {'Content-Type': 'application/json; charset=UTF-8','AppVersion': version};
+      Map<String, String> headers = {'Content-Type': 'application/json; charset=UTF-8','AppVersion': version,  if(isResponseVersion)'ResponseVersion': "2.0",};
       var responseData;
       try {
         final http.Response response = await client.post(Uri.parse(url),

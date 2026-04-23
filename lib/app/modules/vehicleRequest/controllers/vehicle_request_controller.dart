@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:quicklift_docket_tracking/Reusability/utils/util.dart';
+import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteLegLocationModel.dart';
 import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteServiceModeModel.dart';
 import 'package:quicklift_docket_tracking/app/data/model/getVehicleRequestModel.dart';
 import 'package:quicklift_docket_tracking/app/data/service/vehicle_service.dart';
@@ -12,6 +14,7 @@ import '../../../data/model/getAutoCompleteLocationModel.dart';
 import '../../../data/model/getAutoCompleteVehicleFtlTypeModel.dart';
 import '../../../data/model/getAutoCompleteVehicleModel.dart';
 import '../../../data/model/getGeneralMasterModel.dart';
+import '../../../data/model/legLocationModel.dart';
 import '../../../data/service/field_setup_service.dart';
 
 class VehicleRequestController extends GetxController {
@@ -26,13 +29,10 @@ class VehicleRequestController extends GetxController {
   final formKey4 = GlobalKey<FormState>();
   final formKey5 = GlobalKey<FormState>();
 
-  final List<String> stageTitles = [
-    "GENERAL INFO",
-    "Leg Details",
-    "Bid Details",
-    "Vehicle Preference",
-    "Load Details"
-  ];
+  final GlobalKey<FormFieldState<int>> googleStartLegFormFieldKey = GlobalKey<FormFieldState<int>>();
+  final GlobalKey<FormFieldState<int>> googleEndLegFormFieldKey = GlobalKey<FormFieldState<int>>();
+
+  final List<String> stageTitles = ["GENERAL INFO", "Leg Details", "Bid Details", "Vehicle Preference", "Load Details"];
 
   var currentStage = 0.obs;
   VehicleRequestData? vehicleRequestData;
@@ -49,6 +49,18 @@ class VehicleRequestController extends GetxController {
   TextEditingController expectedTransitionDaysController = TextEditingController(text: '0.00');
   Rxn<DateTime> expDeliveryDateTime = Rxn<DateTime>();
   Rxn<DateTime> vehicleExpReportingDateTime = Rxn<DateTime>();
+
+  var selectPreferenceType = ''.obs;
+  List<TextEditingController> startPointController = [TextEditingController()];
+  List<FocusNode> startPointFocusNodes = [FocusNode()];
+  List<LegLocationModel> startPointList = [];
+  List<TextEditingController> endPointController = [TextEditingController()];
+  List<FocusNode> endPointFocusNodes = [FocusNode()];
+  List<LegLocationModel> endPointList = [];
+  List<LegLocationList?> selectedStartCustomAddress = [null];
+  List<LegLocationList?> selectedEndCustomAddress = [null];
+  List<LegLocationList> customLocationList = [];
+  TextEditingController approxDistanceController = TextEditingController(text: '0.00');
 
   var isBiddingRequired = false.obs;
   Rxn<DateTime> biddingStartDateTime = Rxn<DateTime>();
@@ -99,6 +111,7 @@ class VehicleRequestController extends GetxController {
     getVehicleRequest();
     getAutoCompleteServiceMode();
     getAutoCompleteVehicleFtlType("%");
+    loadCustomLegAddressOptions();
     getGeneralMaster(masterType: "MAT_TYPE");
     getGeneralMaster(masterType: "PTYPE");
     freightWeightListener = onWeightChangedForFreightCharge;
@@ -114,6 +127,18 @@ class VehicleRequestController extends GetxController {
     freightChargeTotalController.removeListener(onFreightChargeTotalChanged);
     freightChargeRateController.dispose();
     freightChargeTotalController.dispose();
+    for (final n in startPointFocusNodes) {
+      n.dispose();
+    }
+    for (final n in endPointFocusNodes) {
+      n.dispose();
+    }
+    for (final t in startPointController) {
+      t.dispose();
+    }
+    for (final t in endPointController) {
+      t.dispose();
+    }
     super.onClose();
   }
 
@@ -147,7 +172,7 @@ class VehicleRequestController extends GetxController {
 
   void submitOrder(context) {
     if (formKey5.currentState!.validate()) {
-
+      createVehicleRequest();
     }
   }
 
@@ -191,9 +216,228 @@ class VehicleRequestController extends GetxController {
     vehicleRequestData = null;
     var result = await VehicleService().getVehicleRequest(navigateToCheck: true);
     isLoaded.value = false;
-    if(result != null) {
+    if (result != null) {
       vehicleRequestData = result.vehicleRequestData;
+      if (!(result.vehicleRequestData?.isLegEnable ?? false) && (result.vehicleRequestData?.isCustomerAddress ?? false)) {
+        selectPreferenceType.value = 'custom';
+      } else if (!(result.vehicleRequestData?.isLegEnable ?? false) && !(result.vehicleRequestData?.isCustomerAddress ?? false)) {
+        selectPreferenceType.value = 'google';
+      }
     }
+    update();
+  }
+
+  static bool rowHasResolvedAddress(List<LegLocationModel> legs, int index) {
+    if (index < 0 || index >= legs.length) return false;
+    final a = legs[index].pointAddress;
+    return a != null && a.trim().isNotEmpty;
+  }
+
+  String? validateGoogleLegGroup(
+      String fieldId,
+      List<TextEditingController> controllers,
+      List<LegLocationModel> legs,
+      ) {
+    final config = getFieldData(fieldId);
+    if (config == null || !config.isInUse || !config.isRequired) return null;
+    for (var i = 0; i < controllers.length; i++) {
+      if (!rowHasResolvedAddress(legs, i)) {
+        return '    Required';
+      }
+    }
+    return null;
+  }
+
+  void scheduleGoogleStartFieldRevalidate() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      final state = googleStartLegFormFieldKey.currentState;
+      if (state == null || !state.mounted) return;
+      state.validate();
+    });
+  }
+
+  void scheduleGoogleEndFieldRevalidate() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      final state = googleEndLegFormFieldKey.currentState;
+      if (state == null || !state.mounted) return;
+      state.validate();
+    });
+  }
+
+  void renumberLegSequences(List<LegLocationModel> list) {
+    for (var i = 0; i < list.length; i++) {
+      list[i].pointSequence = (i + 1).toString();
+    }
+  }
+
+  void upsertStartPointLeg(int index, LegLocationModel leg) {
+    while (startPointList.length <= index) {
+      startPointList.add(LegLocationModel());
+    }
+    startPointList[index] = LegLocationModel(
+      pointSequence: (index + 1).toString(),
+      pointAddress: leg.pointAddress,
+      pointAreaName: leg.pointAreaName,
+      pointCity: leg.pointCity,
+      pointCountry: leg.pointCountry,
+      pointPincode: leg.pointPincode,
+      pointState: leg.pointState,
+    );
+    renumberLegSequences(startPointList);
+    update();
+    scheduleGoogleStartFieldRevalidate();
+  }
+
+  void upsertEndPointLeg(int index, LegLocationModel leg) {
+    while (endPointList.length <= index) {
+      endPointList.add(LegLocationModel());
+    }
+    endPointList[index] = LegLocationModel(
+      pointSequence: (index + 1).toString(),
+      pointAddress: leg.pointAddress,
+      pointAreaName: leg.pointAreaName,
+      pointCity: leg.pointCity,
+      pointCountry: leg.pointCountry,
+      pointPincode: leg.pointPincode,
+      pointState: leg.pointState,
+    );
+    renumberLegSequences(endPointList);
+    update();
+    scheduleGoogleEndFieldRevalidate();
+  }
+
+  void addStartPointRow() {
+    startPointController.add(TextEditingController());
+    startPointFocusNodes.add(FocusNode());
+    selectedStartCustomAddress.add(null);
+    update();
+    scheduleGoogleStartFieldRevalidate();
+  }
+
+  void removeStartPointRow(int index) {
+    if (startPointController.length <= 1 || index < 0 || index >= startPointController.length) {
+      return;
+    }
+    startPointController[index].dispose();
+    startPointController.removeAt(index);
+    startPointFocusNodes[index].dispose();
+    startPointFocusNodes.removeAt(index);
+    if (index < startPointList.length) {
+      startPointList.removeAt(index);
+    }
+    if (index < selectedStartCustomAddress.length) {
+      selectedStartCustomAddress.removeAt(index);
+    }
+    renumberLegSequences(startPointList);
+    update();
+    scheduleGoogleStartFieldRevalidate();
+  }
+
+  void addEndPointRow() {
+    endPointController.add(TextEditingController());
+    endPointFocusNodes.add(FocusNode());
+    selectedEndCustomAddress.add(null);
+    update();
+    scheduleGoogleEndFieldRevalidate();
+  }
+
+  void removeEndPointRow(int index) {
+    if (endPointController.length <= 1 || index < 0 || index >= endPointController.length) {
+      return;
+    }
+    endPointController[index].dispose();
+    endPointController.removeAt(index);
+    endPointFocusNodes[index].dispose();
+    endPointFocusNodes.removeAt(index);
+    if (index < endPointList.length) {
+      endPointList.removeAt(index);
+    }
+    if (index < selectedEndCustomAddress.length) {
+      selectedEndCustomAddress.removeAt(index);
+    }
+    renumberLegSequences(endPointList);
+    update();
+    scheduleGoogleEndFieldRevalidate();
+  }
+
+  LegLocationModel legModelFromAddressItem(LegLocationList item) {
+    return LegLocationModel(
+      pointAddress: item.address,
+      pointAreaName: item.codeDesc,
+      pointCity: item.cityName,
+      pointCountry: null,
+      pointPincode: item.pinCode,
+      pointState: null,
+    );
+  }
+
+  void applyStartCustomLegLocation(int index, LegLocationList? item) {
+    while (selectedStartCustomAddress.length <= index) {
+      selectedStartCustomAddress.add(null);
+    }
+    selectedStartCustomAddress[index] = item;
+    if (item == null) {
+      while (startPointList.length <= index) {
+        startPointList.add(LegLocationModel());
+      }
+      startPointList[index] = LegLocationModel(pointSequence: (index + 1).toString());
+      renumberLegSequences(startPointList);
+      update();
+      scheduleGoogleStartFieldRevalidate();
+      return;
+    }
+    upsertStartPointLeg(index, legModelFromAddressItem(item));
+  }
+
+  void applyEndCustomLegLocation(int index, LegLocationList? item) {
+    while (selectedEndCustomAddress.length <= index) {
+      selectedEndCustomAddress.add(null);
+    }
+    selectedEndCustomAddress[index] = item;
+    if (item == null) {
+      while (endPointList.length <= index) {
+        endPointList.add(LegLocationModel());
+      }
+      endPointList[index] = LegLocationModel(pointSequence: (index + 1).toString());
+      renumberLegSequences(endPointList);
+      update();
+      scheduleGoogleEndFieldRevalidate();
+      return;
+    }
+    upsertEndPointLeg(index, legModelFromAddressItem(item));
+  }
+
+  Future<List<LegLocationList>> fetchLegAddressOptions(String term) async {
+    var body = {
+      "term": term,
+      "CustomerId": (selectedCustomer?.codeId ?? '').isEmpty ? null : selectedCustomer?.codeId ?? '',
+      "OnlyActive": true,
+      "WithAllDetails": true,
+      "OrganizationId": (Utils().box.read(StorageUtil.organizationId) ?? '').toString(),
+    };
+    var result = await VehicleService().getAutoCompleteAddress(body: body, navigateToCheck: false);
+    return result?.legLocationList ?? [];
+  }
+
+  Future<void> loadCustomLegAddressOptions() async {
+    final list = await fetchLegAddressOptions('%');
+    customLocationList..clear()..addAll(list);
+    update();
+  }
+
+  LegLocationList? matchingLegLocationInOptions(LegLocationList? selected) {
+    if (selected == null) return null;
+    for (final o in customLocationList) {
+      if ((o.codeId ?? '').isNotEmpty && (o.codeId ?? '') == (selected.codeId ?? '')) {
+        return o;
+      }
+    }
+    for (final o in customLocationList) {
+      if ((o.address ?? '') == (selected.address ?? '') && (o.codeDesc ?? '') == (selected.codeDesc ?? '')) {
+        return o;
+      }
+    }
+    return null;
   }
 
   getAutoCompleteServiceMode() async {
@@ -202,7 +446,7 @@ class VehicleRequestController extends GetxController {
     selectedServiceMode = null;
     var result = await VehicleService().getAutoCompleteServiceMode(navigateToCheck: false);
     isLoaded.value = false;
-    if(result != null && (result.serviceList ?? []).isNotEmpty){
+    if (result != null && (result.serviceList ?? []).isNotEmpty) {
       serviceModeList.addAll(result.serviceList ?? []);
     }
     update();
@@ -216,8 +460,8 @@ class VehicleRequestController extends GetxController {
     };
     var result = await VehicleService().getAutoCompleteVehicleFtlType(body: body, navigateToCheck: false);
     isLoaded.value = false;
-    if(result != null && (result.vehicleFtlTypeList ?? []).isNotEmpty){
-     vehicleFtlTypeList.addAll(result.vehicleFtlTypeList ?? []);
+    if (result != null && (result.vehicleFtlTypeList ?? []).isNotEmpty) {
+      vehicleFtlTypeList.addAll(result.vehicleFtlTypeList ?? []);
     }
     update();
   }
@@ -225,13 +469,10 @@ class VehicleRequestController extends GetxController {
   getAutoCompleteVehicleType(String term, String ftlType) async {
     Utils.showLoadingDialog();
     vehicleTypeList.clear();
-    var body = {
-      "term": term,
-      if(ftlType.isNotEmpty)"FtlTypeId": ftlType
-    };
+    var body = {"term": term, if (ftlType.isNotEmpty) "FtlTypeId": ftlType};
     var result = await VehicleService().getAutoCompleteVehicleType(body: body, navigateToCheck: false);
-    if(Get.isDialogOpen!)Get.back();
-    if(result != null && result.isNotEmpty){
+    if (Get.isDialogOpen!) Get.back();
+    if (result != null && result.isNotEmpty) {
       vehicleTypeList.addAll(result);
     }
     update();
@@ -239,21 +480,19 @@ class VehicleRequestController extends GetxController {
 
   Future<void> getGeneralMaster({required String masterType}) async {
     isLoaded.value = true;
-    if(masterType == 'MAT_TYPE')materialTypeList.clear();
-    if(masterType == 'MAT_TYPE')selectedMaterialType = null;
-    if(masterType == 'PTYPE')packagingTypeList.clear();
-    if(masterType == 'PTYPE')selectedPackagingType = null;
-    var body = {
-      "MasterType" : masterType
-    };
+    if (masterType == 'MAT_TYPE') materialTypeList.clear();
+    if (masterType == 'MAT_TYPE') selectedMaterialType = null;
+    if (masterType == 'PTYPE') packagingTypeList.clear();
+    if (masterType == 'PTYPE') selectedPackagingType = null;
+    var body = {"MasterType": masterType};
     var result = await VehicleService().getGeneralMaster(body: body);
     isLoaded.value = false;
     FocusScope.of(Get.context!).unfocus();
     if (result != null) {
-      if(masterType == 'MAT_TYPE')materialTypeList.addAll(result);
-      if(masterType == 'MAT_TYPE' && result.isNotEmpty)selectedMaterialType = result.first;
-      if(masterType == 'PTYPE')packagingTypeList.addAll(result);
-      if(masterType == 'PTYPE' && result.isNotEmpty)selectedPackagingType = result.first;
+      if (masterType == 'MAT_TYPE') materialTypeList.addAll(result);
+      if (masterType == 'MAT_TYPE' && result.isNotEmpty) selectedMaterialType = result.first;
+      if (masterType == 'PTYPE') packagingTypeList.addAll(result);
+      if (masterType == 'PTYPE' && result.isNotEmpty) selectedPackagingType = result.first;
     }
     update();
   }
@@ -374,5 +613,98 @@ class VehicleRequestController extends GetxController {
     } finally {
       freightChargeSyncing = false;
     }
+  }
+
+  createVehicleRequest() async {
+    Utils.showLoadingDialog();
+    var body = {
+      "YearId": (Utils().box.read(StorageUtil.yearId) ?? '').toString(),
+      "CurrencyId": (Utils().box.read(StorageUtil.currencyId) ?? '').toString(),
+      "CompanyId": (Utils().box.read(StorageUtil.companyId) ?? '').toString(),
+      "GenerationLocationId": (Utils().box.read(StorageUtil.locationId) ?? '').toString(),
+      "ManualNo": manualNoController.text.isEmpty ? null : manualNoController.text,
+      "RequestDate": requestDateTime.value,
+      "Remarks": remarksController.text.isEmpty ? null : remarksController.text,
+      "CustomerId": (selectedCustomer?.codeId ?? '').isEmpty ? null : selectedCustomer?.codeId ?? '',
+      "CustomerName": (selectedCustomer?.codeDesc ?? '').isEmpty ? null : selectedCustomer?.codeDesc ?? '',
+      "CustomerCode": (selectedCustomer?.customerCode ?? '').isEmpty ? null : selectedCustomer?.customerCode ?? '',
+      "MaterialTypeId": (selectedMaterialType?.codeId ?? '').isEmpty ? null : selectedMaterialType?.codeId ?? '',
+      "PackagingTypeId": (selectedPackagingType?.codeId ?? '').isEmpty ? null : selectedPackagingType?.codeId ?? '',
+      "PreferenceTypeId": null,
+      "FromAddressId": null,
+      "ToAddressId": null,
+      "FromLocationId": (selectedFromLocation?.codeId ?? '').isEmpty ? null : selectedFromLocation?.codeId ?? '',
+      "ToLocationId": (selectedToLocation?.codeId ?? '').isEmpty ? null : selectedToLocation?.codeId ?? '',
+      "ApproxDistance": approxDistanceController.text.isEmpty ? 0 : approxDistanceController.text,
+      "ExpLoadingDate": expLoadingDateTime.value,
+      "ExpectedTransitionDays": expectedTransitionDaysController.text.isEmpty ? 0 : expectedTransitionDaysController.text,
+      "ExpDeliveryTime": expDeliveryDateTime.value,
+      "VehicleReportingTime": vehicleExpReportingDateTime.value,
+      "InstructionForDriver": driverInstructionController.text.isEmpty ? null : driverInstructionController.text,
+      "IsBiddingRequired": isBiddingRequired.value,
+      "BidStartDate": biddingStartDateTime.value,
+      "BidEndDate": biddingEndDateTime.value,
+      "IsCapRate": true,
+      "MaximumRate": 50000, //
+      "BiddingNote": biddingNoteController.text.isEmpty ? null : biddingNoteController.text,
+      "AcceptBidFrom": acceptBidFrom.value,
+      "LaneType": null, //["LOCAL", "NATIONAL"],
+      "VendorId": ["E-V-Z", "E-V-0P","E-V-08","E-V-18","E-V-0F","E-V-1G","E-V-07"],
+      "ServiceModeId": (selectedServiceMode?.codeId ?? '').isEmpty ? null : selectedServiceMode?.codeId ?? '',
+      "FtlTypeId": (selectedVehicleFtlType?.codeId ?? '').isEmpty ? null : selectedVehicleFtlType?.codeId ?? '',
+      "VehicleTypeId": (selectedVehicleType?.codeId ?? '').isEmpty ? null : selectedVehicleType?.codeId ?? '',
+      "RequiredNoOfVehicle": noOfVehicleController.text.isEmpty ? 0 : noOfVehicleController.text,
+      "Weight": wightController.text.isEmpty ? 0 : wightController.text,
+      "RateAmount": freightChargeRateController.text.isEmpty ? 0 : freightChargeRateController.text,
+      "RateTypeId": "R1",
+      "FreightCharge": freightChargeTotalController.text.isEmpty ? 0 : freightChargeTotalController.text,
+      "PickupPoints": [
+        {
+          "PointSequence": 1,
+          "PointAddress": "Surat, Gujarat, India",
+          "PointCity": "Surat",
+          "PointState": "Gujarat",
+          "PointCountry": "India",
+          "PointPincode": null,
+          "PointAreaName": "Surat"
+        },
+        {
+          "PointSequence": 2,
+          "PointAddress": "Pune, Maharashtra, India",
+          "PointCity": "Pune",
+          "PointState": "Maharashtra",
+          "PointCountry": "India",
+          "PointPincode": null,
+          "PointAreaName": "Pune"
+        }
+      ],
+      "DeliveryPoints": [
+        {
+          "PointSequence": 1,
+          "PointAddress": "Mumbai, Maharashtra, India",
+          "PointCity": "Mumbai",
+          "PointState": "Maharashtra",
+          "PointCountry": "India",
+          "PointPincode": null,
+          "PointAreaName": "Mumbai"
+        },
+        {
+          "PointSequence": 2,
+          "PointAddress": "Chennai, Tamil Nadu, India",
+          "PointCity": "Chennai",
+          "PointState": "Tamil Nadu",
+          "PointCountry": "India",
+          "PointPincode": null,
+          "PointAreaName": "Chennai"
+        }
+      ],
+      "Legs": null //[{"LegNumber": 1,"FromCityId": "AMD","FromPlace": "Ahmedabad","ToCityId": MUM","ToPlace": "Mum
+    };
+    var result = await VehicleService().createVehicleRequest(body: body, navigateToCheck: false);
+    if (Get.isDialogOpen!) Get.back();
+    if (result != null) {
+
+    }
+    update();
   }
 }

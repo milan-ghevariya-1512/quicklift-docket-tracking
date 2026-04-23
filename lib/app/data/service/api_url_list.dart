@@ -5,6 +5,7 @@ class ApiUrlList {
    static String baseUrl3 = "https://quicklift.erp.logibrisk.com/ApiV2/";
 
    static String url = "https://express.erp.logibrisk.com";
+   static String googleMapKey = "AIzaSyC-SC-VSkuluh_1JkVwtmc5v1YMm6nSeVo";
 
    static String commonMasterUrl = '$url/ApiV2/ApiCommonMaster/';
    static String vehicleRequestUrl = '$url/apiv2/ApiVehicleRequest/';
@@ -19,6 +20,7 @@ class ApiUrlList {
 
    static String getFieldSetupApi = '${commonMasterUrl}GetFieldSetup?ModuleCode=';
    static String getAutoCompleteCustomerApi = '${commonMasterUrl}AutoCompleteCustomer';
+   static String getAutoCompleteAddressApi = '${vehicleRequestUrl}AutoCompleteAddress';
    static String getAutoCompleteLocationApi = '${commonMasterUrl}AutoCompleteLocation';
    static String getVehicleRequestApi = '${vehicleRequestUrl}Get';
    static String getAutoCompleteVehicleFtlTypeApi = '${commonMasterUrl}AutoCompleteVehicleFtlType';
@@ -26,5 +28,6 @@ class ApiUrlList {
    static String getAutoCompleteServiceModeApi = '${vehicleRequestUrl}AutoCompleteServiceMode';
    static String getGeneralMasterApi = '${commonMasterUrl}GetGeneralMaster';
    static String getClaimsApi = '${accountUrl}GetClaims';
+   static String createVehicleRequestApi = '${vehicleRequestUrl}Create';
 
 }

@@ -47,7 +47,7 @@ class DashBoardService {
     client ??= http.Client();
 
     var url = ApiUrlList.loginApi;
-    var result = await networkHandlerStander.postWithoutToken(url, client,model: body,showError: false);
+    var result = await networkHandlerStander.postWithoutToken(url ,client,isResponseVersion: true,model: body,showError: false);
 
     if(result != null) {
       return jsonDecode(result);
@@ -60,7 +60,7 @@ class DashBoardService {
     client ??= http.Client();
 
     var url = ApiUrlList.verifyOtpApi;
-    var result = await networkHandlerStander.postWithoutToken(url, client,model: body,showError: false);
+    var result = await networkHandlerStander.postWithoutToken(url,isResponseVersion: true, client,model: body,showError: false);
 
     if(result != null) {
       return jsonDecode(result);

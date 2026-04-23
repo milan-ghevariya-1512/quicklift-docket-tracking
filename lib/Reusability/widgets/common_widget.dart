@@ -400,6 +400,86 @@ class _ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStat
   }
 }
 
+class DropdownTextField<T> extends StatelessWidget {
+  final T? value;
+  final List<T> items;
+  final String Function(T) itemLabel;
+  final ValueChanged<T?> onChanged;
+  final String? hintText;
+  final String? Function(T?)? validator;
+  final bool enabled;
+  final AutovalidateMode autovalidateMode;
+
+  const DropdownTextField({
+    super.key,
+    required this.value,
+    required this.items,
+    required this.itemLabel,
+    required this.onChanged,
+    this.hintText,
+    this.validator,
+    this.enabled = true,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<T>(
+      autovalidateMode: autovalidateMode,
+      validator: validator,
+      isExpanded: true,
+      borderRadius: BorderRadius.circular(20),
+      menuMaxHeight: Get.height * 0.5,
+      value: value,
+      icon: const Icon(
+        Icons.keyboard_arrow_down_rounded,
+        color: AppColors.textBlackColor,
+      ),
+      style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+      hint: Text(
+        hintText ?? '',
+        style: AppTextStyle.regularTextStyle.copyWith(
+          color: items.isEmpty ? AppColors.borderColor : AppColors.hintTextColor,
+          fontSize: 14,
+        ),
+      ),
+      decoration: InputDecoration(
+        counterText: "",
+        filled: true,
+        fillColor: AppColors.whiteColor,
+        contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+        hintText: hintText,
+        hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
+        disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+        ),
+        errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
+      ),
+      onChanged: enabled ? onChanged : null,
+      items: items.map((option) {
+        return DropdownMenuItem<T>(
+          value: option,
+          child: Text(
+            itemLabel(option),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
 class FieldScrollWrapper extends StatefulWidget {
   final Widget child;
   const FieldScrollWrapper({super.key, required this.child});

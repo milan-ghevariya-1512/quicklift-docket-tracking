@@ -73,6 +73,7 @@ class LoginController extends GetxController {
     Utils.showLoadingDialog();
     var body = {
       "OrganizationId" : "e", // 1
+      "LoginType": "",
       "MobileNo": noController.text.trim()
     };
     var result = await DashBoardService().login(body: body);
@@ -101,6 +102,7 @@ class LoginController extends GetxController {
     var body = {
       "OrganizationId" : "e", // 1
       "MobileNo": noController.text.trim(),
+      "LoginType": "",
       "OTP": pinController.text
     };
     var result = await DashBoardService().verifyOtp(body: body);
@@ -108,7 +110,6 @@ class LoginController extends GetxController {
     if(result != null && result['Success'] == true) {
       Utils().setBox("token", result['Data']['Token']);
       Utils.toastOk(result['Message']);
-      Utils().setLogin(true);
       Utils().box.remove(StorageUtil.keyFieldSetup);
       Get.offAllNamed(Routes.DASHBOARD);
     } else{

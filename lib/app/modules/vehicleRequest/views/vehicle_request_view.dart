@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
+import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteLegLocationModel.dart';
 import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteServiceModeModel.dart';
+import 'package:quicklift_docket_tracking/app/data/model/legLocationModel.dart';
 
 import '../../../../Reusability/utils/app_colors.dart';
 import '../../../../Reusability/utils/app_images.dart';
@@ -12,13 +14,21 @@ import '../../../../Reusability/utils/util.dart';
 import '../../../../Reusability/widgets/common_date_picker.dart';
 import '../../../../Reusability/widgets/common_shimmer.dart';
 import '../../../../Reusability/widgets/common_widget.dart';
+import '../../../../Reusability/widgets/google_place_auto_complete_field.dart';
 import '../../../data/model/fieldSetupModel.dart';
 import '../../../data/model/getAutoCompleteCustomerModel.dart';
 import '../../../data/model/getAutoCompleteLocationModel.dart';
 import '../../../data/model/getAutoCompleteVehicleFtlTypeModel.dart';
 import '../../../data/model/getAutoCompleteVehicleModel.dart';
 import '../../../data/model/getGeneralMasterModel.dart';
+import '../../../data/service/api_url_list.dart';
 import '../controllers/vehicle_request_controller.dart';
+
+String legLocationDropdownCaption(LegLocationList e) {
+  final d = (e.codeDesc ?? '').trim();
+  if (d.isNotEmpty) return d;
+  return (e.address ?? '').trim();
+}
 
 class VehicleRequestView extends GetView<VehicleRequestController> {
   VehicleRequestView({super.key});
@@ -568,7 +578,443 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: Get.width * 0.05),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
+              if(!(c.vehicleRequestData?.isLegEnable ?? false) && (c.vehicleRequestData?.isCustomerAddress ?? false))Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  HBox(Get.height * 0.015),
+                  Text(
+                    "PreferenceType",
+                    style: AppTextStyle.regularTextStyle.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textBlackColor,
+                    ),
+                  ),
+                  HBox(Get.height * 0.01),
+                  Obx(() => Padding(
+                    padding: EdgeInsets.only(top: Get.height * 0.01),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            InkWell(
+                                splashColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                onTap: () {
+                                  c.selectPreferenceType.value = 'custom';
+                                  c.update();
+                                },
+                                child: Image.asset(c.selectPreferenceType.value == 'custom' ? AppImage.radioSelectIcon : AppImage.radioIcon, color: AppColors.primaryColor, height: Get.height * 0.025, width: Get.height * 0.025, fit: BoxFit.contain)),
+                            WBox(Get.width * 0.02),
+                            Expanded(child: Text(
+                              'Customer Address Wise ',
+                              style: AppTextStyle.regularTextStyle.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textBlackColor,
+                              ),
+                            ))
+                          ],
+                        ),
+                        HBox(Get.height * 0.015),
+                        Row(
+                          children: [
+                            InkWell(
+                                splashColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                onTap: () {
+                                  c.selectPreferenceType.value = 'google';
+                                  c.update();
+                                },
+                                child: Image.asset(c.selectPreferenceType.value == "google" ? AppImage.radioSelectIcon : AppImage.radioIcon, color: AppColors.primaryColor, height: Get.height * 0.025, width: Get.height * 0.025, fit: BoxFit.contain)),
+                            WBox(Get.width * 0.02),
+                            Expanded(child: Text(
+                              'Google Wise',
+                              style: AppTextStyle.regularTextStyle.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textBlackColor,
+                              ),
+                            ))
+                          ],
+                        ),
+                      ],
+                    ),
+                  )),
+                ],
+              ),
+
+              HBox(Get.height * 0.015),
+
+              if(c.selectPreferenceType.value == 'google')Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildDynamicField("VR_STARTPOINT",
+                    customInput: FormField<int>(
+                      key: c.googleStartLegFormFieldKey,
+                      initialValue: 0,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (_) => c.validateGoogleLegGroup(
+                        'VR_STARTPOINT',
+                        c.startPointController,
+                        c.startPointList,
+                      ),
+                      builder: (field) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListView.separated(
+                            itemCount: c.startPointController.length,
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: CustomGooglePlaceAutoCompleteField(
+                                      focusNode: c.startPointFocusNodes[index],
+                                      textEditingController: c.startPointController[index],
+                                      googleAPIKey: ApiUrlList.googleMapKey,
+                                      inputDecoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        fillColor: AppColors.whiteColor,
+                                        contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                                        hintText: "Enter a location",
+                                        hintStyle: AppTextStyle.regularTextStyle.copyWith(color:AppColors.hintTextColor,fontSize: 14),
+                                      ),
+                                      textStyle: AppTextStyle.regularTextStyle.copyWith(
+                                        color: AppColors.textBlackColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      boxDecoration: BoxDecoration(
+                                        color: AppColors.whiteColor,
+                                        borderRadius: BorderRadius.circular(30),
+                                        border: Border.all(color: AppColors.borderColor),
+                                      ),
+                                      isLatLngRequired: true,
+                                      seperatedBuilder: Divider(color: AppColors.greyColor.withOpacity(0.2)),
+                                      isCrossBtnShown: false,
+                                      onPlaceSelected: (lat, lng, address, city, state, country, pincode, area) {
+                                        c.upsertStartPointLeg(
+                                          index,
+                                          LegLocationModel(
+                                            pointAddress: address,
+                                            pointAreaName: area,
+                                            pointCity: city,
+                                            pointCountry: country,
+                                            pointPincode: pincode,
+                                            pointState: state,
+                                          ),
+                                        );
+                                        FocusScope.of(context).unfocus();
+                                      },
+                                    ),
+                                  ),
+                                  WBox(Get.width * 0.015),
+                                  if(c.startPointController.length > 1)InkWell(
+                                    onTap: () {
+                                      c.removeStartPointRow(index);
+                                    },
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    child: Icon(Icons.close, color: AppColors.redColor, size: 25),
+                                  ),
+                                  if(c.startPointController.length > 1)WBox(Get.width * 0.015),
+                                  InkWell(
+                                    onTap: () {
+                                      c.addStartPointRow();
+                                    },
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    child: Icon(Icons.add, color: AppColors.primaryColor, size: 30),
+                                  )
+                                ],
+                              );
+                            },
+                            separatorBuilder: (context, index) => HBox(Get.height * 0.01),
+                          ),
+                          if (field.hasError)
+                            Padding(
+                              padding: EdgeInsets.only(top: Get.height * 0.008),
+                              child: Text(
+                                field.errorText ?? '',
+                                style: AppTextStyle.regularTextStyle.copyWith(
+                                  color: AppColors.redColor,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  buildDynamicField("VR_ENDPOINT",
+                    customInput: FormField<int>(
+                      key: c.googleEndLegFormFieldKey,
+                      initialValue: 0,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (_) => c.validateGoogleLegGroup(
+                        'VR_ENDPOINT',
+                        c.endPointController,
+                        c.endPointList,
+                      ),
+                      builder: (field) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListView.separated(
+                            itemCount: c.endPointController.length,
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: CustomGooglePlaceAutoCompleteField(
+                                      focusNode: c.endPointFocusNodes[index],
+                                      textEditingController: c.endPointController[index],
+                                      googleAPIKey: ApiUrlList.googleMapKey,
+                                      inputDecoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        fillColor: AppColors.whiteColor,
+                                        contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                                        hintText: "Enter a location",
+                                        hintStyle: AppTextStyle.regularTextStyle.copyWith(color:AppColors.hintTextColor,fontSize: 14),
+                                      ),
+                                      textStyle: AppTextStyle.regularTextStyle.copyWith(
+                                        color: AppColors.textBlackColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      boxDecoration: BoxDecoration(
+                                        color: AppColors.whiteColor,
+                                        borderRadius: BorderRadius.circular(30),
+                                        border: Border.all(color: AppColors.borderColor),
+                                      ),
+                                      isLatLngRequired: true,
+                                      seperatedBuilder: Divider(color: AppColors.greyColor.withOpacity(0.2)),
+                                      isCrossBtnShown: false,
+                                      onPlaceSelected: (lat, lng, address, city, state, country, pincode, area) {
+                                        c.upsertEndPointLeg(
+                                          index,
+                                          LegLocationModel(
+                                            pointAddress: address,
+                                            pointAreaName: area,
+                                            pointCity: city,
+                                            pointCountry: country,
+                                            pointPincode: pincode,
+                                            pointState: state,
+                                          ),
+                                        );
+                                        FocusScope.of(context).unfocus();
+                                      },
+                                    ),
+                                  ),
+                                  WBox(Get.width * 0.015),
+                                  if(c.endPointController.length > 1)InkWell(
+                                    onTap: () {
+                                      c.removeEndPointRow(index);
+                                    },
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    child: Icon(Icons.close, color: AppColors.redColor, size: 25),
+                                  ),
+                                  if(c.endPointController.length > 1)WBox(Get.width * 0.015),
+                                  InkWell(
+                                    onTap: () {
+                                      c.addEndPointRow();
+                                    },
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    child: Icon(Icons.add, color: AppColors.primaryColor, size: 30),
+                                  )
+                                ],
+                              );
+                            },
+                            separatorBuilder: (context, index) => HBox(Get.height * 0.01),
+                          ),
+                          if (field.hasError)
+                            Padding(
+                              padding: EdgeInsets.only(top: Get.height * 0.008),
+                              child: Text(
+                                field.errorText ?? '',
+                                style: AppTextStyle.regularTextStyle.copyWith(
+                                  color: AppColors.redColor,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              if(c.selectPreferenceType.value == 'custom')Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildDynamicField("VR_STARTPOINT",
+                    customInput: FormField<int>(
+                      key: c.googleStartLegFormFieldKey,
+                      initialValue: 0,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (_) => c.validateGoogleLegGroup(
+                        'VR_STARTPOINT',
+                        c.startPointController,
+                        c.startPointList,
+                      ),
+                      builder: (field) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListView.separated(
+                            itemCount: c.startPointController.length,
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              final startCfg = c.getFieldData("VR_STARTPOINT");
+                              final selectedStart = index < c.selectedStartCustomAddress.length
+                                  ? c.selectedStartCustomAddress[index]
+                                  : null;
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: DropdownTextField<LegLocationList>(
+                                      value: c.matchingLegLocationInOptions(selectedStart),
+                                      items: c.customLocationList,
+                                      itemLabel: legLocationDropdownCaption,
+                                      hintText: startCfg?.fieldCaption ?? '',
+                                      enabled: startCfg?.isEnable ?? false,
+                                      onChanged: (value) {
+                                        c.applyStartCustomLegLocation(index, value);
+                                      },
+                                    ),
+                                  ),
+                                  WBox(Get.width * 0.015),
+                                  if(c.startPointController.length > 1)InkWell(
+                                    onTap: () {
+                                      c.removeStartPointRow(index);
+                                    },
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    child: Icon(Icons.close, color: AppColors.redColor, size: 25),
+                                  ),
+                                  if(c.startPointController.length > 1)WBox(Get.width * 0.015),
+                                  InkWell(
+                                    onTap: () {
+                                      c.addStartPointRow();
+                                    },
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    child: Icon(Icons.add, color: AppColors.primaryColor, size: 30),
+                                  )
+                                ],
+                              );
+                            },
+                            separatorBuilder: (context, index) => HBox(Get.height * 0.01),
+                          ),
+                          if (field.hasError)
+                            Padding(
+                              padding: EdgeInsets.only(top: Get.height * 0.008),
+                              child: Text(
+                                field.errorText ?? '',
+                                style: AppTextStyle.regularTextStyle.copyWith(
+                                  color: AppColors.redColor,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  buildDynamicField("VR_ENDPOINT",
+                    customInput: FormField<int>(
+                      key: c.googleEndLegFormFieldKey,
+                      initialValue: 0,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (_) => c.validateGoogleLegGroup(
+                        'VR_ENDPOINT',
+                        c.endPointController,
+                        c.endPointList,
+                      ),
+                      builder: (field) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListView.separated(
+                            itemCount: c.endPointController.length,
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              final endCfg = c.getFieldData("VR_ENDPOINT");
+                              final selectedEnd = index < c.selectedEndCustomAddress.length
+                                  ? c.selectedEndCustomAddress[index]
+                                  : null;
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: DropdownTextField<LegLocationList>(
+                                      value: c.matchingLegLocationInOptions(selectedEnd),
+                                      items: c.customLocationList,
+                                      itemLabel: legLocationDropdownCaption,
+                                      hintText: endCfg?.fieldCaption ?? '',
+                                      enabled: endCfg?.isEnable ?? false,
+                                      onChanged: (value) {
+                                        c.applyEndCustomLegLocation(index, value);
+                                      },
+                                    ),
+                                  ),
+                                  WBox(Get.width * 0.015),
+                                  if(c.endPointController.length > 1)InkWell(
+                                    onTap: () {
+                                      c.removeEndPointRow(index);
+                                    },
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    child: Icon(Icons.close, color: AppColors.redColor, size: 25),
+                                  ),
+                                  if(c.endPointController.length > 1)WBox(Get.width * 0.015),
+                                  InkWell(
+                                    onTap: () {
+                                      c.addEndPointRow();
+                                    },
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    child: Icon(Icons.add, color: AppColors.primaryColor, size: 30),
+                                  )
+                                ],
+                              );
+                            },
+                            separatorBuilder: (context, index) => HBox(Get.height * 0.01),
+                          ),
+                          if (field.hasError)
+                            Padding(
+                              padding: EdgeInsets.only(top: Get.height * 0.008),
+                              child: Text(
+                                field.errorText ?? '',
+                                style: AppTextStyle.regularTextStyle.copyWith(
+                                  color: AppColors.redColor,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              buildDynamicField("VR_APPROXDISTANCE",
+                controller: c.approxDistanceController,
+                enabled: false,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                ],
+              ),
 
               HBox(MediaQuery.of(context).padding.bottom + Get.height * 0.035)
             ],
