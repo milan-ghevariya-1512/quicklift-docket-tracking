@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -108,16 +109,15 @@ class Utils {
 
   static showLoadingDialog() {
     return Get.dialog(
-      const Center(
-        child: CircularProgressIndicator(color: AppColors.primaryColor),
+      Center(
+        child: CupertinoActivityIndicator(radius: Get.height * 0.015, color: AppColors.whiteColor),
       ),
-      barrierDismissible: true,
+      barrierDismissible: false,
     );
   }
 
   static Widget loader({Color? loaderColor}) {
-    return Center(child: CircularProgressIndicator(
-        color: loaderColor ?? AppColors.primaryColor));
+    return Center(child: CupertinoActivityIndicator(radius: Get.height * 0.015));
   }
 
   static Future<PackageInfo> getPackageInfo() async {

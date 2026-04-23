@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
+import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteServiceModeModel.dart';
 
 import '../../../../Reusability/utils/app_colors.dart';
 import '../../../../Reusability/utils/app_images.dart';
@@ -14,6 +15,9 @@ import '../../../../Reusability/widgets/common_widget.dart';
 import '../../../data/model/fieldSetupModel.dart';
 import '../../../data/model/getAutoCompleteCustomerModel.dart';
 import '../../../data/model/getAutoCompleteLocationModel.dart';
+import '../../../data/model/getAutoCompleteVehicleFtlTypeModel.dart';
+import '../../../data/model/getAutoCompleteVehicleModel.dart';
+import '../../../data/model/getGeneralMasterModel.dart';
 import '../controllers/vehicle_request_controller.dart';
 
 class VehicleRequestView extends GetView<VehicleRequestController> {
@@ -57,7 +61,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                           buildStageSecond(context),
                           buildStageThird(context),
                           buildStageFourth(context),
-                          Container(),
+                          buildStageFifth(context),
                         ],
                       );
                     }
@@ -618,6 +622,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                   Get.dialog(
                     CommonDateTimePicker(
                       minDate: DateTime.now().subtract(const Duration(days: 5)),
+                      maxDate: DateTime(5050),
                       initialDateTime: c.biddingStartDateTime.value,
                       onDateTimeSelected: (dateTime) {
                         c.biddingStartDateTime.value = dateTime;
@@ -636,9 +641,22 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                   ),
                 ),
                 validator: (v) {
-                  if (c.biddingStartDateTime.value == null) {
+                  final start = c.biddingStartDateTime.value;
+                  final request = c.requestDateTime.value;
+
+                  if (start == null) {
                     return "Required";
                   }
+
+                  if (request != null) {
+                    final s = DateTime(start.year, start.month, start.day, start.hour, start.minute);
+                    final r = DateTime(request.year, request.month, request.day, request.hour, request.minute);
+
+                    if (s.isBefore(r)) {
+                      return "Bid Start Date should be same or after Request Date";
+                    }
+                  }
+
                   return null;
                 },
               )),
@@ -652,6 +670,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                   Get.dialog(
                     CommonDateTimePicker(
                       minDate: DateTime.now().subtract(const Duration(days: 5)),
+                      maxDate: DateTime(5050),
                       initialDateTime: c.biddingEndDateTime.value,
                       onDateTimeSelected: (dateTime) {
                         c.biddingEndDateTime.value = dateTime;
@@ -670,8 +689,13 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                   ),
                 ),
                 validator: (v) {
-                  if (c.biddingEndDateTime.value == null) {
+                  final end = c.biddingEndDateTime.value;
+                  final start = c.biddingStartDateTime.value;
+                  if (end == null) {
                     return "Required";
+                  }
+                  if (start != null && !end.isAfter(start)) {
+                    return "Bid End Date should be after Bid Start Date";
                   }
                   return null;
                 },
@@ -718,57 +742,60 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
               )),
 
               if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)buildDynamicField("VR_BIDDINGNOTE", controller: c.biddingNoteController),
-              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)buildDynamicField("VR_ACCEPTBIDFROM", customInput: Obx(() => Row(
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          InkWell(
-                              splashColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () {
-                                c.acceptBidFrom.value = 'AOO';
-                                c.update();
-                              },
-                              child: Image.asset(c.acceptBidFrom.value == 'AOO' ? AppImage.radioSelectIcon : AppImage.radioIcon, color: AppColors.primaryColor, height: Get.height * 0.025, width: Get.height * 0.025, fit: BoxFit.contain)),
-                          WBox(Get.width * 0.02),
-                          Expanded(child: Text(
-                            'Lane Wise',
-                            style: AppTextStyle.regularTextStyle.copyWith(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textBlackColor,
-                            ),
-                          ))
-                        ],
+              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)buildDynamicField("VR_ACCEPTBIDFROM", customInput: Obx(() => Padding(
+                padding: EdgeInsets.only(top: Get.height * 0.01),
+                child: Row(
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            InkWell(
+                                splashColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                onTap: () {
+                                  c.acceptBidFrom.value = 'AOO';
+                                  c.update();
+                                },
+                                child: Image.asset(c.acceptBidFrom.value == 'AOO' ? AppImage.radioSelectIcon : AppImage.radioIcon, color: AppColors.primaryColor, height: Get.height * 0.025, width: Get.height * 0.025, fit: BoxFit.contain)),
+                            WBox(Get.width * 0.02),
+                            Expanded(child: Text(
+                              'Lane Wise',
+                              style: AppTextStyle.regularTextStyle.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textBlackColor,
+                              ),
+                            ))
+                          ],
+                        ),
                       ),
-                    ),
-                    WBox(Get.width * 0.02),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          InkWell(
-                              splashColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () {
-                                c.acceptBidFrom.value = 'AOP';
-                                c.update();
-                              },
-                              child: Image.asset(c.acceptBidFrom.value == "AOP" ? AppImage.radioSelectIcon : AppImage.radioIcon, color: AppColors.primaryColor, height: Get.height * 0.025, width: Get.height * 0.025, fit: BoxFit.contain)),
-                          WBox(Get.width * 0.02),
-                          Expanded(child: Text(
-                            'Specific Vendor',
-                            style: AppTextStyle.regularTextStyle.copyWith(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textBlackColor,
-                            ),
-                          ))
-                        ],
+                      WBox(Get.width * 0.02),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            InkWell(
+                                splashColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                onTap: () {
+                                  c.acceptBidFrom.value = 'AOP';
+                                  c.update();
+                                },
+                                child: Image.asset(c.acceptBidFrom.value == "AOP" ? AppImage.radioSelectIcon : AppImage.radioIcon, color: AppColors.primaryColor, height: Get.height * 0.025, width: Get.height * 0.025, fit: BoxFit.contain)),
+                            WBox(Get.width * 0.02),
+                            Expanded(child: Text(
+                              'Specific Vendor',
+                              style: AppTextStyle.regularTextStyle.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textBlackColor,
+                              ),
+                            ))
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ))),
+                    ],
+                  ),
+              ))),
 
               if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)buildDynamicField("VR_BIDVENDOR", controller: c.vendorController),
 
@@ -794,10 +821,473 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                 controller: c.noOfVehicleController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                 ],
-                suffixIcon: Text("Unit", style: AppTextStyle.regularTextStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w600))
+                suffixIcon: Text("Unit", style: AppTextStyle.regularTextStyle.copyWith(fontSize: 10, fontWeight: FontWeight.w600))
               ),
+
+              buildDynamicField("VR_SERVICEMODE",
+                customInput: DropdownButtonFormField<ServiceModeList>(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) {
+                    if (c.getFieldData("VR_SERVICEMODE")?.isRequired ?? true) {
+                      if (value == null) {
+                        return 'Required';
+                      }
+                    }
+                    return null;
+                  },
+                  isExpanded: true,
+                  borderRadius: BorderRadius.circular(20),
+                  menuMaxHeight: Get.height * 0.5,
+                  value: c.selectedServiceMode == null ? null : c.selectedServiceMode,
+                  icon: const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.textBlackColor,
+                  ),
+                  style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                  hint: Text(
+                    c.getFieldData("VR_SERVICEMODE")?.fieldCaption ?? '',
+                    style: AppTextStyle.regularTextStyle.copyWith(
+                      color: c.serviceModeList.isEmpty ? AppColors.borderColor : AppColors.hintTextColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                  decoration: InputDecoration(
+                    counterText: "",
+                    filled: true,
+                    fillColor: AppColors.whiteColor,
+                    contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                    hintText: c.getFieldData("VR_SERVICEMODE")?.fieldCaption ?? '',
+                    hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
+                    disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                    ),
+                    errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
+                  ),
+                  onChanged: (value) {
+                    c.selectedServiceMode = value;
+                    c.update();
+                  },
+                  items: c.serviceModeList.map((option) {
+                    return DropdownMenuItem<ServiceModeList>(
+                      value: option,
+                      child: Text(
+                        maxLines: 1,
+                        option.codeDesc ?? '',
+                        style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+
+              buildDynamicField("VR_FTLTYPE",
+                customInput: DropdownButtonFormField<GetAutoCompleteVehicleFtlTypeList>(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) {
+                    if (c.getFieldData("VR_FTLTYPE")?.isRequired ?? true) {
+                      if (value == null) {
+                        return 'Required';
+                      }
+                    }
+                    return null;
+                  },
+                  isExpanded: true,
+                  borderRadius: BorderRadius.circular(20),
+                  menuMaxHeight: Get.height * 0.5,
+                  value: c.selectedVehicleFtlType == null ? null : c.selectedVehicleFtlType,
+                  icon: const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.textBlackColor,
+                  ),
+                  style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                  hint: Text(
+                    c.getFieldData("VR_FTLTYPE")?.fieldCaption ?? '',
+                    style: AppTextStyle.regularTextStyle.copyWith(
+                      color: c.vehicleFtlTypeList.isEmpty ? AppColors.borderColor : AppColors.hintTextColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                  decoration: InputDecoration(
+                    counterText: "",
+                    filled: true,
+                    fillColor: AppColors.whiteColor,
+                    contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                    hintText: c.getFieldData("VR_FTLTYPE")?.fieldCaption ?? '',
+                    hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
+                    disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                    ),
+                    errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
+                  ),
+                  onChanged: (value) {
+                    c.selectedVehicleFtlType = value;
+                    c.selectedVehicleType = null;
+                    c.getAutoCompleteVehicleType("%", c.selectedVehicleFtlType?.codeId ?? '');
+                    c.update();
+                  },
+                  items: c.vehicleFtlTypeList.map((option) {
+                    return DropdownMenuItem<GetAutoCompleteVehicleFtlTypeList>(
+                      value: option,
+                      child: Text(
+                        maxLines: 1,
+                        option.codeDesc ?? '',
+                        style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+
+              buildDynamicField("VR_VEHICLETYPE",
+                customInput: DropdownButtonFormField<GetAutoCompleteVehicleModel>(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) {
+                    if (c.getFieldData("VR_VEHICLETYPE")?.isRequired ?? true) {
+                      if (value == null) {
+                        return 'Required';
+                      }
+                    }
+                    return null;
+                  },
+                  isExpanded: true,
+                  borderRadius: BorderRadius.circular(20),
+                  menuMaxHeight: Get.height * 0.5,
+                  value: c.selectedVehicleType == null ? null : c.selectedVehicleType,
+                  icon: const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.textBlackColor,
+                  ),
+                  style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                  hint: Text(
+                    c.getFieldData("VR_VEHICLETYPE")?.fieldCaption ?? '',
+                    style: AppTextStyle.regularTextStyle.copyWith(
+                      color: c.vehicleFtlTypeList.isEmpty ? AppColors.borderColor : AppColors.hintTextColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                  decoration: InputDecoration(
+                    counterText: "",
+                    filled: true,
+                    fillColor: AppColors.whiteColor,
+                    contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                    hintText: c.getFieldData("VR_VEHICLETYPE")?.fieldCaption ?? '',
+                    hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
+                    disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                    ),
+                    errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
+                  ),
+                  onChanged: (value) {
+                    c.selectedVehicleType = value;
+                    c.update();
+                  },
+                  items: c.vehicleTypeList.map((option) {
+                    return DropdownMenuItem<GetAutoCompleteVehicleModel>(
+                      value: option,
+                      child: Text(
+                        maxLines: 1,
+                        option.codeDesc ?? '',
+                        style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+
+              HBox(MediaQuery.of(context).padding.bottom + Get.height * 0.035)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildStageFifth(context){
+    return Form(
+      key: controller.formKey5,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: Get.width * 0.05),
+          child: Column(
+            children: [
+
+              buildDynamicField("VR_MATERIALTYPE",
+                customInput: DropdownButtonFormField<GetGeneralMasterModel>(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) {
+                    if (c.getFieldData("VR_MATERIALTYPE")?.isRequired ?? true) {
+                      if (value == null) {
+                        return 'Required';
+                      }
+                    }
+                    return null;
+                  },
+                  isExpanded: true,
+                  borderRadius: BorderRadius.circular(20),
+                  menuMaxHeight: Get.height * 0.5,
+                  value: c.selectedMaterialType == null ? null : c.selectedMaterialType,
+                  icon: const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.textBlackColor,
+                  ),
+                  style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                  hint: Text(
+                    c.getFieldData("VR_MATERIALTYPE")?.fieldCaption ?? '',
+                    style: AppTextStyle.regularTextStyle.copyWith(
+                      color: c.materialTypeList.isEmpty ? AppColors.borderColor : AppColors.hintTextColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                  decoration: InputDecoration(
+                    counterText: "",
+                    filled: true,
+                    fillColor: AppColors.whiteColor,
+                    contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                    hintText: c.getFieldData("VR_MATERIALTYPE")?.fieldCaption ?? '',
+                    hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
+                    disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                    ),
+                    errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
+                  ),
+                  onChanged: (GetGeneralMasterModel? newValue) {
+                    c.selectedMaterialType = newValue!;
+                    c.update();
+                  },
+                  items: c.materialTypeList.map((option) {
+                    return DropdownMenuItem<GetGeneralMasterModel>(
+                      value: option,
+                      child: Text(
+                        maxLines: 1,
+                        option.codeDetail ?? '',
+                        style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+
+              buildDynamicField("VR_PACKAGINTYPE",
+                customInput: DropdownButtonFormField<GetGeneralMasterModel>(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) {
+                    if (c.getFieldData("VR_PACKAGINTYPE")?.isRequired ?? true) {
+                      if (value == null) {
+                        return 'Required';
+                      }
+                    }
+                    return null;
+                  },
+                  isExpanded: true,
+                  borderRadius: BorderRadius.circular(20),
+                  menuMaxHeight: Get.height * 0.5,
+                  value: c.selectedPackagingType == null ? null : c.selectedPackagingType,
+                  icon: const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.textBlackColor,
+                  ),
+                  style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                  hint: Text(
+                    c.getFieldData("VR_PACKAGINTYPE")?.fieldCaption ?? '',
+                    style: AppTextStyle.regularTextStyle.copyWith(
+                      color: c.packagingTypeList.isEmpty ? AppColors.borderColor : AppColors.hintTextColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                  decoration: InputDecoration(
+                    counterText: "",
+                    filled: true,
+                    fillColor: AppColors.whiteColor,
+                    contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                    hintText: c.getFieldData("VR_PACKAGINTYPE")?.fieldCaption ?? '',
+                    hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
+                    disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                    ),
+                    errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
+                  ),
+                  onChanged: (GetGeneralMasterModel? newValue) {
+                    c.selectedPackagingType = newValue!;
+                    c.update();
+                  },
+                  items: c.packagingTypeList.map((option) {
+                    return DropdownMenuItem<GetGeneralMasterModel>(
+                      value: option,
+                      child: Text(
+                        maxLines: 1,
+                        option.codeDetail ?? '',
+                        style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+
+              buildDynamicField("VR_WEIGHT",
+                controller: c.wightController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                  TextInputFormatter.withFunction((oldValue, newValue) {
+                    final text = newValue.text;
+                    if (text.isEmpty) return newValue;
+                    final regex = RegExp(r'^\d+(\.\d{0,3})?$');
+                    if (regex.hasMatch(text)) {
+                      return newValue;
+                    }
+                    return oldValue;
+                  }),
+                ],
+                suffixIcon: Text("TON", style: AppTextStyle.regularTextStyle.copyWith(fontSize: 10, fontWeight: FontWeight.w600))
+              ),
+
+              buildDynamicField("VR_RATEAMOUNT",
+                customInput: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 4,
+                      child: TextFField(
+                        controller: c.freightChargeRateController,
+                        keyboardType: TextInputType.number,
+                        hintText: c.getFieldData("VR_RATEAMOUNT")?.fieldCaption ?? '',
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                          TextInputFormatter.withFunction((oldValue, newValue) {
+                            final text = newValue.text;
+                            if (text.isEmpty) return newValue;
+                            final regex = RegExp(r'^\d+(\.\d{0,2})?$');
+                            if (regex.hasMatch(text)) {
+                              return newValue;
+                            }
+                            return oldValue;
+                          }),
+                        ],
+                      )
+                    ),
+                    WBox(Get.width * 0.02),
+                    Expanded(
+                      flex: 3,
+                      child: DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        borderRadius: BorderRadius.circular(30),
+                        menuMaxHeight: Get.height * 0.5,
+                        value: VehicleRequestController.freightChargeModes.contains(c.selectedFreightChargeMode) ? c.selectedFreightChargeMode : VehicleRequestController.freightChargeModes.first,
+                        icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textBlackColor, size: 20),
+                        style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 11, fontWeight: FontWeight.w600),
+                        decoration: InputDecoration(
+                          counterText: "",
+                          filled: true,
+                          fillColor: AppColors.whiteColor,
+                          contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                          hintText: c.getFieldData("VR_RATEAMOUNT")?.fieldCaption ?? '',
+                          hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
+                          disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                          ),
+                          errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
+                        ),
+                        items: VehicleRequestController.freightChargeModes.map((m) {
+                          return DropdownMenuItem<String>(
+                            value: m,
+                            child: Text(m, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),),
+                          );
+                        }).toList(),
+                        onChanged: c.onFreightChargeModeChanged,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              buildDynamicField("VR_FREIGHTCHARGE",
+                customInput: TextFField(
+                  controller: c.freightChargeTotalController,
+                  keyboardType: TextInputType.number,
+                  hintText: c.getFieldData("VR_FREIGHTCHARGE")?.fieldCaption ?? '',
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      final text = newValue.text;
+                      if (text.isEmpty) return newValue;
+                      final regex = RegExp(r'^\d+(\.\d{0,2})?$');
+                      if (regex.hasMatch(text)) {
+                        return newValue;
+                      }
+                      return oldValue;
+                    }),
+                  ],
+                  validator: (value) {
+                    final config = c.getFieldData("VR_FREIGHTCHARGE");
+                    if (config?.isRequired ?? false) {
+                      if (c.freightChargeRateController.text.trim().isEmpty &&
+                          (value == null || value.trim().isEmpty)) {
+                        return 'Required';
+                      }
+                    }
+                    return null;
+                  },
+                ),
+              ),
+
+              buildDynamicField("VR_INSTRUCT_DRIVER", controller: c.driverInstructionController),
 
               HBox(MediaQuery.of(context).padding.bottom + Get.height * 0.035)
             ],

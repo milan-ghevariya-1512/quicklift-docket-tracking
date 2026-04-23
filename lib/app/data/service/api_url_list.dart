@@ -8,6 +8,7 @@ class ApiUrlList {
 
    static String commonMasterUrl = '$url/ApiV2/ApiCommonMaster/';
    static String vehicleRequestUrl = '$url/apiv2/ApiVehicleRequest/';
+   static String accountUrl = '$url/ApiV2/ApiAccount/';
 
   ///Auth APIs
   static String getOrganizationDetailsApi = '${baseUrl1}ApiAccount/GetOrganizationDetails';
@@ -20,5 +21,10 @@ class ApiUrlList {
    static String getAutoCompleteCustomerApi = '${commonMasterUrl}AutoCompleteCustomer';
    static String getAutoCompleteLocationApi = '${commonMasterUrl}AutoCompleteLocation';
    static String getVehicleRequestApi = '${vehicleRequestUrl}Get';
+   static String getAutoCompleteVehicleFtlTypeApi = '${commonMasterUrl}AutoCompleteVehicleFtlType';
+   static String getAutoCompleteVehicleTypeApi = '${commonMasterUrl}AutoCompleteVehicleType';
+   static String getAutoCompleteServiceModeApi = '${vehicleRequestUrl}AutoCompleteServiceMode';
+   static String getGeneralMasterApi = '${commonMasterUrl}GetGeneralMaster';
+   static String getClaimsApi = '${accountUrl}GetClaims';
 
 }

@@ -1,10 +1,13 @@
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import '../../../../Reusability/utils/storage_util.dart';
 import '../../../../Reusability/utils/util.dart';
 import '../../../../Reusability/widgets/common_widget.dart';
+import '../../../data/model/getLoginClaimModel.dart';
 import '../../../data/model/get_organization_model.dart';
 import '../../../data/service/api_services.dart';
+import '../../../data/service/vehicle_service.dart';
 import '../../../routes/app_pages.dart';
 
 class DashboardController extends GetxController {
@@ -18,11 +21,13 @@ class DashboardController extends GetxController {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   var autoValidateMode = AutovalidateMode.disabled.obs;
   final fd = FocusNode();
+  GetLoginClaimModel? getLoginClaimModel;
 
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
+    getClaims();
     // getOrganization(filter: true);
   }
 
@@ -75,6 +80,30 @@ class DashboardController extends GetxController {
       CommonWidget.toast("Docket No Is Invalid Or Not Belongs To This Company");
     }
     update();
+  }
+
+  getClaims() async {
+    isLoaded.value = true;
+    getLoginClaimModel = null;
+    var result = await VehicleService().getClaims(navigateToCheck: true);
+    isLoaded.value = false;
+    if(result != null) {
+      getLoginClaimModel = result;
+      Utils().box.write(StorageUtil.currencyId, '');
+      Utils().box.write(StorageUtil.locationId, '');
+      Utils().box.write(StorageUtil.locationCode, '');
+      Utils().box.write(StorageUtil.locationName, '');
+      Utils().box.write(StorageUtil.companyId, '');
+      Utils().box.write(StorageUtil.yearId, '');
+      Utils().box.write(StorageUtil.organizationId, '');
+      Utils().box.write(StorageUtil.currencyId, (result.baseCurrency ?? '').toString());
+      Utils().box.write(StorageUtil.locationId, (result.currentLocationId ?? '').toString());
+      Utils().box.write(StorageUtil.locationCode, (result.currentLocationCode ?? '').toString());
+      Utils().box.write(StorageUtil.locationName, (result.currentLocationName ?? '').toString());
+      Utils().box.write(StorageUtil.companyId, (result.companyId ?? '').toString());
+      Utils().box.write(StorageUtil.yearId, (result.currentFinancialYear ?? '').toString());
+      Utils().box.write(StorageUtil.organizationId, (result.organizationId ?? '').toString());
+    }
   }
 
 }

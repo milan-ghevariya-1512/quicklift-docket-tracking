@@ -10,6 +10,7 @@ class StorageUtil {
   static const String locationName = 'locationName';
   static const String companyId = 'companyId';
   static const String yearId = 'yearId';
+  static const String organizationId = 'organizationId';
 
 }
 

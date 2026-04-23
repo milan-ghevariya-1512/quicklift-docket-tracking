@@ -81,12 +81,14 @@ class CommonRangeDatePicker extends StatelessWidget {
 class CommonDateTimePicker extends StatefulWidget {
   final DateTime? initialDateTime;
   final DateTime? minDate;
+  final DateTime? maxDate;
   final Function(DateTime?) onDateTimeSelected;
 
   const CommonDateTimePicker({
     super.key,
     this.initialDateTime,
     this.minDate,
+    this.maxDate,
     required this.onDateTimeSelected,
   });
 
@@ -143,7 +145,7 @@ class _CommonDateTimePickerState extends State<CommonDateTimePicker> {
             SfDateRangePicker(
               selectionMode: DateRangePickerSelectionMode.single,
               initialSelectedDate: selectedDate,
-              maxDate: DateTime.now(),
+              maxDate: widget.maxDate ?? DateTime.now(),
               minDate: widget.minDate,
               backgroundColor: Colors.transparent,
               headerStyle: DateRangePickerHeaderStyle(
