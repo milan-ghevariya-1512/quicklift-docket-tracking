@@ -69,7 +69,9 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                   onBack: () => Get.back(),
                 ),
               ),
-              buildStepIndicator(c.currentStage.value),
+              GetBuilder<VehicleRequestController>(
+                builder: (_) => Obx(() => buildStepIndicator()),
+              ),
               Expanded(
                 child: c.isLoaded.value
                     ? const FormShimmer()
@@ -2164,7 +2166,9 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
     );
   }
 
-  Widget buildStepIndicator(int currentStage) {
+  Widget buildStepIndicator() {
+    final displayIdx = c.stageDisplayIndex;
+    final total = c.stageCount;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: Get.width * 0.05),
       child: Column(
@@ -2175,7 +2179,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                (currentStage + 1).toString().padLeft(2, '0'),
+                (displayIdx + 1).toString().padLeft(2, '0'),
                 style: AppTextStyle.regularTextStyle.copyWith(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -2186,7 +2190,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 2.0),
                 child: Text(
-                  "/05",
+                  "/${total.toString().padLeft(2, '0')}",
                   style: AppTextStyle.regularTextStyle.copyWith(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -2198,7 +2202,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
           ),
           HBox(Get.height * 0.01),
           Text(
-            c.stageTitles[currentStage],
+            c.stageTitles[displayIdx],
             style: AppTextStyle.regularTextStyle.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.bold,

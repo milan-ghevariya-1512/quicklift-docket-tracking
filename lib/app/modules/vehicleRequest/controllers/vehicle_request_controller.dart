@@ -36,7 +36,20 @@ class VehicleRequestController extends GetxController {
   final GlobalKey<FormFieldState<int>> googleStartLegFormFieldKey = GlobalKey<FormFieldState<int>>();
   final GlobalKey<FormFieldState<int>> googleEndLegFormFieldKey = GlobalKey<FormFieldState<int>>();
 
-  final List<String> stageTitles = ["GENERAL INFO", "Leg Details", "Bid Details", "Vehicle Preference", "Load Details"];
+  bool get hideBidDetailsStep => (Utils().box.read(StorageUtil.userTypeId) ?? '').toString() == 'AFK' && !(vehicleRequestData?.isBiddingEnable ?? false);
+
+  List<String> get stageTitles => hideBidDetailsStep
+      ? ["GENERAL INFO", "Leg Details", "Vehicle Preference", "Load Details"]
+      : ["GENERAL INFO", "Leg Details", "Bid Details", "Vehicle Preference", "Load Details"];
+
+  int get stageDisplayIndex {
+    final v = currentStage.value;
+    if (!hideBidDetailsStep) return v;
+    if (v <= 1) return v;
+    return v - 1;
+  }
+
+  int get stageCount => hideBidDetailsStep ? 4 : 5;
 
   var currentStage = 0.obs;
   VehicleRequestData? vehicleRequestData;
@@ -170,7 +183,7 @@ class VehicleRequestController extends GetxController {
       }
     } else if (currentStage.value == 1) {
       if (formKey2.currentState!.validate()) {
-        currentStage.value++;
+        currentStage.value = hideBidDetailsStep ? 3 : 2;
       }
     } else if (currentStage.value == 2) {
       if (formKey3.currentState!.validate()) {
@@ -190,7 +203,10 @@ class VehicleRequestController extends GetxController {
   }
 
   void previousStage() {
-    if (currentStage.value > 0) {
+    if (currentStage.value <= 0) return;
+    if (hideBidDetailsStep && currentStage.value == 3) {
+      currentStage.value = 1;
+    } else {
       currentStage.value--;
     }
   }
