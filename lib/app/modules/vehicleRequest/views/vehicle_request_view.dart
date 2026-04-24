@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
+import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteCityModel.dart';
 import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteLegLocationModel.dart';
 import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteServiceModeModel.dart';
 import 'package:quicklift_docket_tracking/app/data/model/legLocationModel.dart';
@@ -18,8 +19,10 @@ import '../../../../Reusability/widgets/google_place_auto_complete_field.dart';
 import '../../../data/model/fieldSetupModel.dart';
 import '../../../data/model/getAutoCompleteCustomerModel.dart';
 import '../../../data/model/getAutoCompleteLocationModel.dart';
+import '../../../data/model/getAutoCompleteRateModel.dart';
 import '../../../data/model/getAutoCompleteVehicleFtlTypeModel.dart';
 import '../../../data/model/getAutoCompleteVehicleModel.dart';
+import '../../../data/model/getAutoCompleteVendorModel.dart';
 import '../../../data/model/getGeneralMasterModel.dart';
 import '../../../data/service/api_url_list.dart';
 import '../controllers/vehicle_request_controller.dart';
@@ -28,6 +31,12 @@ String legLocationDropdownCaption(LegLocationList e) {
   final d = (e.codeDesc ?? '').trim();
   if (d.isNotEmpty) return d;
   return (e.address ?? '').trim();
+}
+
+String legCityDropdownCaption(GetAutoCompleteCityModel e) {
+  final d = (e.codeDesc ?? '').trim();
+  if (d.isNotEmpty) return d;
+  return (e.cityAbrv ?? '').trim();
 }
 
 class VehicleRequestView extends GetView<VehicleRequestController> {
@@ -647,9 +656,11 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                 ],
               ),
 
-              HBox(Get.height * 0.015),
+              if(!(c.vehicleRequestData?.isLegEnable ?? false) && (c.vehicleRequestData?.isCustomerAddress ?? false))HBox(Get.height * 0.015),
 
-              if(c.selectPreferenceType.value == 'google')Column(
+              if(c.selectPreferenceType.value == 'google' &&
+                  (c.getFieldData("VR_STARTPOINT") != null && (c.getFieldData("VR_STARTPOINT")?.isInUse ?? false)) &&
+                  (c.getFieldData("VR_ENDPOINT") != null && (c.getFieldData("VR_ENDPOINT")?.isInUse ?? false)))Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildDynamicField("VR_STARTPOINT",
@@ -668,6 +679,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                           ListView.separated(
                             itemCount: c.startPointController.length,
                             padding: EdgeInsets.zero,
+                            physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             itemBuilder: (context, index) {
                               return Row(
@@ -714,23 +726,25 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                                     ),
                                   ),
                                   WBox(Get.width * 0.015),
-                                  if(c.startPointController.length > 1)InkWell(
-                                    onTap: () {
-                                      c.removeStartPointRow(index);
-                                    },
-                                    splashColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    child: Icon(Icons.close, color: AppColors.redColor, size: 25),
-                                  ),
-                                  if(c.startPointController.length > 1)WBox(Get.width * 0.015),
-                                  InkWell(
-                                    onTap: () {
-                                      c.addStartPointRow();
-                                    },
-                                    splashColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    child: Icon(Icons.add, color: AppColors.primaryColor, size: 30),
-                                  )
+                                  if (c.startPointController.length > 1)
+                                    InkWell(
+                                      onTap: () {
+                                        c.removeStartPointRow(index);
+                                      },
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      child: Icon(Icons.close, color: AppColors.redColor, size: 25),
+                                    ),
+                                  if (c.startPointController.length > 1) WBox(Get.width * 0.015),
+                                  if (index == c.startPointController.length - 1)
+                                    InkWell(
+                                      onTap: () {
+                                        c.addStartPointRow();
+                                      },
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      child: Icon(Icons.add, color: AppColors.primaryColor, size: 30),
+                                    )
                                 ],
                               );
                             },
@@ -767,6 +781,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                           ListView.separated(
                             itemCount: c.endPointController.length,
                             padding: EdgeInsets.zero,
+                            physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             itemBuilder: (context, index) {
                               return Row(
@@ -813,23 +828,25 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                                     ),
                                   ),
                                   WBox(Get.width * 0.015),
-                                  if(c.endPointController.length > 1)InkWell(
-                                    onTap: () {
-                                      c.removeEndPointRow(index);
-                                    },
-                                    splashColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    child: Icon(Icons.close, color: AppColors.redColor, size: 25),
-                                  ),
-                                  if(c.endPointController.length > 1)WBox(Get.width * 0.015),
-                                  InkWell(
-                                    onTap: () {
-                                      c.addEndPointRow();
-                                    },
-                                    splashColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    child: Icon(Icons.add, color: AppColors.primaryColor, size: 30),
-                                  )
+                                  if (c.endPointController.length > 1)
+                                    InkWell(
+                                      onTap: () {
+                                        c.removeEndPointRow(index);
+                                      },
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      child: Icon(Icons.close, color: AppColors.redColor, size: 25),
+                                    ),
+                                  if (c.endPointController.length > 1) WBox(Get.width * 0.015),
+                                  if (index == c.endPointController.length - 1)
+                                    InkWell(
+                                      onTap: () {
+                                        c.addEndPointRow();
+                                      },
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      child: Icon(Icons.add, color: AppColors.primaryColor, size: 30),
+                                    )
                                 ],
                               );
                             },
@@ -853,7 +870,9 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                 ],
               ),
 
-              if(c.selectPreferenceType.value == 'custom')Column(
+              if(c.selectPreferenceType.value == 'custom' &&
+                  (c.getFieldData("VR_STARTPOINT") != null && (c.getFieldData("VR_STARTPOINT")?.isInUse ?? false)) &&
+                  (c.getFieldData("VR_ENDPOINT") != null && (c.getFieldData("VR_ENDPOINT")?.isInUse ?? false)))Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildDynamicField("VR_STARTPOINT",
@@ -872,6 +891,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                           ListView.separated(
                             itemCount: c.startPointController.length,
                             padding: EdgeInsets.zero,
+                            physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             itemBuilder: (context, index) {
                               final startCfg = c.getFieldData("VR_STARTPOINT");
@@ -893,23 +913,25 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                                     ),
                                   ),
                                   WBox(Get.width * 0.015),
-                                  if(c.startPointController.length > 1)InkWell(
-                                    onTap: () {
-                                      c.removeStartPointRow(index);
-                                    },
-                                    splashColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    child: Icon(Icons.close, color: AppColors.redColor, size: 25),
-                                  ),
-                                  if(c.startPointController.length > 1)WBox(Get.width * 0.015),
-                                  InkWell(
-                                    onTap: () {
-                                      c.addStartPointRow();
-                                    },
-                                    splashColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    child: Icon(Icons.add, color: AppColors.primaryColor, size: 30),
-                                  )
+                                  if (c.startPointController.length > 1)
+                                    InkWell(
+                                      onTap: () {
+                                        c.removeStartPointRow(index);
+                                      },
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      child: Icon(Icons.close, color: AppColors.redColor, size: 25),
+                                    ),
+                                  if (c.startPointController.length > 1) WBox(Get.width * 0.015),
+                                  if (index == c.startPointController.length - 1)
+                                    InkWell(
+                                      onTap: () {
+                                        c.addStartPointRow();
+                                      },
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      child: Icon(Icons.add, color: AppColors.primaryColor, size: 30),
+                                    )
                                 ],
                               );
                             },
@@ -945,6 +967,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                         children: [
                           ListView.separated(
                             itemCount: c.endPointController.length,
+                            physics: NeverScrollableScrollPhysics(),
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
                             itemBuilder: (context, index) {
@@ -967,23 +990,25 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                                     ),
                                   ),
                                   WBox(Get.width * 0.015),
-                                  if(c.endPointController.length > 1)InkWell(
-                                    onTap: () {
-                                      c.removeEndPointRow(index);
-                                    },
-                                    splashColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    child: Icon(Icons.close, color: AppColors.redColor, size: 25),
-                                  ),
-                                  if(c.endPointController.length > 1)WBox(Get.width * 0.015),
-                                  InkWell(
-                                    onTap: () {
-                                      c.addEndPointRow();
-                                    },
-                                    splashColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    child: Icon(Icons.add, color: AppColors.primaryColor, size: 30),
-                                  )
+                                  if (c.endPointController.length > 1)
+                                    InkWell(
+                                      onTap: () {
+                                        c.removeEndPointRow(index);
+                                      },
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      child: Icon(Icons.close, color: AppColors.redColor, size: 25),
+                                    ),
+                                  if (c.endPointController.length > 1) WBox(Get.width * 0.015),
+                                  if (index == c.endPointController.length - 1)
+                                    InkWell(
+                                      onTap: () {
+                                        c.addEndPointRow();
+                                      },
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      child: Icon(Icons.add, color: AppColors.primaryColor, size: 30),
+                                    )
                                 ],
                               );
                             },
@@ -1007,9 +1032,106 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                 ],
               ),
 
+              if ((c.vehicleRequestData?.isLegEnable ?? false) &&
+                  (c.getFieldData("VR_FROMCITY") != null && (c.getFieldData("VR_FROMCITY")?.isInUse ?? false)) &&
+                  (c.getFieldData("VR_TOCITY") != null && (c.getFieldData("VR_TOCITY")?.isInUse ?? false)))FieldScrollWrapper(
+                    child: ListView.separated(
+                      itemCount: c.legFromCitySelected.length,
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        final fromCfg = c.getFieldData("VR_FROMCITY");
+                        final toCfg = c.getFieldData("VR_TOCITY");
+                        final legCount = c.legFromCitySelected.length;
+                        final isLast = index == legCount - 1;
+                        final fromVal = index < c.legFromCitySelected.length ? c.legFromCitySelected[index] : null;
+                        final toVal = index < c.legToCitySelected.length ? c.legToCitySelected[index] : null;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            HBox(Get.height * 0.015),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    "Row ${index + 1} : ${c.getFieldData("VR_FROMCITY")?.fieldCaption ?? ''} - ${c.getFieldData("VR_TOCITY")?.fieldCaption ?? ''}",
+                                    style: AppTextStyle.regularTextStyle.copyWith(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textBlackColor,
+                                    ),
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    if (legCount > 1)WBox(Get.width * 0.015),
+                                    if (legCount > 1)
+                                      InkWell(
+                                        onTap: () {
+                                          c.removeLegCityRow(index);
+                                        },
+                                        splashColor: Colors.transparent,
+                                        highlightColor: Colors.transparent,
+                                        child: Icon(Icons.close, color: AppColors.redColor, size: 25),
+                                      ),
+                                    if (isLast) WBox(Get.width * 0.015),
+                                    if (isLast)
+                                      InkWell(
+                                        onTap: () {
+                                          c.addLegCityRow();
+                                        },
+                                        splashColor: Colors.transparent,
+                                        highlightColor: Colors.transparent,
+                                        child: Icon(Icons.add, color: AppColors.primaryColor, size: 30),
+                                      ),
+                                  ],
+                                )
+                              ],
+                            ),
+                            HBox(Get.height * 0.01),
+                            DropdownTextField<GetAutoCompleteCityModel>(
+                              value: c.matchingCityInOptions(fromVal),
+                              items: c.cityList,
+                              itemLabel: legCityDropdownCaption,
+                              hintText: fromCfg?.fieldCaption ?? '',
+                              enabled: fromCfg?.isEnable ?? false,
+                              onChanged: (value) {
+                                c.setLegFromCity(index, value);
+                              },
+                              validator: (p0) {
+                                if(p0 == null){
+                                  return "Required";
+                                }
+                                return null;
+                              },
+                            ),
+                            HBox(Get.height * 0.01),
+                            DropdownTextField<GetAutoCompleteCityModel>(
+                              value: c.matchingCityInOptions(toVal),
+                              items: c.cityList,
+                              itemLabel: legCityDropdownCaption,
+                              hintText: toCfg?.fieldCaption ?? '',
+                              enabled: toCfg?.isEnable ?? false,
+                              onChanged: (value) {
+                                c.setLegToCity(index, value);
+                              },
+                              validator: (p0) {
+                                if(p0 == null){
+                                  return "Required";
+                                }
+                                return null;
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                      separatorBuilder: (context, index) => HBox(Get.height * 0.01),
+                    ),
+                  ),
+
               buildDynamicField("VR_APPROXDISTANCE",
                 controller: c.approxDistanceController,
-                enabled: false,
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
@@ -1034,8 +1156,10 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
           child: Column(
             children: [
 
-              if (c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false))HBox(Get.height * 0.01),
-              if (c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false))Row(
+              if (!(c.vehicleRequestData?.isBiddingEnable ?? false))NoData(),
+
+              if ((c.vehicleRequestData?.isBiddingEnable ?? false) && (c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)))HBox(Get.height * 0.01),
+              if ((c.vehicleRequestData?.isBiddingEnable ?? false) && (c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)))Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   InkWell(
@@ -1057,9 +1181,9 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                   ))
                 ],
               ),
-              if (c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false))HBox(Get.height * 0.02),
+              if ((c.vehicleRequestData?.isBiddingEnable ?? false) && (c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)))HBox(Get.height * 0.02),
 
-              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)Obx(() => TextFField(
+              if ((c.getFieldData("VR_ISBIDDING") != null && (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)Obx(() => TextFField(
                 readOnly: true,
                 controller: TextEditingController(
                   text: Utils().formatDateTime(c.biddingStartDateTime.value),
@@ -1106,8 +1230,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                   return null;
                 },
               )),
-              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)HBox(Get.height * 0.015),
-              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)Obx(() => TextFField(
+              if ((c.getFieldData("VR_ISBIDDING") != null && (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)HBox(Get.height * 0.015),
+              if ((c.getFieldData("VR_ISBIDDING") != null && (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)Obx(() => TextFField(
                 readOnly: true,
                 controller: TextEditingController(
                   text: Utils().formatDateTime(c.biddingEndDateTime.value),
@@ -1146,9 +1270,9 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                   return null;
                 },
               )),
-              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)HBox(Get.height * 0.01),
+              if ((c.getFieldData("VR_ISBIDDING") != null && (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)HBox(Get.height * 0.01),
 
-              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)Obx(() => buildDynamicField("VR_ISCAPRATE",
+              if ((c.getFieldData("VR_ISBIDDING") != null && (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)Obx(() => buildDynamicField("VR_ISCAPRATE",
                 customInput: Row(
                   children: [
                     InkWell(
@@ -1187,8 +1311,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                 ),
               )),
 
-              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)buildDynamicField("VR_BIDDINGNOTE", controller: c.biddingNoteController),
-              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)buildDynamicField("VR_ACCEPTBIDFROM", customInput: Obx(() => Padding(
+              if ((c.getFieldData("VR_ISBIDDING") != null && (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)buildDynamicField("VR_BIDDINGNOTE", controller: c.biddingNoteController),
+              if ((c.getFieldData("VR_ISBIDDING") != null && (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)buildDynamicField("VR_ACCEPTBIDFROM", customInput: Obx(() => Padding(
                 padding: EdgeInsets.only(top: Get.height * 0.01),
                 child: Row(
                     children: [
@@ -1243,7 +1367,135 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                   ),
               ))),
 
-              if ((c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)buildDynamicField("VR_BIDVENDOR", controller: c.vendorController),
+              if ((c.getFieldData("VR_ISBIDDING") != null && (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value &&  c.acceptBidFrom.value == 'AOP')buildDynamicField("VR_BIDVENDOR",
+                customInput: DropdownButtonFormField<VendorTypeList>(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) {
+                    if (c.getFieldData("VR_BIDVENDOR")?.isRequired ?? true) {
+                      if (value == null) {
+                        return 'Required';
+                      }
+                    }
+                    return null;
+                  },
+                  isExpanded: true,
+                  borderRadius: BorderRadius.circular(20),
+                  menuMaxHeight: Get.height * 0.5,
+                  value: c.selectedVendor == null ? null : c.selectedVendor,
+                  icon: const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.textBlackColor,
+                  ),
+                  style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                  hint: Text(
+                    c.getFieldData("VR_BIDVENDOR")?.fieldCaption ?? '',
+                    style: AppTextStyle.regularTextStyle.copyWith(
+                      color: c.vendorList.isEmpty ? AppColors.borderColor : AppColors.hintTextColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                  decoration: InputDecoration(
+                    counterText: "",
+                    filled: true,
+                    fillColor: AppColors.whiteColor,
+                    contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                    hintText: c.getFieldData("VR_BIDVENDOR")?.fieldCaption ?? '',
+                    hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
+                    disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                    ),
+                    errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
+                  ),
+                  onChanged: (value) {
+                    c.selectedVendor = value;
+                    c.update();
+                  },
+                  items: c.vendorList.map((option) {
+                    return DropdownMenuItem<VendorTypeList>(
+                      value: option,
+                      child: Text(
+                        maxLines: 1,
+                        "${option.vendorCode ?? ''} : ${option.codeDesc ?? ''}",
+                        style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+
+              if ((c.getFieldData("VR_ISBIDDING") != null && (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value &&  c.acceptBidFrom.value == 'AOO')buildDynamicField("VR_BIDLANE",
+                customInput: DropdownButtonFormField<GetGeneralMasterModel>(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) {
+                    if (c.getFieldData("VR_BIDLANE")?.isRequired ?? true) {
+                      if (value == null) {
+                        return 'Required';
+                      }
+                    }
+                    return null;
+                  },
+                  isExpanded: true,
+                  borderRadius: BorderRadius.circular(20),
+                  menuMaxHeight: Get.height * 0.5,
+                  value: c.selectedLane == null ? null : c.selectedLane,
+                  icon: const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.textBlackColor,
+                  ),
+                  style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                  hint: Text(
+                    c.getFieldData("VR_BIDLANE")?.fieldCaption ?? '',
+                    style: AppTextStyle.regularTextStyle.copyWith(
+                      color: c.laneList.isEmpty ? AppColors.borderColor : AppColors.hintTextColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                  decoration: InputDecoration(
+                    counterText: "",
+                    filled: true,
+                    fillColor: AppColors.whiteColor,
+                    contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                    hintText: c.getFieldData("VR_BIDLANE")?.fieldCaption ?? '',
+                    hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
+                    disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                    ),
+                    errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
+                  ),
+                  onChanged: (value) {
+                    c.selectedLane = value;
+                    c.update();
+                  },
+                  items: c.laneList.map((option) {
+                    return DropdownMenuItem<GetGeneralMasterModel>(
+                      value: option,
+                      child: Text(
+                        maxLines: 1,
+                        option.codeDetail ?? '',
+                        style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
 
               HBox(MediaQuery.of(context).padding.bottom + Get.height * 0.035)
             ],
@@ -1662,11 +1914,11 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                     WBox(Get.width * 0.02),
                     Expanded(
                       flex: 3,
-                      child: DropdownButtonFormField<String>(
+                      child: DropdownButtonFormField<RateTypeList>(
                         isExpanded: true,
                         borderRadius: BorderRadius.circular(30),
                         menuMaxHeight: Get.height * 0.5,
-                        value: VehicleRequestController.freightChargeModes.contains(c.selectedFreightChargeMode) ? c.selectedFreightChargeMode : VehicleRequestController.freightChargeModes.first,
+                        value: c.selectedRateType == null ? null : c.selectedRateType,
                         icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textBlackColor, size: 20),
                         style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 11, fontWeight: FontWeight.w600),
                         decoration: InputDecoration(
@@ -1690,10 +1942,10 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                           ),
                           errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
                         ),
-                        items: VehicleRequestController.freightChargeModes.map((m) {
-                          return DropdownMenuItem<String>(
+                        items: c.rateTypeList.map((m) {
+                          return DropdownMenuItem<RateTypeList>(
                             value: m,
-                            child: Text(m, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),),
+                            child: Text(m.codeDesc ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),),
                           );
                         }).toList(),
                         onChanged: c.onFreightChargeModeChanged,

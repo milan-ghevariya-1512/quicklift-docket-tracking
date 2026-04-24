@@ -11,6 +11,7 @@ class StorageUtil {
   static const String companyId = 'companyId';
   static const String yearId = 'yearId';
   static const String organizationId = 'organizationId';
+  static const String userTypeId = 'userType';
 
 }
 

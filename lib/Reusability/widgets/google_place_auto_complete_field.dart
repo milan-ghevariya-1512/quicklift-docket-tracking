@@ -250,6 +250,9 @@ class _CustomGooglePlaceAutoCompleteFieldState
               Image.asset(AppImage.locationIcon,height: Get.height*0.03,fit: BoxFit.cover,color: AppColors.greyColor),
               Expanded(
                 child: TextField(
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
                   focusNode: widget.focusNode,
                   controller: widget.textEditingController,
                   decoration: widget.inputDecoration,

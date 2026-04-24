@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:quicklift_docket_tracking/Reusability/utils/util.dart';
+import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteCityModel.dart';
 import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteLegLocationModel.dart';
+import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteRateModel.dart';
 import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteServiceModeModel.dart';
 import 'package:quicklift_docket_tracking/app/data/model/getVehicleRequestModel.dart';
 import 'package:quicklift_docket_tracking/app/data/service/vehicle_service.dart';
@@ -13,6 +16,7 @@ import '../../../data/model/getAutoCompleteCustomerModel.dart';
 import '../../../data/model/getAutoCompleteLocationModel.dart';
 import '../../../data/model/getAutoCompleteVehicleFtlTypeModel.dart';
 import '../../../data/model/getAutoCompleteVehicleModel.dart';
+import '../../../data/model/getAutoCompleteVendorModel.dart';
 import '../../../data/model/getGeneralMasterModel.dart';
 import '../../../data/model/legLocationModel.dart';
 import '../../../data/service/field_setup_service.dart';
@@ -61,6 +65,9 @@ class VehicleRequestController extends GetxController {
   List<LegLocationList?> selectedEndCustomAddress = [null];
   List<LegLocationList> customLocationList = [];
   TextEditingController approxDistanceController = TextEditingController(text: '0.00');
+  List<GetAutoCompleteCityModel> cityList = [];
+  List<GetAutoCompleteCityModel?> legFromCitySelected = [null];
+  List<GetAutoCompleteCityModel?> legToCitySelected = [null];
 
   var isBiddingRequired = false.obs;
   Rxn<DateTime> biddingStartDateTime = Rxn<DateTime>();
@@ -70,6 +77,10 @@ class VehicleRequestController extends GetxController {
   TextEditingController biddingNoteController = TextEditingController();
   var acceptBidFrom = 'AOO'.obs;
   TextEditingController vendorController = TextEditingController();
+  List<VendorTypeList> vendorList = [];
+  VendorTypeList? selectedVendor;
+  List<GetGeneralMasterModel> laneList = [];
+  GetGeneralMasterModel? selectedLane;
 
   TextEditingController noOfVehicleController = TextEditingController(text: '1');
   GetAutoCompleteVehicleFtlTypeList? selectedVehicleFtlType;
@@ -85,15 +96,10 @@ class VehicleRequestController extends GetxController {
   List<GetGeneralMasterModel> packagingTypeList = [];
   GetGeneralMasterModel? selectedPackagingType;
   TextEditingController driverInstructionController = TextEditingController();
-
-  static const List<String> freightChargeModes = [
-    'Flat(In RS)',
-    'Per KG',
-    'Per TON',
-  ];
   TextEditingController freightChargeRateController = TextEditingController();
   TextEditingController freightChargeTotalController = TextEditingController();
-  String selectedFreightChargeMode = freightChargeModes.first;
+  List<RateTypeList> rateTypeList = [];
+  RateTypeList? selectedRateType;
   bool freightChargeSyncing = false;
   late final VoidCallback freightWeightListener;
 
@@ -111,9 +117,13 @@ class VehicleRequestController extends GetxController {
     getVehicleRequest();
     getAutoCompleteServiceMode();
     getAutoCompleteVehicleFtlType("%");
+    getAutoCompleteCity("%");
+    getAutoCompleteVendor("%");
+    getAutoCompleteRateType();
     loadCustomLegAddressOptions();
     getGeneralMaster(masterType: "MAT_TYPE");
     getGeneralMaster(masterType: "PTYPE");
+    getGeneralMaster(masterType: "LANE_TYPE");
     freightWeightListener = onWeightChangedForFreightCharge;
     wightController.addListener(freightWeightListener);
     freightChargeRateController.addListener(onFreightChargeRateChanged);
@@ -191,6 +201,10 @@ class VehicleRequestController extends GetxController {
   }
 
   Future<void> setLocation() async {
+    isLoaded.value = true;
+    selectedToLocation = null;
+    selectedFromLocation = null;
+    isLoaded.value = false;
     String currentLocationId = Utils().box.read(StorageUtil.locationId) ?? '';
     var locations = await getAutoCompleteLocation(Utils().box.read(StorageUtil.locationName) ?? '');
     for (var entry in locations) {
@@ -201,6 +215,20 @@ class VehicleRequestController extends GetxController {
       }
     }
     update();
+  }
+
+  Future<void> setCustomer(term, customerId) async {
+    isLoaded.value = true;
+    selectedCustomer = null;
+    var locations = await getAutoCompleteCustomerList(term);
+    isLoaded.value = false;
+    for (var entry in locations) {
+      if (entry.codeId == customerId) {
+        selectedCustomer = entry;
+        update();
+        return;
+      }
+    }
   }
 
   Future<List<GetAutoCompleteLocationModel>> getAutoCompleteLocation(String term) async {
@@ -215,9 +243,13 @@ class VehicleRequestController extends GetxController {
     isLoaded.value = true;
     vehicleRequestData = null;
     var result = await VehicleService().getVehicleRequest(navigateToCheck: true);
-    isLoaded.value = false;
     if (result != null) {
       vehicleRequestData = result.vehicleRequestData;
+      if((result.vehicleRequestData?.customerId ?? '').isNotEmpty){
+        setCustomer(result.vehicleRequestData?.customerName ?? '%', result.vehicleRequestData?.customerId ?? '');
+      } else{
+        customerController.text = result.vehicleRequestData?.customerName ?? '';
+      }
       if (!(result.vehicleRequestData?.isLegEnable ?? false) && (result.vehicleRequestData?.isCustomerAddress ?? false)) {
         selectPreferenceType.value = 'custom';
       } else if (!(result.vehicleRequestData?.isLegEnable ?? false) && !(result.vehicleRequestData?.isCustomerAddress ?? false)) {
@@ -262,6 +294,46 @@ class VehicleRequestController extends GetxController {
       if (state == null || !state.mounted) return;
       state.validate();
     });
+  }
+
+  GetAutoCompleteCityModel? matchingCityInOptions(GetAutoCompleteCityModel? selected) {
+    if (selected == null) return null;
+    for (final o in cityList) {
+      if ((o.codeId ?? '').isNotEmpty && (o.codeId ?? '') == (selected.codeId ?? '')) {
+        return o;
+      }
+    }
+    for (final o in cityList) {
+      if ((o.cityAbrv ?? '') == (selected.cityAbrv ?? '') && (o.codeDesc ?? '') == (selected.codeDesc ?? '')) {
+        return o;
+      }
+    }
+    return null;
+  }
+
+  void addLegCityRow() {
+    legFromCitySelected.add(null);
+    legToCitySelected.add(null);
+    update();
+  }
+
+  void removeLegCityRow(int index) {
+    if (legFromCitySelected.length <= 1 || index < 0 || index >= legFromCitySelected.length) {
+      return;
+    }
+    legFromCitySelected.removeAt(index);
+    legToCitySelected.removeAt(index);
+    update();
+  }
+
+  void setLegFromCity(int index, GetAutoCompleteCityModel? value) {
+    legFromCitySelected[index] = value;
+    update();
+  }
+
+  void setLegToCity(int index, GetAutoCompleteCityModel? value) {
+    legToCitySelected[index] = value;
+    update();
   }
 
   void renumberLegSequences(List<LegLocationModel> list) {
@@ -484,6 +556,8 @@ class VehicleRequestController extends GetxController {
     if (masterType == 'MAT_TYPE') selectedMaterialType = null;
     if (masterType == 'PTYPE') packagingTypeList.clear();
     if (masterType == 'PTYPE') selectedPackagingType = null;
+    if (masterType == 'LANE_TYPE') laneList.clear();
+    if (masterType == 'LANE_TYPE') selectedLane = null;
     var body = {"MasterType": masterType};
     var result = await VehicleService().getGeneralMaster(body: body);
     isLoaded.value = false;
@@ -493,6 +567,49 @@ class VehicleRequestController extends GetxController {
       if (masterType == 'MAT_TYPE' && result.isNotEmpty) selectedMaterialType = result.first;
       if (masterType == 'PTYPE') packagingTypeList.addAll(result);
       if (masterType == 'PTYPE' && result.isNotEmpty) selectedPackagingType = result.first;
+      if (masterType == 'LANE_TYPE') laneList.addAll(result);
+    }
+    update();
+  }
+
+  getAutoCompleteCity(String term) async {
+    isLoaded.value = true;
+    cityList.clear();
+    var body = {
+      "term": term
+    };
+    var result = await VehicleService().getAutoCompleteCity(body: body, navigateToCheck: false);
+    isLoaded.value = false;
+    if (result != null && result.isNotEmpty) {
+      cityList.addAll(result);
+    }
+    update();
+  }
+
+  getAutoCompleteVendor(String term) async {
+    isLoaded.value = true;
+    vendorList.clear();
+    selectedVendor = null;
+    var body = {
+      "term": term,
+    };
+    var result = await VehicleService().getAutoCompleteVendor(body: body, navigateToCheck: false);
+    isLoaded.value = false;
+    if (result != null && (result.vendorList ?? []).isNotEmpty) {
+      vendorList.addAll(result.vendorList ?? []);
+    }
+    update();
+  }
+
+  getAutoCompleteRateType() async {
+    isLoaded.value = true;
+    rateTypeList.clear();
+    selectedRateType = null;
+    var result = await VehicleService().getAutoCompleteRateType(navigateToCheck: false);
+    isLoaded.value = false;
+    if (result != null && (result.rateList ?? []).isNotEmpty) {
+      rateTypeList.addAll(result.rateList ?? []);
+      if((result.rateList ?? []).isNotEmpty)selectedRateType = (result.rateList ?? []).first;
     }
     update();
   }
@@ -528,9 +645,9 @@ class VehicleRequestController extends GetxController {
     syncFreightRateFromTotal();
   }
 
-  void onFreightChargeModeChanged(String? mode) {
+  void onFreightChargeModeChanged(RateTypeList? mode) {
     if (mode == null) return;
-    selectedFreightChargeMode = mode;
+    selectedRateType = mode;
     if (freightChargeRateController.text.trim().isNotEmpty) {
       syncFreightTotalFromRate();
     } else if (freightChargeTotalController.text.trim().isNotEmpty) {
@@ -556,11 +673,11 @@ class VehicleRequestController extends GetxController {
 
     freightChargeSyncing = true;
     try {
-      switch (selectedFreightChargeMode) {
-        case 'Flat(In RS)':
+      switch (selectedRateType?.codeId) {
+        case 'R1':
           freightChargeTotalController.text = formatFreightNumber(rate);
           break;
-        case 'Per KG':
+        case 'R6':
           final mult = wTon * 1000.0;
           if (mult > 0) {
             freightChargeTotalController.text = formatFreightNumber(rate * mult);
@@ -568,7 +685,7 @@ class VehicleRequestController extends GetxController {
             freightChargeTotalController.text = '0.00';
           }
           break;
-        case 'Per TON':
+        case 'R5':
           if (wTon > 0) {
             freightChargeTotalController.text = formatFreightNumber(rate * wTon);
           } else {
@@ -593,17 +710,17 @@ class VehicleRequestController extends GetxController {
 
     freightChargeSyncing = true;
     try {
-      switch (selectedFreightChargeMode) {
-        case 'Flat(In RS)':
+      switch (selectedRateType?.codeId) {
+        case 'R1':
           freightChargeRateController.text = formatFreightNumber(total);
           break;
-        case 'Per KG':
+        case 'R6':
           final mult = wTon * 1000.0;
           if (mult > 0) {
             freightChargeRateController.text = formatFreightNumber(total / mult);
           }
           break;
-        case 'Per TON':
+        case 'R5':
           if (wTon > 0) {
             freightChargeRateController.text = formatFreightNumber(total / wTon);
           }
@@ -615,11 +732,31 @@ class VehicleRequestController extends GetxController {
     }
   }
 
+  List<Map<String, dynamic>>? buildLegsPayload() {
+    if (!(vehicleRequestData?.isLegEnable ?? false)) return null;
+    final legsPayload = <Map<String, dynamic>>[];
+    for (var i = 0; i < legFromCitySelected.length; i++) {
+      final from = legFromCitySelected[i];
+      final to = legToCitySelected[i];
+      if (from == null || to == null) continue;
+      final fromId = (from.cityAbrv ?? '').trim().isNotEmpty ? from.cityAbrv!.trim() : (from.codeId ?? '').trim();
+      final toId = (to.cityAbrv ?? '').trim().isNotEmpty ? to.cityAbrv!.trim() : (to.codeId ?? '').trim();
+      legsPayload.add({
+        "LegNumber": i + 1,
+        "FromCityId": fromId.isEmpty ? null : fromId,
+        "FromPlace": (from.codeDesc ?? '').trim().isEmpty ? null : (from.codeDesc ?? '').trim(),
+        "ToCityId": toId.isEmpty ? null : toId,
+        "ToPlace": (to.codeDesc ?? '').trim().isEmpty ? null : (to.codeDesc ?? '').trim(),
+      });
+    }
+    return legsPayload.isEmpty ? null : legsPayload;
+  }
+
   createVehicleRequest() async {
     Utils.showLoadingDialog();
     List pickupPoints = [];
     List deliveryPoints = [];
-    if(selectPreferenceType.value == 'google'){
+    if(!(vehicleRequestData?.isLegEnable ?? false) && selectPreferenceType.value == 'google'){
       for(int i=0; i < startPointList.length; i++){
         pickupPoints.add({
           "PointSequence" : i + 1,
@@ -642,7 +779,7 @@ class VehicleRequestController extends GetxController {
           "PointAreaName" : (endPointList[j].pointAreaName ?? '').isEmpty ? null : endPointList[j].pointAreaName ?? '',
         });
       }
-    } else if(selectPreferenceType.value == 'custom'){
+    } else if(!(vehicleRequestData?.isLegEnable ?? false) && selectPreferenceType.value == 'custom'){
       for(int p=0; p < selectedStartCustomAddress.length; p++){
         pickupPoints.add({
           "PointSequence" : p + 1,
@@ -674,9 +811,9 @@ class VehicleRequestController extends GetxController {
       "ManualNo": manualNoController.text.isEmpty ? null : manualNoController.text,
       "RequestDate": requestDateTime.value,
       "Remarks": remarksController.text.isEmpty ? null : remarksController.text,
-      "CustomerId": (selectedCustomer?.codeId ?? '').isEmpty ? null : selectedCustomer?.codeId ?? '',
-      "CustomerName": (selectedCustomer?.codeDesc ?? '').isEmpty ? null : selectedCustomer?.codeDesc ?? '',
-      "CustomerCode": (selectedCustomer?.customerCode ?? '').isEmpty ? null : selectedCustomer?.customerCode ?? '',
+      "CustomerId": ((selectedCustomer?.codeId ?? '').isEmpty && selectedCustomer == null) ? null : selectedCustomer?.codeId ?? '',
+      "CustomerName": ((selectedCustomer?.codeId ?? '').isEmpty && selectedCustomer == null) ? customerController.text.isEmpty ? null : customerController.text : selectedCustomer?.codeDesc ?? '',
+      "CustomerCode": ((selectedCustomer?.codeId ?? '').isEmpty && selectedCustomer == null) ? null : selectedCustomer?.customerCode ?? '',
       "MaterialTypeId": (selectedMaterialType?.codeId ?? '').isEmpty ? null : selectedMaterialType?.codeId ?? '',
       "PackagingTypeId": (selectedPackagingType?.codeId ?? '').isEmpty ? null : selectedPackagingType?.codeId ?? '',
       "PreferenceTypeId": null,
@@ -693,7 +830,7 @@ class VehicleRequestController extends GetxController {
       "IsBiddingRequired": isBiddingRequired.value,
       "BidStartDate": biddingStartDateTime.value,
       "BidEndDate": biddingEndDateTime.value,
-      "IsCapRate": true,
+      "IsCapRate": isMaxAmount.value,
       "MaximumRate": maxAmountController.text.isEmpty ? 0 : maxAmountController.text,
       "BiddingNote": biddingNoteController.text.isEmpty ? null : biddingNoteController.text,
       "AcceptBidFrom": acceptBidFrom.value,
@@ -705,11 +842,11 @@ class VehicleRequestController extends GetxController {
       "RequiredNoOfVehicle": noOfVehicleController.text.isEmpty ? 0 : noOfVehicleController.text,
       "Weight": wightController.text.isEmpty ? 0 : wightController.text,
       "RateAmount": freightChargeRateController.text.isEmpty ? 0 : freightChargeRateController.text,
-      "RateTypeId": "R1",
+      "RateTypeId": selectedRateType == null ? null : selectedRateType,
       "FreightCharge": freightChargeTotalController.text.isEmpty ? 0 : freightChargeTotalController.text,
-      "PickupPoints": pickupPoints,
-      "DeliveryPoints": deliveryPoints,
-      "Legs": null //[{"LegNumber": 1,"FromCityId": "AMD","FromPlace": "Ahmedabad","ToCityId": MUM","ToPlace": "Mum
+      "PickupPoints": pickupPoints.isEmpty ? null : pickupPoints,
+      "DeliveryPoints": deliveryPoints.isEmpty ? null : deliveryPoints,
+      "Legs": buildLegsPayload(),
     };
     var result = await VehicleService().createVehicleRequest(body: body, navigateToCheck: false);
     if (Get.isDialogOpen!) Get.back();

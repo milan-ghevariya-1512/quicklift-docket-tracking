@@ -27,7 +27,8 @@ class LoginController extends GetxController {
 
   Future<void> resendCode() async {
     var body = {
-      "OrganizationId" : "1",
+      "OrganizationId" : "E",
+      "LoginType": "AFK",
       "MobileNo": noController.text.trim()
     };
     var result = await DashBoardService().login(body: body);
@@ -35,8 +36,6 @@ class LoginController extends GetxController {
       secondsRemaining.value = 60;
       enableResend.value = false;
       Utils.toastOk(result['Message']);
-    } else{
-      Utils.toastWarning(result['Message']);
     }
     update();
   }
@@ -72,8 +71,8 @@ class LoginController extends GetxController {
     pinController.text = "";
     Utils.showLoadingDialog();
     var body = {
-      "OrganizationId" : "e", // 1
-      "LoginType": "",
+      "OrganizationId" : "E", // 1
+      "LoginType": "AFK",
       "MobileNo": noController.text.trim()
     };
     var result = await DashBoardService().login(body: body);
@@ -84,6 +83,7 @@ class LoginController extends GetxController {
       isPin.value = true;
       pinController.clear();
       secondsRemaining.value = 60;
+      Utils().box.remove(StorageUtil.userTypeId);
       timer = Timer.periodic(Duration(seconds: 1), (_) {
         if (secondsRemaining.value != 0) {
           secondsRemaining.value--;
@@ -91,8 +91,6 @@ class LoginController extends GetxController {
           enableResend.value = true;
         }
       });
-    } else{
-      Utils.toastWarning(result['ErrorDetail'][0]['ErrorMessage']);
     }
     update();
   }
@@ -100,20 +98,19 @@ class LoginController extends GetxController {
   verifyOtp() async {
     Utils.showLoadingDialog();
     var body = {
-      "OrganizationId" : "e", // 1
+      "OrganizationId" : "E", // 1
       "MobileNo": noController.text.trim(),
-      "LoginType": "",
+      "LoginType": "AFK",
       "OTP": pinController.text
     };
     var result = await DashBoardService().verifyOtp(body: body);
     if(Get.isDialogOpen!) Get.back();
     if(result != null && result['Success'] == true) {
-      Utils().setBox("token", result['Data']['Token']);
+      Utils().setBox("token", result['Data']);
       Utils.toastOk(result['Message']);
+      Utils().box.write(StorageUtil.userTypeId, "AFK");
       Utils().box.remove(StorageUtil.keyFieldSetup);
       Get.offAllNamed(Routes.DASHBOARD);
-    } else{
-      Utils.toastWarning(result['ErrorDetail'][0]['ErrorMessage']);
     }
     update();
   }

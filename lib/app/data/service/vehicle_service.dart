@@ -1,12 +1,15 @@
 import 'dart:convert';
 import '../../../Reusability/utils/util.dart';
 import '../model/fieldSetupModel.dart';
+import '../model/getAutoCompleteCityModel.dart';
 import '../model/getAutoCompleteCustomerModel.dart';
 import '../model/getAutoCompleteLegLocationModel.dart';
 import '../model/getAutoCompleteLocationModel.dart';
+import '../model/getAutoCompleteRateModel.dart';
 import '../model/getAutoCompleteServiceModeModel.dart';
 import '../model/getAutoCompleteVehicleFtlTypeModel.dart';
 import '../model/getAutoCompleteVehicleModel.dart';
+import '../model/getAutoCompleteVendorModel.dart';
 import '../model/getGeneralMasterModel.dart';
 import '../model/getLoginClaimModel.dart';
 import '../model/getVehicleRequestModel.dart';
@@ -80,7 +83,7 @@ class VehicleService {
 
   Future<GetVehicleRequestModel?> getVehicleRequest({client, bool navigateToCheck = false}) async {
     client ??= http.Client();
-    String token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IkUtVVItMEQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2dyb3Vwc2lkIjoiRSIsImp0aSI6ImI1N2MyYTc5LTEzMzMtNGUzZi1hODlmLWJlYjNlNmQxYWY2YyIsImV4cCI6MTc3NzAyNDU3MSwiaXNzIjoiTG9naUJyaXNrIiwiYXVkIjoiTG9naUJyaXNrIn0.NNum5YheQq_U5HjgMvKeeUvFD0sYQUqAvo_FAsm-v6E';
+    String token = Utils().getToken() ?? '';
 
     var url = ApiUrlList.getVehicleRequestApi;
     var result = await networkHandler.get(url, client,token, navigateToCheck: navigateToCheck);
@@ -154,13 +157,57 @@ class VehicleService {
 
   Future<GetLoginClaimModel?> getClaims({client, bool navigateToCheck = false}) async {
     client ??= http.Client();
-    String token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IkUtVVItMEQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2dyb3Vwc2lkIjoiRSIsImp0aSI6ImI1N2MyYTc5LTEzMzMtNGUzZi1hODlmLWJlYjNlNmQxYWY2YyIsImV4cCI6MTc3NzAyNDU3MSwiaXNzIjoiTG9naUJyaXNrIiwiYXVkIjoiTG9naUJyaXNrIn0.NNum5YheQq_U5HjgMvKeeUvFD0sYQUqAvo_FAsm-v6E';
+    String token = Utils().getToken() ?? '';
 
     var url = ApiUrlList.getClaimsApi;
     var result = await networkHandlerStander.post(url, client, token, navigateToCheck: navigateToCheck);
 
     if(result != null) {
       return GetLoginClaimModel.fromJson(jsonDecode(result));
+    } else {
+      return null;
+    }
+  }
+
+  Future<List<GetAutoCompleteCityModel>?> getAutoCompleteCity({client, body, bool navigateToCheck = false}) async {
+    client ??= http.Client();
+    String token = Utils().getToken() ?? '';
+
+    var url = ApiUrlList.getAutoCompleteCityApi;
+    var result = await networkHandlerStander.post(url, client, model: body, token, navigateToCheck: navigateToCheck);
+
+    if(result != null) {
+      List data1 = jsonDecode(result);
+      List<GetAutoCompleteCityModel> customerList = data1.map((e) => GetAutoCompleteCityModel.fromJson(e)).toList();
+      return customerList;
+    } else {
+      return null;
+    }
+  }
+
+  Future<GetAutoCompleteVendorModel?> getAutoCompleteVendor({client, body, bool navigateToCheck = false}) async {
+    client ??= http.Client();
+    String token = Utils().getToken() ?? '';
+
+    var url = ApiUrlList.getAutoCompleteVendorApi;
+    var result = await networkHandler.post(url, client, model: body, isResponseVersion: true,token, navigateToCheck: navigateToCheck);
+
+    if(result != null) {
+      return GetAutoCompleteVendorModel.fromJson(jsonDecode(result));
+    } else {
+      return null;
+    }
+  }
+
+  Future<GetAutoCompleteRateTypeModel?> getAutoCompleteRateType({client, bool navigateToCheck = false}) async {
+    client ??= http.Client();
+    String token = Utils().getToken() ?? '';
+
+    var url = ApiUrlList.getAutoCompleteRateTypeApi;
+    var result = await networkHandler.get(url, client, isResponseVersion: true,token, navigateToCheck: navigateToCheck);
+
+    if(result != null) {
+      return GetAutoCompleteRateTypeModel.fromJson(jsonDecode(result));
     } else {
       return null;
     }
