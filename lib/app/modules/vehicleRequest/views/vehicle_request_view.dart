@@ -7,6 +7,8 @@ import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteCityMode
 import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteLegLocationModel.dart';
 import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteServiceModeModel.dart';
 import 'package:quicklift_docket_tracking/app/data/model/legLocationModel.dart';
+import 'package:quicklift_docket_tracking/app/modules/vehicleRequest/widgets/lane_list_bottomsheet.dart';
+import 'package:quicklift_docket_tracking/app/modules/vehicleRequest/widgets/vendor_list_bottomsheet.dart';
 
 import '../../../../Reusability/utils/app_colors.dart';
 import '../../../../Reusability/utils/app_images.dart';
@@ -1156,7 +1158,10 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
           child: Column(
             children: [
 
-              if (!(c.vehicleRequestData?.isBiddingEnable ?? false))NoData(),
+              if (!(c.vehicleRequestData?.isBiddingEnable ?? false))Padding(
+                padding: EdgeInsets.symmetric(vertical: Get.height * 0.25),
+                child: NoData(),
+              ),
 
               if ((c.vehicleRequestData?.isBiddingEnable ?? false) && (c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)))HBox(Get.height * 0.01),
               if ((c.vehicleRequestData?.isBiddingEnable ?? false) && (c.getFieldData("VR_ISBIDDING") != null || (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)))Row(
@@ -1322,10 +1327,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                             InkWell(
                                 splashColor: Colors.transparent,
                                 highlightColor: Colors.transparent,
-                                onTap: () {
-                                  c.acceptBidFrom.value = 'AOO';
-                                  c.update();
-                                },
+                                onTap: () => c.setAcceptBidFrom('AOO'),
                                 child: Image.asset(c.acceptBidFrom.value == 'AOO' ? AppImage.radioSelectIcon : AppImage.radioIcon, color: AppColors.primaryColor, height: Get.height * 0.025, width: Get.height * 0.025, fit: BoxFit.contain)),
                             WBox(Get.width * 0.02),
                             Expanded(child: Text(
@@ -1346,10 +1348,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                             InkWell(
                                 splashColor: Colors.transparent,
                                 highlightColor: Colors.transparent,
-                                onTap: () {
-                                  c.acceptBidFrom.value = 'AOP';
-                                  c.update();
-                                },
+                                onTap: () => c.setAcceptBidFrom('AOP'),
                                 child: Image.asset(c.acceptBidFrom.value == "AOP" ? AppImage.radioSelectIcon : AppImage.radioIcon, color: AppColors.primaryColor, height: Get.height * 0.025, width: Get.height * 0.025, fit: BoxFit.contain)),
                             WBox(Get.width * 0.02),
                             Expanded(child: Text(
@@ -1368,132 +1367,242 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
               ))),
 
               if ((c.getFieldData("VR_ISBIDDING") != null && (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value &&  c.acceptBidFrom.value == 'AOP')buildDynamicField("VR_BIDVENDOR",
-                customInput: DropdownButtonFormField<VendorTypeList>(
+                customInput: FormField<List<VendorTypeList>>(
+                  key: c.vendorBidFormFieldKey,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) {
+                  initialValue: const [],
+                  validator: (_) {
                     if (c.getFieldData("VR_BIDVENDOR")?.isRequired ?? true) {
-                      if (value == null) {
+                      if (c.selectedVendors.isEmpty) {
                         return 'Required';
                       }
                     }
                     return null;
                   },
-                  isExpanded: true,
-                  borderRadius: BorderRadius.circular(20),
-                  menuMaxHeight: Get.height * 0.5,
-                  value: c.selectedVendor == null ? null : c.selectedVendor,
-                  icon: const Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: AppColors.textBlackColor,
-                  ),
-                  style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                  hint: Text(
-                    c.getFieldData("VR_BIDVENDOR")?.fieldCaption ?? '',
-                    style: AppTextStyle.regularTextStyle.copyWith(
-                      color: c.vendorList.isEmpty ? AppColors.borderColor : AppColors.hintTextColor,
-                      fontSize: 14,
-                    ),
-                  ),
-                  decoration: InputDecoration(
-                    counterText: "",
-                    filled: true,
-                    fillColor: AppColors.whiteColor,
-                    contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
-                    hintText: c.getFieldData("VR_BIDVENDOR")?.fieldCaption ?? '',
-                    hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-                    disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    errorBorder: OutlineInputBorder(
+                  builder: (fieldState) {
+                    return InkWell(
                       borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                    ),
-                    errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
-                  ),
-                  onChanged: (value) {
-                    c.selectedVendor = value;
-                    c.update();
-                  },
-                  items: c.vendorList.map((option) {
-                    return DropdownMenuItem<VendorTypeList>(
-                      value: option,
-                      child: Text(
-                        maxLines: 1,
-                        "${option.vendorCode ?? ''} : ${option.codeDesc ?? ''}",
-                        style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
+                      onTap: () {
+                        FocusScope.of(context).unfocus();
+                        if (!context.mounted) return;
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => VendorListBottomSheet(c: c),
+                        );
+                      },
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          counterText: "",
+                          filled: true,
+                          fillColor: AppColors.whiteColor,
+                          contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.012, horizontal: Get.width * 0.035),
+                          hintText: c.getFieldData("VR_BIDVENDOR")?.fieldCaption ?? '',
+                          hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
+                          disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                          ),
+                          errorText: fieldState.errorText,
+                          errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (c.selectedVendors.isNotEmpty)
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                                  icon: Icon(Icons.close, size: 20, color: AppColors.hintTextColor),
+                                  onPressed: () {
+                                    c.clearAllSelectedVendors();
+                                    fieldState.validate();
+                                  },
+                                ),
+                              const Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textBlackColor),
+                              ),
+                            ],
+                          ),
+                        ),
+                        child: c.selectedVendors.isEmpty
+                            ? Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  c.getFieldData("VR_BIDVENDOR")?.fieldCaption ?? '',
+                                  style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                                ),
+                              )
+                            : Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
+                                children: c.selectedVendors.map((v) {
+                                  return ConstrainedBox(
+                                    constraints: BoxConstraints(maxWidth: Get.width * 0.62),
+                                    child: Material(
+                                      color: AppColors.primaryColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            InkWell(
+                                              onTap: () {
+                                                c.removeSelectedVendor(v);
+                                                fieldState.validate();
+                                              },
+                                              child: Icon(Icons.close, size: 16, color: AppColors.whiteColor),
+                                            ),
+                                            WBox(4),
+                                            Flexible(
+                                              child: Text(
+                                                '${v.vendorCode ?? ''} : ${v.codeDesc ?? ''}',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.whiteColor, fontSize: 12, fontWeight: FontWeight.w500),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
                       ),
                     );
-                  }).toList(),
+                  },
                 ),
               ),
 
               if ((c.getFieldData("VR_ISBIDDING") != null && (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value &&  c.acceptBidFrom.value == 'AOO')buildDynamicField("VR_BIDLANE",
-                customInput: DropdownButtonFormField<GetGeneralMasterModel>(
+                customInput: FormField<List<GetGeneralMasterModel>>(
+                  key: c.laneBidFormFieldKey,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) {
+                  initialValue: const [],
+                  validator: (_) {
                     if (c.getFieldData("VR_BIDLANE")?.isRequired ?? true) {
-                      if (value == null) {
+                      if (c.selectedLanes.isEmpty) {
                         return 'Required';
                       }
                     }
                     return null;
                   },
-                  isExpanded: true,
-                  borderRadius: BorderRadius.circular(20),
-                  menuMaxHeight: Get.height * 0.5,
-                  value: c.selectedLane == null ? null : c.selectedLane,
-                  icon: const Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: AppColors.textBlackColor,
-                  ),
-                  style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                  hint: Text(
-                    c.getFieldData("VR_BIDLANE")?.fieldCaption ?? '',
-                    style: AppTextStyle.regularTextStyle.copyWith(
-                      color: c.laneList.isEmpty ? AppColors.borderColor : AppColors.hintTextColor,
-                      fontSize: 14,
-                    ),
-                  ),
-                  decoration: InputDecoration(
-                    counterText: "",
-                    filled: true,
-                    fillColor: AppColors.whiteColor,
-                    contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
-                    hintText: c.getFieldData("VR_BIDLANE")?.fieldCaption ?? '',
-                    hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-                    disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    errorBorder: OutlineInputBorder(
+                  builder: (fieldState) {
+                    return InkWell(
                       borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                    ),
-                    errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
-                  ),
-                  onChanged: (value) {
-                    c.selectedLane = value;
-                    c.update();
-                  },
-                  items: c.laneList.map((option) {
-                    return DropdownMenuItem<GetGeneralMasterModel>(
-                      value: option,
-                      child: Text(
-                        maxLines: 1,
-                        option.codeDetail ?? '',
-                        style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
+                      onTap: () {
+                        FocusScope.of(context).unfocus();
+                        if (!context.mounted) return;
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => LaneListBottomSheet(c: c),
+                        ).then((_) {
+                          fieldState.validate();
+                        });
+                      },
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          counterText: "",
+                          filled: true,
+                          fillColor: AppColors.whiteColor,
+                          contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.012, horizontal: Get.width * 0.035),
+                          hintText: c.getFieldData("VR_BIDLANE")?.fieldCaption ?? '',
+                          hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
+                          disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+                          ),
+                          errorText: fieldState.errorText,
+                          errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (c.selectedLanes.isNotEmpty)
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                                  icon: Icon(Icons.close, size: 20, color: AppColors.hintTextColor),
+                                  onPressed: () {
+                                    c.clearAllSelectedLanes();
+                                    fieldState.validate();
+                                  },
+                                ),
+                              const Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textBlackColor),
+                              ),
+                            ],
+                          ),
+                        ),
+                        child: c.selectedLanes.isEmpty
+                            ? Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  c.getFieldData("VR_BIDLANE")?.fieldCaption ?? '',
+                                  style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+                                ),
+                              )
+                            : Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
+                                children: c.selectedLanes.map((lane) {
+                                  return ConstrainedBox(
+                                    constraints: BoxConstraints(maxWidth: Get.width * 0.62),
+                                    child: Material(
+                                      color: AppColors.primaryColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            InkWell(
+                                              onTap: () {
+                                                c.removeSelectedLane(lane);
+                                                fieldState.validate();
+                                              },
+                                              child: Icon(Icons.close, size: 16, color: AppColors.whiteColor),
+                                            ),
+                                            WBox(4),
+                                            Flexible(
+                                              child: Text(
+                                                lane.codeDetail ?? '',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.whiteColor, fontSize: 12, fontWeight: FontWeight.w500),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
                       ),
                     );
-                  }).toList(),
+                  },
                 ),
               ),
 
@@ -2038,7 +2147,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                 hintText: config.fieldCaption,
                 enabled: enabled ?? config.isEnable,
                 readOnly: enabled ?? !config.isEnable,
-                fillColor: (enabled ?? true) ? AppColors.whiteColor : AppColors.borderColor.withOpacity(0.5),
+                fillColor: (enabled ?? config.isEnable) ? AppColors.whiteColor : AppColors.borderColor.withOpacity(0.5),
                 validator: customValidator ?? (value) {
                   if (config.isRequired && (value == null || value.trim().isEmpty)) {
                     return "Required";

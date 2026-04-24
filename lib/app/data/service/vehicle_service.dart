@@ -218,7 +218,7 @@ class VehicleService {
     String token = Utils().getToken() ?? '';
 
     var url = ApiUrlList.createVehicleRequestApi;
-    var result = await networkHandlerStander.post(url, model: body,client,token, navigateToCheck: navigateToCheck);
+    var result = await networkHandler.post(url, model: body,client,token, navigateToCheck: navigateToCheck);
 
     if(result != null) {
       return jsonDecode(result);

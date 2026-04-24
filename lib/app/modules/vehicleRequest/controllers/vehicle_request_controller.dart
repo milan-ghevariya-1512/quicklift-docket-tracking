@@ -1,7 +1,7 @@
+import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:quicklift_docket_tracking/Reusability/utils/util.dart';
 import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteCityModel.dart';
 import 'package:quicklift_docket_tracking/app/data/model/getAutoCompleteLegLocationModel.dart';
@@ -78,9 +78,12 @@ class VehicleRequestController extends GetxController {
   var acceptBidFrom = 'AOO'.obs;
   TextEditingController vendorController = TextEditingController();
   List<VendorTypeList> vendorList = [];
-  VendorTypeList? selectedVendor;
+  List<VendorTypeList> selectedVendors = [];
+  final GlobalKey<FormFieldState<List<VendorTypeList>>> vendorBidFormFieldKey = GlobalKey<FormFieldState<List<VendorTypeList>>>();
   List<GetGeneralMasterModel> laneList = [];
-  GetGeneralMasterModel? selectedLane;
+  List<GetGeneralMasterModel> selectedLanes = [];
+  final GlobalKey<FormFieldState<List<GetGeneralMasterModel>>> laneBidFormFieldKey =
+      GlobalKey<FormFieldState<List<GetGeneralMasterModel>>>();
 
   TextEditingController noOfVehicleController = TextEditingController(text: '1');
   GetAutoCompleteVehicleFtlTypeList? selectedVehicleFtlType;
@@ -182,7 +185,7 @@ class VehicleRequestController extends GetxController {
 
   void submitOrder(context) {
     if (formKey5.currentState!.validate()) {
-      createVehicleRequest();
+      createVehicleRequest(context);
     }
   }
 
@@ -271,7 +274,16 @@ class VehicleRequestController extends GetxController {
       List<LegLocationModel> legs,
       ) {
     final config = getFieldData(fieldId);
-    if (config == null || !config.isInUse || !config.isRequired) return null;
+    if (config == null || !config.isInUse) return null;
+    if (fieldId == 'VR_STARTPOINT' || fieldId == 'VR_ENDPOINT') {
+      for (var i = 0; i < controllers.length; i++) {
+        if (!rowHasResolvedAddress(legs, i)) {
+          return '    Required';
+        }
+      }
+      return null;
+    }
+    if (!config.isRequired) return null;
     for (var i = 0; i < controllers.length; i++) {
       if (!rowHasResolvedAddress(legs, i)) {
         return '    Required';
@@ -557,7 +569,6 @@ class VehicleRequestController extends GetxController {
     if (masterType == 'PTYPE') packagingTypeList.clear();
     if (masterType == 'PTYPE') selectedPackagingType = null;
     if (masterType == 'LANE_TYPE') laneList.clear();
-    if (masterType == 'LANE_TYPE') selectedLane = null;
     var body = {"MasterType": masterType};
     var result = await VehicleService().getGeneralMaster(body: body);
     isLoaded.value = false;
@@ -589,7 +600,6 @@ class VehicleRequestController extends GetxController {
   getAutoCompleteVendor(String term) async {
     isLoaded.value = true;
     vendorList.clear();
-    selectedVendor = null;
     var body = {
       "term": term,
     };
@@ -599,6 +609,89 @@ class VehicleRequestController extends GetxController {
       vendorList.addAll(result.vendorList ?? []);
     }
     update();
+  }
+
+  void setAcceptBidFrom(String code) {
+    acceptBidFrom.value = code;
+    if (code != 'AOP') {
+      selectedVendors.clear();
+      vendorBidFormFieldKey.currentState?.didChange(<VendorTypeList>[]);
+    }
+    if (code != 'AOO') {
+      selectedLanes.clear();
+      laneBidFormFieldKey.currentState?.didChange(<GetGeneralMasterModel>[]);
+    }
+    update();
+  }
+
+  bool isVendorSelected(VendorTypeList v) {
+    final id = v.codeId ?? '';
+    if (id.isEmpty) return false;
+    return selectedVendors.any((e) => (e.codeId ?? '') == id);
+  }
+
+  void toggleVendorSelection(VendorTypeList v) {
+    final id = v.codeId ?? '';
+    if (id.isEmpty) return;
+    final idx = selectedVendors.indexWhere((e) => (e.codeId ?? '') == id);
+    if (idx >= 0) {
+      selectedVendors.removeAt(idx);
+    } else {
+      selectedVendors.add(v);
+    }
+    vendorBidFormFieldKey.currentState?.didChange(List<VendorTypeList>.from(selectedVendors));
+    update();
+  }
+
+  void removeSelectedVendor(VendorTypeList v) {
+    selectedVendors.removeWhere((e) => (e.codeId ?? '') == (v.codeId ?? ''));
+    vendorBidFormFieldKey.currentState?.didChange(List<VendorTypeList>.from(selectedVendors));
+    update();
+  }
+
+  void clearAllSelectedVendors() {
+    selectedVendors.clear();
+    vendorBidFormFieldKey.currentState?.didChange(<VendorTypeList>[]);
+    update();
+  }
+
+  List<String> vendorIdsForPayload() {
+    return selectedVendors.map((e) => e.codeId ?? '').where((id) => id.isNotEmpty).toList();
+  }
+
+  bool isLaneSelected(GetGeneralMasterModel m) {
+    final id = m.codeId ?? '';
+    if (id.isEmpty) return false;
+    return selectedLanes.any((e) => (e.codeId ?? '') == id);
+  }
+
+  void toggleLaneSelection(GetGeneralMasterModel m) {
+    final id = m.codeId ?? '';
+    if (id.isEmpty) return;
+    final idx = selectedLanes.indexWhere((e) => (e.codeId ?? '') == id);
+    if (idx >= 0) {
+      selectedLanes.removeAt(idx);
+    } else {
+      selectedLanes.add(m);
+    }
+    laneBidFormFieldKey.currentState?.didChange(List<GetGeneralMasterModel>.from(selectedLanes));
+    update();
+  }
+
+  void removeSelectedLane(GetGeneralMasterModel m) {
+    selectedLanes.removeWhere((e) => (e.codeId ?? '') == (m.codeId ?? ''));
+    laneBidFormFieldKey.currentState?.didChange(List<GetGeneralMasterModel>.from(selectedLanes));
+    update();
+  }
+
+  void clearAllSelectedLanes() {
+    selectedLanes.clear();
+    laneBidFormFieldKey.currentState?.didChange(<GetGeneralMasterModel>[]);
+    update();
+  }
+
+  List<String> laneIdsForPayload() {
+    return selectedLanes.map((e) => e.srNo ?? '').where((id) => id.isNotEmpty).toList();
   }
 
   getAutoCompleteRateType() async {
@@ -752,10 +845,11 @@ class VehicleRequestController extends GetxController {
     return legsPayload.isEmpty ? null : legsPayload;
   }
 
-  createVehicleRequest() async {
+  createVehicleRequest(context) async {
     Utils.showLoadingDialog();
     List pickupPoints = [];
     List deliveryPoints = [];
+    FocusScope.of(context).unfocus();
     if(!(vehicleRequestData?.isLegEnable ?? false) && selectPreferenceType.value == 'google'){
       for(int i=0; i < startPointList.length; i++){
         pickupPoints.add({
@@ -809,7 +903,7 @@ class VehicleRequestController extends GetxController {
       "CompanyId": (Utils().box.read(StorageUtil.companyId) ?? '').toString(),
       "GenerationLocationId": (Utils().box.read(StorageUtil.locationId) ?? '').toString(),
       "ManualNo": manualNoController.text.isEmpty ? null : manualNoController.text,
-      "RequestDate": requestDateTime.value,
+      "RequestDate": requestDateTime.value?.toIso8601String(),
       "Remarks": remarksController.text.isEmpty ? null : remarksController.text,
       "CustomerId": ((selectedCustomer?.codeId ?? '').isEmpty && selectedCustomer == null) ? null : selectedCustomer?.codeId ?? '',
       "CustomerName": ((selectedCustomer?.codeId ?? '').isEmpty && selectedCustomer == null) ? customerController.text.isEmpty ? null : customerController.text : selectedCustomer?.codeDesc ?? '',
@@ -822,36 +916,39 @@ class VehicleRequestController extends GetxController {
       "FromLocationId": (selectedFromLocation?.codeId ?? '').isEmpty ? null : selectedFromLocation?.codeId ?? '',
       "ToLocationId": (selectedToLocation?.codeId ?? '').isEmpty ? null : selectedToLocation?.codeId ?? '',
       "ApproxDistance": approxDistanceController.text.isEmpty ? 0 : approxDistanceController.text,
-      "ExpLoadingDate": expLoadingDateTime.value,
+      "ExpLoadingDate": expLoadingDateTime.value?.toIso8601String(),
       "ExpectedTransitionDays": expectedTransitionDaysController.text.isEmpty ? 0 : expectedTransitionDaysController.text,
-      "ExpDeliveryTime": expDeliveryDateTime.value,
-      "VehicleReportingTime": vehicleExpReportingDateTime.value,
+      "ExpDeliveryTime": expDeliveryDateTime.value?.toIso8601String(),
+      "VehicleReportingTime": vehicleExpReportingDateTime.value?.toIso8601String(),
       "InstructionForDriver": driverInstructionController.text.isEmpty ? null : driverInstructionController.text,
       "IsBiddingRequired": isBiddingRequired.value,
-      "BidStartDate": biddingStartDateTime.value,
-      "BidEndDate": biddingEndDateTime.value,
-      "IsCapRate": isMaxAmount.value,
-      "MaximumRate": maxAmountController.text.isEmpty ? 0 : maxAmountController.text,
-      "BiddingNote": biddingNoteController.text.isEmpty ? null : biddingNoteController.text,
-      "AcceptBidFrom": acceptBidFrom.value,
-      "LaneType": null, //["LOCAL", "NATIONAL"],
-      "VendorId": ["E-V-Z", "E-V-0P","E-V-08","E-V-18","E-V-0F","E-V-1G","E-V-07"],
+      "BidStartDate": isBiddingRequired.value ? biddingStartDateTime.value : null,
+      "BidEndDate": isBiddingRequired.value ? biddingEndDateTime.value : null,
+      "IsCapRate": isBiddingRequired.value ? isMaxAmount.value : false,
+      "MaximumRate": isBiddingRequired.value ? maxAmountController.text.isEmpty ? 0 : maxAmountController.text : 0,
+      "BiddingNote": isBiddingRequired.value ? biddingNoteController.text.isEmpty ? null : biddingNoteController.text : null,
+      "AcceptBidFrom": isBiddingRequired.value ? acceptBidFrom.value : null,
+      "LaneType": (isBiddingRequired.value && acceptBidFrom.value == 'AOO' && selectedLanes.isNotEmpty) ? laneIdsForPayload() : null,
+      "VendorId": (isBiddingRequired.value && acceptBidFrom.value == 'AOP' && selectedVendors.isNotEmpty) ? vendorIdsForPayload() : null,
       "ServiceModeId": (selectedServiceMode?.codeId ?? '').isEmpty ? null : selectedServiceMode?.codeId ?? '',
       "FtlTypeId": (selectedVehicleFtlType?.codeId ?? '').isEmpty ? null : selectedVehicleFtlType?.codeId ?? '',
       "VehicleTypeId": (selectedVehicleType?.codeId ?? '').isEmpty ? null : selectedVehicleType?.codeId ?? '',
       "RequiredNoOfVehicle": noOfVehicleController.text.isEmpty ? 0 : noOfVehicleController.text,
       "Weight": wightController.text.isEmpty ? 0 : wightController.text,
       "RateAmount": freightChargeRateController.text.isEmpty ? 0 : freightChargeRateController.text,
-      "RateTypeId": selectedRateType == null ? null : selectedRateType,
+      "RateTypeId": (selectedRateType?.codeId ?? '').isEmpty ? null : selectedRateType?.codeId ?? '',
       "FreightCharge": freightChargeTotalController.text.isEmpty ? 0 : freightChargeTotalController.text,
       "PickupPoints": pickupPoints.isEmpty ? null : pickupPoints,
       "DeliveryPoints": deliveryPoints.isEmpty ? null : deliveryPoints,
       "Legs": buildLegsPayload(),
     };
+    log(body.toString());
     var result = await VehicleService().createVehicleRequest(body: body, navigateToCheck: false);
     if (Get.isDialogOpen!) Get.back();
+    FocusScope.of(context).unfocus();
     if (result != null) {
-
+      Get.back();
+      Utils.toastOk(result['Message']);
     }
     update();
   }

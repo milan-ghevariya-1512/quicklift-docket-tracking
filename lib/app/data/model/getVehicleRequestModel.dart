@@ -42,8 +42,7 @@ class VehicleRequestData{
       customerId: (json['CustomerId'] ?? '').toString(),
       customerName: (json['CustomerName'] ?? '').toString(),
       userName: (json['UserName'] ?? '').toString(),
-      isBiddingEnable: true,
-      // isBiddingEnable: json['IsBiddingEnable'] ?? false,
+      isBiddingEnable: json['IsBiddingEnable'] ?? false,
       isCustomerAddress: json['IsCustomerAddress'] ?? false,
       isLegEnable: json['IsLegEnable'] ?? false,
     );
