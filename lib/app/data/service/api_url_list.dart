@@ -6,6 +6,8 @@ class ApiUrlList {
 
    static String url = "https://express.erp.logibrisk.com";
    static String googleMapKey = "AIzaSyC-SC-VSkuluh_1JkVwtmc5v1YMm6nSeVo";
+   static String loginType = "AFK"; // Customer:AFK, Employee:AFJ, Vendor:AFL
+   static String organizationId = "E"; // 1
 
    static String commonMasterUrl = '$url/ApiV2/ApiCommonMaster/';
    static String vehicleRequestUrl = '$url/apiv2/ApiVehicleRequest/';

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:quicklift_docket_tracking/Reusability/utils/util.dart';
 import 'package:quicklift_docket_tracking/app/data/service/api_services.dart';
+import 'package:quicklift_docket_tracking/app/data/service/api_url_list.dart';
 
 import '../../../../Reusability/utils/storage_util.dart';
 import '../../../routes/app_pages.dart';
@@ -27,8 +28,8 @@ class LoginController extends GetxController {
 
   Future<void> resendCode() async {
     var body = {
-      "OrganizationId" : "E",
-      "LoginType": "AFK",
+      "OrganizationId" : ApiUrlList.organizationId,
+      "LoginType": ApiUrlList.loginType,
       "MobileNo": noController.text.trim()
     };
     var result = await DashBoardService().login(body: body);
@@ -71,8 +72,8 @@ class LoginController extends GetxController {
     pinController.text = "";
     Utils.showLoadingDialog();
     var body = {
-      "OrganizationId" : "E", // 1
-      "LoginType": "AFK",
+      "OrganizationId" : ApiUrlList.organizationId,
+      "LoginType": ApiUrlList.loginType,
       "MobileNo": noController.text.trim()
     };
     var result = await DashBoardService().login(body: body);
@@ -98,9 +99,9 @@ class LoginController extends GetxController {
   verifyOtp() async {
     Utils.showLoadingDialog();
     var body = {
-      "OrganizationId" : "E", // 1
+      "OrganizationId" : ApiUrlList.organizationId,
       "MobileNo": noController.text.trim(),
-      "LoginType": "AFK",
+      "LoginType": ApiUrlList.loginType,
       "OTP": pinController.text
     };
     var result = await DashBoardService().verifyOtp(body: body);
@@ -108,7 +109,7 @@ class LoginController extends GetxController {
     if(result != null && result['Success'] == true) {
       Utils().setBox("token", result['Data']);
       Utils.toastOk(result['Message']);
-      Utils().box.write(StorageUtil.userTypeId, "AFK");
+      Utils().box.write(StorageUtil.userTypeId, ApiUrlList.loginType);
       Utils().box.remove(StorageUtil.keyFieldSetup);
       Get.offAllNamed(Routes.DASHBOARD);
     }
