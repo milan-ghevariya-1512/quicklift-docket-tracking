@@ -895,10 +895,10 @@ class VehicleRequestController extends GetxController {
           "PointSequence" : p + 1,
           "PointAddress" : (selectedStartCustomAddress[p]?.address ?? '').isEmpty ? null : selectedStartCustomAddress[p]?.address ?? '',
           "PointCity" : (selectedStartCustomAddress[p]?.cityName ?? '').isEmpty ? null : selectedStartCustomAddress[p]?.cityName ?? '',
-          "PointState" : null,
-          "PointCountry" : null,
+          "PointState" : (selectedStartCustomAddress[p]?.stateName ?? '').isEmpty ? null : selectedStartCustomAddress[p]?.stateName ?? '',
+          "PointCountry" : (selectedStartCustomAddress[p]?.countryName ?? '').isEmpty ? null : selectedStartCustomAddress[p]?.countryName ?? '',
           "PointPincode" : (selectedStartCustomAddress[p]?.pinCode ?? '').isEmpty ? null : selectedStartCustomAddress[p]?.pinCode ?? '',
-          "PointAreaName" : null,
+          "PointAreaName" : (selectedStartCustomAddress[p]?.cityName ?? '').isEmpty ? null : selectedStartCustomAddress[p]?.cityName ?? '',
         });
       }
       for(int q=0; q < selectedEndCustomAddress.length; q++){
@@ -906,10 +906,10 @@ class VehicleRequestController extends GetxController {
           "PointSequence" : q + 1,
           "PointAddress" : (selectedEndCustomAddress[q]?.address ?? '').isEmpty ? null : selectedEndCustomAddress[q]?.address ?? '',
           "PointCity" : (selectedEndCustomAddress[q]?.cityName ?? '').isEmpty ? null : selectedEndCustomAddress[q]?.cityName ?? '',
-          "PointState" : null,
-          "PointCountry" : null,
+          "PointState" : (selectedEndCustomAddress[q]?.stateName ?? '').isEmpty ? null : selectedEndCustomAddress[q]?.stateName ?? '',
+          "PointCountry" : (selectedEndCustomAddress[q]?.countryName ?? '').isEmpty ? null : selectedEndCustomAddress[q]?.countryName ?? '',
           "PointPincode" : (selectedEndCustomAddress[q]?.pinCode ?? '').isEmpty ? null : selectedEndCustomAddress[q]?.pinCode ?? '',
-          "PointAreaName" : null,
+          "PointAreaName" : (selectedEndCustomAddress[q]?.cityName ?? '').isEmpty ? null : selectedEndCustomAddress[q]?.cityName ?? '',
         });
       }
     }

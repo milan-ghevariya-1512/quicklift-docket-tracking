@@ -35,6 +35,8 @@ class LegLocationList {
   String? longitude;
   String? radius;
   String? addressType;
+  String? stateName;
+  String? countryName;
 
   LegLocationList({
     this.address,
@@ -52,6 +54,8 @@ class LegLocationList {
     this.longitude,
     this.radius,
     this.addressType,
+    this.stateName,
+    this.countryName,
   });
 
   factory LegLocationList.fromJson(Map<String, dynamic> json) {
@@ -71,6 +75,8 @@ class LegLocationList {
       longitude: (json['Longitude'] ?? 0).toString(),
       radius: (json['Radius'] ?? 0).toString(),
       addressType: (json['AddressType'] ?? '').toString(),
+      stateName: (json['StateName'] ?? '').toString(),
+      countryName: (json['CountryName'] ?? '').toString(),
     );
   }
 }
