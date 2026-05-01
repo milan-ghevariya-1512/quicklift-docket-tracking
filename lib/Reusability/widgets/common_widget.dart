@@ -8,18 +8,6 @@ import '../utils/app_textstyle.dart';
 
 class CommonWidget{
 
-  static toast(String message){
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: AppColors.greyColor.withOpacity(0.3),
-      textColor: AppColors.textBlackColor,
-      fontSize: 14,
-    );
-  }
-
 }
 
 class AppPageHeader extends StatelessWidget {
@@ -64,6 +52,7 @@ class AppPageHeader extends StatelessWidget {
         Expanded(
           child: Text(
             title,
+            maxLines: 1, overflow: TextOverflow.ellipsis,
             style: AppTextStyle.regularTextStyle.copyWith(fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: -0.3, height: 1.3),
           ),
         ),
@@ -271,22 +260,28 @@ class TextFField extends StatelessWidget {
 }
 
 class NoData extends StatelessWidget {
+  final String? title;
+
+  const NoData({super.key, this.title});
+
   @override
   Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-
-        Image.asset(AppImage.noDataImage,height: Get.height*0.07,width : Get.width,color: AppColors.textBlackColor),
-
-        HBox(Get.height*0.01),
-
-        Text("No Data",style: AppTextStyle.regularTextStyle.copyWith(fontSize: 15,color: AppColors.greyColor,fontWeight: FontWeight.w600)),
-
-        HBox(Get.height*0.005),
-
-        Text("Data has not been recorded for this section",textAlign: TextAlign.center,
-            style: AppTextStyle.regularTextStyle.copyWith(fontSize: 12,color: AppColors.greyColor.withOpacity(0.9))),
-      ],
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: Get.width * 0.1, vertical: Get.height * 0.04),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.inbox_outlined, size: 56, color: AppColors.hintTextColor.withOpacity(0.5)),
+            HBox(Get.height * 0.02),
+            Text(
+              (title ?? "Not Found"),
+              textAlign: TextAlign.center,
+              style: AppTextStyle.regularTextStyle.copyWith(fontSize: 13, height: 1.4, color: AppColors.hintTextColor, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

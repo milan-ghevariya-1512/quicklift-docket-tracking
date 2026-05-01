@@ -59,7 +59,7 @@ class DocketSearchController extends GetxController {
     ) {
       Get.toNamed(Routes.DOCKETDETAILS,arguments: [result.first,docketController.text.trim()]);
     } else{
-      CommonWidget.toast("Docket No Is Invalid Or Not Belongs To This Company");
+      Utils.toastWarning("Docket No Is Invalid Or Not Belongs To This Company");
     }
     update();
   }

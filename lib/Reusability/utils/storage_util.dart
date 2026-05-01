@@ -4,6 +4,7 @@ class StorageUtil {
   static const String appVersion = 'appVersion';
 
   static const String keyFieldSetup = 'fieldSetup';
+  static const String userId = 'userId';
   static const String currencyId = 'currencyId';
   static const String locationId = 'locationId';
   static const String locationCode = 'locationCode';

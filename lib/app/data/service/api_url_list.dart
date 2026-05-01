@@ -3,10 +3,10 @@ class ApiUrlList {
    static String baseUrl1 = "https://logibrisk.azurewebsites.net/ApiV2/";
    static String baseUrl2 = "https://satpl.erp.logibrisk.com/ApiV2/";
 
-   static String url = "https://quicklift.erp.logibrisk.com";
+   static String url = "https://express.erp.logibrisk.com";
    static String googleMapKey = "AIzaSyC-SC-VSkuluh_1JkVwtmc5v1YMm6nSeVo";
    static String loginType = "AFK"; // Customer:AFK, Employee:AFJ, Vendor:AFL
-   static String organizationId = "1"; // 1
+   static String organizationId = "E"; // 1
 
    static String commonMasterUrl = '$url/ApiV2/ApiCommonMaster/';
    static String vehicleRequestUrl = '$url/apiv2/ApiVehicleRequest/';
@@ -32,5 +32,8 @@ class ApiUrlList {
    static String getAutoCompleteVendorApi = '${commonMasterUrl}AutoCompleteVendor';
    static String getAutoCompleteRateTypeApi = '${vehicleRequestUrl}AutoCompleteRateType';
    static String createVehicleRequestApi = '${vehicleRequestUrl}Create';
+
+   ///Bidding APIs
+   static String getBiddingListApi = '${vehicleRequestUrl}List';
 
 }

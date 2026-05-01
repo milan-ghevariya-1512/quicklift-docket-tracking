@@ -1,5 +1,9 @@
 import 'package:get/get_navigation/src/routes/get_route.dart';
 
+import '../modules/biddingDashboard/bindings/bidding_dashboard_binding.dart';
+import '../modules/biddingDashboard/views/bidding_dashboard_view.dart';
+import '../modules/bidingList/bindings/biding_list_binding.dart';
+import '../modules/bidingList/views/biding_list_view.dart';
 import '../modules/dashboard/bindings/dashboard_binding.dart';
 import '../modules/dashboard/views/dashboard_view.dart';
 import '../modules/docket_details/bindings/docket_details_binding.dart';
@@ -58,6 +62,16 @@ class AppPages {
       name: _Paths.VEHICLE_REQUEST,
       page: () => VehicleRequestView(),
       binding: VehicleRequestBinding(),
+    ),
+    GetPage(
+      name: _Paths.BIDDING_DASHBOARD,
+      page: () => BiddingDashboardView(),
+      binding: BiddingDashboardBinding(),
+    ),
+    GetPage(
+      name: _Paths.BIDING_LIST,
+      page: () => BidingListView(),
+      binding: BidingListBinding(),
     ),
   ];
 }

@@ -27,5 +27,6 @@ class AppImage{
   static const String calendarIcon = '${base}calendarIcon.png';
   static const String orderTimeIcon = '${base}orderTimeIcon.png';
   static const String locationIcon = '${base}location_icon.png';
+  static const String filterIcon = '${base}filterIcon.png';
 
 }

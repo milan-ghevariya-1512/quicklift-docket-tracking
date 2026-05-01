@@ -10,6 +10,8 @@ abstract class Routes {
   static const LOGIN = _Paths.LOGIN;
   static const INTERNET_CHECK = _Paths.INTERNET_CHECK;
   static const VEHICLE_REQUEST = _Paths.VEHICLE_REQUEST;
+  static const BIDDING_DASHBOARD = _Paths.BIDDING_DASHBOARD;
+  static const BIDING_LIST = _Paths.BIDING_LIST;
 }
 
 abstract class _Paths {
@@ -21,4 +23,6 @@ abstract class _Paths {
   static const LOGIN = '/login';
   static const INTERNET_CHECK = '/internet-check';
   static const VEHICLE_REQUEST = '/vehicle-request';
+  static const BIDDING_DASHBOARD = '/bidding-dashboard';
+  static const BIDING_LIST = '/biding-list';
 }

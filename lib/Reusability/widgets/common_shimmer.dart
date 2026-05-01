@@ -103,3 +103,113 @@ class FormShimmer extends StatelessWidget {
     );
   }
 }
+
+class HomeCardsShimmer extends StatelessWidget {
+  const HomeCardsShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CommonShimmer(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(
+              height: Get.height * 0.15,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: _shimmerCard()),
+                  WBox(Get.height * 0.015),
+                  Expanded(child: _shimmerCard()),
+                ],
+              ),
+            ),
+            HBox(Get.height * 0.015),
+            SizedBox(
+              height: Get.height * 0.15,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: _shimmerCard()),
+                  WBox(Get.height * 0.015),
+                  Expanded(child: _shimmerCard()),
+                ],
+              ),
+            ),
+            HBox(Get.height * 0.015),
+            SizedBox(
+              height: Get.height * 0.15,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: _shimmerCard()),
+                  WBox(Get.height * 0.015),
+                  Expanded(child: _shimmerCard()),
+                ],
+              ),
+            ),
+            HBox(MediaQuery.of(context).padding.bottom + Get.height * 0.06),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _shimmerCard() {
+    return Container(
+      height: Get.height * 0.15,
+      padding: EdgeInsets.fromLTRB(
+        Get.width * 0.045,
+        Get.height * 0.018,
+        Get.width * 0.038,
+        Get.height * 0.016,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.shimmerBase,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.textBlackColor.withOpacity(0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ShimmerBox(
+            width: Get.width * 0.35,
+            height: 14,
+            borderRadius: 4,
+            color: AppColors.shimmerBaseDark,
+          ),
+          const Spacer(),
+          HBox(Get.height * 0.005),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              ShimmerBox(
+                width: 48,
+                height: 28,
+                borderRadius: 4,
+                color: AppColors.shimmerBaseDark,
+              ),
+              const Spacer(),
+              Container(
+                width: Get.height * 0.06,
+                height: Get.height * 0.06,
+                decoration: BoxDecoration(
+                  color: AppColors.shimmerBaseDark.withOpacity(0.4),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

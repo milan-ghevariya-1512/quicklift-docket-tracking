@@ -77,7 +77,7 @@ class DashboardController extends GetxController {
     ) {
       Get.toNamed(Routes.DOCKETDETAILS,arguments: [result.first,docketController.text.trim()]);
     } else{
-      CommonWidget.toast("Docket No Is Invalid Or Not Belongs To This Company");
+      Utils.toastWarning("Docket No Is Invalid Or Not Belongs To This Company");
     }
     update();
   }
@@ -96,6 +96,7 @@ class DashboardController extends GetxController {
       Utils().box.write(StorageUtil.companyId, '');
       Utils().box.write(StorageUtil.yearId, '');
       Utils().box.write(StorageUtil.organizationId, '');
+      Utils().box.write(StorageUtil.userId, '');
       Utils().box.write(StorageUtil.currencyId, (result.baseCurrency ?? '').toString());
       Utils().box.write(StorageUtil.locationId, (result.currentLocationId ?? '').toString());
       Utils().box.write(StorageUtil.locationCode, (result.currentLocationCode ?? '').toString());
@@ -103,6 +104,7 @@ class DashboardController extends GetxController {
       Utils().box.write(StorageUtil.companyId, (result.companyId ?? '').toString());
       Utils().box.write(StorageUtil.yearId, (result.currentFinancialYear ?? '').toString());
       Utils().box.write(StorageUtil.organizationId, (result.organizationId ?? '').toString());
+      Utils().box.write(StorageUtil.userId, (result.userId ?? '').toString());
     }
   }
 
