@@ -637,38 +637,44 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
 
                 WBox(Get.width*0.02),
 
-                CommonButton(
-                  onPressed: () {
-                    controller.isType.value = 0;
-                    controller.update();
-                  },
-                  textVal: "GR Details",
-                  bgColor: controller.isType.value == 0 ? AppColors.primaryColor : Colors.transparent,
-                  style: AppTextStyle.regularTextStyle.copyWith(fontSize: 12,color: controller.isType.value == 0 ? AppColors.whiteColor : AppColors.textBlackColor,fontWeight: FontWeight.w600),
+                Expanded(
+                  child: CommonButton(
+                    onPressed: () {
+                      controller.isType.value = 0;
+                      controller.update();
+                    },
+                    textVal: "GR Details",
+                    bgColor: controller.isType.value == 0 ? AppColors.primaryColor : Colors.transparent,
+                    style: AppTextStyle.regularTextStyle.copyWith(fontSize: 12,color: controller.isType.value == 0 ? AppColors.whiteColor : AppColors.textBlackColor,fontWeight: FontWeight.w600),
+                  ),
                 ),
 
                 WBox(Get.width*0.02),
 
-                CommonButton(
-                  onPressed: () {
-                    controller.isType.value = 1;
-                    controller.update();
-                  },
-                  textVal: "Movement",
-                  bgColor: controller.isType.value == 1 ? AppColors.primaryColor : Colors.transparent,
-                  style: AppTextStyle.regularTextStyle.copyWith(fontSize: 12,color: controller.isType.value == 1 ? AppColors.whiteColor : AppColors.textBlackColor,fontWeight: FontWeight.w600),
+                Expanded(
+                  child: CommonButton(
+                    onPressed: () {
+                      controller.isType.value = 1;
+                      controller.update();
+                    },
+                    textVal: "Movement",
+                    bgColor: controller.isType.value == 1 ? AppColors.primaryColor : Colors.transparent,
+                    style: AppTextStyle.regularTextStyle.copyWith(fontSize: 12,color: controller.isType.value == 1 ? AppColors.whiteColor : AppColors.textBlackColor,fontWeight: FontWeight.w600),
+                  ),
                 ),
 
                 WBox(Get.width*0.02),
 
-                CommonButton(
-                  onPressed: () {
-                    controller.isType.value = 2;
-                    controller.update();
-                  },
-                  textVal: "Status",
-                  bgColor: controller.isType.value == 2 ? AppColors.primaryColor : Colors.transparent,
-                  style: AppTextStyle.regularTextStyle.copyWith(fontSize: 12,color: controller.isType.value == 2 ? AppColors.whiteColor : AppColors.textBlackColor,fontWeight: FontWeight.w600),
+                Expanded(
+                  child: CommonButton(
+                    onPressed: () {
+                      controller.isType.value = 2;
+                      controller.update();
+                    },
+                    textVal: "Status",
+                    bgColor: controller.isType.value == 2 ? AppColors.primaryColor : Colors.transparent,
+                    style: AppTextStyle.regularTextStyle.copyWith(fontSize: 12,color: controller.isType.value == 2 ? AppColors.whiteColor : AppColors.textBlackColor,fontWeight: FontWeight.w600),
+                  ),
                 ),
 
                 WBox(Get.width*0.02),
