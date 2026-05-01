@@ -101,7 +101,7 @@ class DashboardView extends GetView<DashboardController> {
                       HBox(Get.height*0.015),
                       CommonButton(
                         onPressed: () => Get.toNamed(Routes.VEHICLE_REQUEST),
-                        textVal: "Vehicle Request",
+                        textVal: "Enquiry",
                         bgColor: AppColors.primaryColor.withOpacity(0.2),
                         style: AppTextStyle.regularTextStyle.copyWith(fontSize: 16,color: AppColors.primaryColor,fontWeight: FontWeight.w600),
                       ),

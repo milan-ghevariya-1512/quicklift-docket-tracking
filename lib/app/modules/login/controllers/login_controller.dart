@@ -109,8 +109,9 @@ class LoginController extends GetxController {
     if(result != null && result['Success'] == true) {
       Utils().setBox("token", result['Data']);
       Utils.toastOk(result['Message']);
-      Utils().box.write(StorageUtil.userTypeId, ApiUrlList.loginType);
+      Utils().box.remove(StorageUtil.userTypeId);
       Utils().box.remove(StorageUtil.keyFieldSetup);
+      Utils().box.write(StorageUtil.userTypeId, ApiUrlList.loginType);
       Get.offAllNamed(Routes.DASHBOARD);
     }
     update();

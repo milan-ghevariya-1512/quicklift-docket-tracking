@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -38,10 +39,12 @@ class NetworkHandlerStander {
           model: model,
           showError: showError,
         );
-      } on SocketException {
-        throw FetchDataException('No Internet connection');
-      } on Exception catch (e) {
-        throw FetchDataException(e.toString());
+      } on HttpException catch (e) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('HTTP error: ${e.message}');
+      } catch (e, stackTrace) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('Unexpected error: $e');
       }
       return responseData;
     }
@@ -63,11 +66,13 @@ class NetworkHandlerStander {
         await client.get(Uri.parse(url), headers: headers);
         logApiCall(url: url, response: response, header: headers.toString(),method: 'GET');
         responseData = returnResponse(response, url, "GET",showError: showError);
-      } on SocketException {
-        throw FetchDataException('No Internet connection');
-      } on Exception catch (e) {
-        throw FetchDataException(e.toString());
-      } finally {}
+      } on HttpException catch (e) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('HTTP error: ${e.message}');
+      } catch (e, stackTrace) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('Unexpected error: $e');
+      }
       return responseData;
     }
   }
@@ -100,10 +105,12 @@ class NetworkHandlerStander {
           model: model,
           showError: showError,
         );
-      } on SocketException {
-        throw FetchDataException('No Internet connection');
-      } on Exception catch (e) {
-        throw FetchDataException(e.toString());
+      } on HttpException catch (e) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('HTTP error: ${e.message}');
+      } catch (e, stackTrace) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('Unexpected error: $e');
       }
       return responseData;
     }
@@ -149,10 +156,12 @@ class NetworkHandlerStander {
           model: model,
           showError: showError,
         );
-      } on SocketException {
-        throw FetchDataException('No Internet connection');
-      } on Exception catch (e) {
-        throw FetchDataException(e.toString());
+      } on HttpException catch (e) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('HTTP error: ${e.message}');
+      } catch (e, stackTrace) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('Unexpected error: $e');
       }
       return responseData;
     }
@@ -192,10 +201,12 @@ class NetworkHandlerStander {
           model: model,
           showError: showError,
         );
-      } on SocketException {
-        throw FetchDataException('No Internet connection');
-      } on Exception catch (e) {
-        throw FetchDataException(e.toString());
+      } on HttpException catch (e) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('HTTP error: ${e.message}');
+      } catch (e, stackTrace) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('Unexpected error: $e');
       }
       return responseData;
     }
@@ -228,10 +239,12 @@ class NetworkHandlerStander {
           model: model,
           showError: showError,
         );
-      } on SocketException {
-        throw FetchDataException('No Internet connection');
-      } on Exception catch (e) {
-        throw FetchDataException(e.toString());
+      } on HttpException catch (e) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('HTTP error: ${e.message}');
+      } catch (e, stackTrace) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('Unexpected error: $e');
       }
       return responseData;
     }
@@ -252,10 +265,12 @@ class NetworkHandlerStander {
         await client.get(Uri.parse(url), headers: headers);
         logApiCall(url: url, response: response, header: headers.toString(),method: 'GET');
         responseData = returnResponse(response, url, "GET", showError: showError);
-      } on SocketException {
-        throw FetchDataException('No Internet connection');
-      } on Exception catch (e) {
-        throw FetchDataException(e.toString());
+      } on HttpException catch (e) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('HTTP error: ${e.message}');
+      } catch (e, stackTrace) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('Unexpected error: $e');
       }
       return responseData;
     }
@@ -279,10 +294,12 @@ class NetworkHandlerStander {
         );
         responseData =
             returnResponse(response, url, "POST WITHOUT TOKEN", model: model, showError: showError);
-      } on SocketException {
-        throw FetchDataException('No Internet connection');
-      } on Exception catch (e) {
-        throw FetchDataException(e.toString());
+      } on HttpException catch (e) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('HTTP error: ${e.message}');
+      } catch (e, stackTrace) {
+        if(Get.isDialogOpen!) Get.back();
+        throw FetchDataException('Unexpected error: $e');
       }
       return responseData;
     }
