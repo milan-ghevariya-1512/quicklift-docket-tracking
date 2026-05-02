@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:quicklift_docket_tracking/app/modules/biddingDashboard/controllers/bidding_dashboard_controller.dart';
+import 'package:quicklift_docket_tracking/app/modules/bidingList/controllers/biding_list_controller.dart';
 import '../../../../Reusability/utils/app_colors.dart';
 import '../../../../Reusability/utils/app_textstyle.dart';
 import '../../../../Reusability/widgets/common_date_picker.dart';
@@ -11,8 +12,13 @@ import '../../../../Reusability/widgets/common_widget.dart';
 
 class FilterBottomSheet extends StatelessWidget {
   BiddingDashboardController biddingDashboardController;
-  bool isDashboard;
-  FilterBottomSheet({super.key, required this.biddingDashboardController, this.isDashboard = false});
+  FilterBottomSheet({super.key, required this.biddingDashboardController});
+
+  void syncBiddingListAfterFilter() {
+    if (Get.isRegistered<BidingListController>()) {
+      Get.find<BidingListController>().getBiddingList(isPullRefresh: true);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,8 +100,8 @@ class FilterBottomSheet extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if(!isDashboard)HBox(Get.height * 0.015),
-                    if(!isDashboard)FieldScrollWrapper(
+                    HBox(Get.height * 0.015),
+                    FieldScrollWrapper(
                       child: TextFField(
                         controller: biddingDashboardController.vrController,
                         hintText: 'V. Request No',
@@ -114,11 +120,13 @@ class FilterBottomSheet extends StatelessWidget {
                         biddingDashboardController.startDate = DateTime.now().subtract(Duration(days: 60));
                         biddingDashboardController.endDate = DateTime.now();
                         biddingDashboardController.getBiddingList();
+                        syncBiddingListAfterFilter();
                       })),
                   WBox(Get.width * 0.025),
                   Expanded(child: CommonButton(textVal: 'Apply', onPressed: () {
                     Get.back();
                     biddingDashboardController.getBiddingList();
+                    syncBiddingListAfterFilter();
                   })),
                 ],
               ),

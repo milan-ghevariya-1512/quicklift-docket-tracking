@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:quicklift_docket_tracking/app/data/model/getBiddingListModel.dart';
 import 'package:quicklift_docket_tracking/app/data/service/bidding_service.dart';
-
 import '../../../../Reusability/utils/storage_util.dart';
 import '../../../../Reusability/utils/util.dart';
 
@@ -24,17 +23,25 @@ class BiddingDashboardController extends GetxController {
     getBiddingList(pageNumber: pageNumber.value);
   }
 
-  getBiddingList({pageNumber = 1}) async {
+  Future<GetVehicleRequestModel?> fetchBiddingListPage({required int pageNumber, String? statusId}) {
+    return BiddingService().getBiddingList(
+      vrNo: vrController.text,
+      fromDate: DateFormat('yyyy-MM-dd').format(startDate),
+      toDate: DateFormat('yyyy-MM-dd').format(endDate),
+      customerID: (Utils().box.read(StorageUtil.userId) ?? '').toString(),
+      statusId: statusId,
+      pageNumber: pageNumber,
+      navigateToCheck: true,
+    );
+  }
+
+  Future<void> getBiddingList({int pageNumber = 1}) async {
     isLoaded.value = true;
     vehicleRequestCounts = null;
     vehicleRequestList.clear();
-    var result = await BiddingService().getBiddingList(
-        vrNo: vrController.text,
-        fromDate: DateFormat('yyyy-MM-dd').format(startDate),
-        toDate: DateFormat('yyyy-MM-dd').format(endDate),
-        customerID: (Utils().box.read(StorageUtil.userId) ?? '').toString(),
-        pageNumber: pageNumber,
-        navigateToCheck: true
+    final result = await fetchBiddingListPage(
+      pageNumber: pageNumber,
+      statusId: null,
     );
     isLoaded.value = false;
     if (result != null) {

@@ -44,8 +44,7 @@ class BiddingDashboardView extends GetView<BiddingDashboardController> {
                         context: context,
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
-                        builder: (context) => FilterBottomSheet(
-                            biddingDashboardController: c, isDashboard: true),
+                        builder: (context) => FilterBottomSheet(biddingDashboardController: c),
                       );
                     },
                     child: Container(

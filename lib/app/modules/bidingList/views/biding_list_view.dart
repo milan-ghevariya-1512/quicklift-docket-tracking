@@ -44,7 +44,7 @@ class BidingListView extends GetView<BidingListController> {
                         context: context,
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
-                        builder: (context) => FilterBottomSheet(biddingDashboardController: c.biddingDashboardController, isDashboard: false),
+                        builder: (context) => FilterBottomSheet(biddingDashboardController: c.biddingDashboardController),
                       );
                     },
                     child: Container(
@@ -71,7 +71,7 @@ class BidingListView extends GetView<BidingListController> {
                   ),
                 ),
               ),
-              HBox(Get.height * 0.015),
+              HBox(Get.height * 0.008),
               GetBuilder<BidingListController>(builder: (cm) {
                 return Expanded(
                   child: Obx(() => c.isRequestLoaded.value
@@ -101,7 +101,7 @@ class BidingListView extends GetView<BidingListController> {
                             itemCount: c.vehicleRequestList.length,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            padding: EdgeInsets.symmetric(horizontal: Get.width * 0.05),
+                            padding: EdgeInsets.only(left: Get.width * 0.05, right: Get.width * 0.05, top: Get.height * 0.008),
                             itemBuilder: (context, index) {
                               return buildVehicleRequestCard(c.vehicleRequestList[index], index);
                             },
