@@ -134,19 +134,17 @@ class _LoginViewState extends State<LoginView> {
         Form(
           key: controller.formKey,
           autovalidateMode: controller.autoValidateMode.value,
-          child: TextFormField(
-            style: AppTextStyle.regularTextStyle.copyWith(
-              overflow: TextOverflow.ellipsis,
-              color: AppColors.textBlackColor,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.3,
-            ),
+          child: TextFField(
             controller: controller.noController,
             focusNode: controller.fd,
             maxLength: 10,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
             keyboardType: TextInputType.phone,
+            prefixIcon: Icon(
+              Icons.phone_android_rounded,
+              color: AppColors.textSecondary.withValues(alpha: 0.85),
+              size: 22,
+            ),
+            hintText: '10-digit mobile number',
             validator: (value) {
               if ((value ?? '').isEmpty) {
                 return 'Please enter your mobile number';
@@ -163,77 +161,12 @@ class _LoginViewState extends State<LoginView> {
                 FocusScope.of(context).unfocus();
               }
             },
-            onTapOutside: (event) {
-              FocusScope.of(context).unfocus();
-            },
-            decoration: InputDecoration(
-              counterText: '',
-              filled: true,
-              fillColor: AppColors.surfaceElevated,
-              isDense: true,
-              prefixIcon: Icon(
-                Icons.phone_android_rounded,
-                color: AppColors.textSecondary.withValues(alpha: 0.85),
-                size: 22,
-              ),
-              prefixIconConstraints: BoxConstraints(
-                minWidth: Get.width * 0.14,
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                vertical: Get.height * 0.018,
-                horizontal: Get.width * 0.02,
-              ),
-              hintText: '10-digit mobile number',
-              hintStyle: AppTextStyle.regularTextStyle.copyWith(
-                color: AppColors.hintTextColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.borderColor),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.borderColor),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(
-                  color: AppColors.primaryColor,
-                  width: 1.5,
-                ),
-              ),
-              disabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppColors.borderColor),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(
-                  width: 1,
-                  color: AppColors.redColor,
-                ),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(
-                  width: 1.5,
-                  color: AppColors.redColor,
-                ),
-              ),
-              errorStyle: AppTextStyle.regularTextStyle.copyWith(
-                color: AppColors.redColor,
-                fontSize: 12,
-              ),
-            ),
           ),
         ),
         HBox(Get.height * 0.04),
         CommonButton(
           bgColor: AppColors.primaryColor,
           textVal: 'Request OTP',
-          btnRadius: 14,
           onPressed: () => controller.validate(),
         ),
       ],
@@ -458,7 +391,6 @@ class _LoginViewState extends State<LoginView> {
         CommonButton(
           bgColor: AppColors.primaryColor,
           textVal: 'Verify',
-          btnRadius: 14,
           onPressed: () => controller.validate1(context),
         ),
       ],

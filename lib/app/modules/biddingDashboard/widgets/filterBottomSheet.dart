@@ -1,5 +1,3 @@
-import 'package:animated_custom_dropdown/custom_dropdown.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -86,8 +84,8 @@ class FilterBottomSheet extends StatelessWidget {
                         width: Get.width,
                         padding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
                         decoration: BoxDecoration(
-                          color: AppColors.whiteColor,
-                          borderRadius: BorderRadius.circular(30),
+                          color: AppColors.surfaceElevated.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(14),
                           border: Border.all(color: AppColors.borderColor),
                         ),
                         child: GetBuilder<BiddingDashboardController>(
@@ -105,6 +103,14 @@ class FilterBottomSheet extends StatelessWidget {
                       child: TextFField(
                         controller: biddingDashboardController.vrController,
                         hintText: 'V. Request No',
+                        prefixIcon: Padding(
+                          padding: EdgeInsets.only(left: Get.width * 0.02),
+                          child: Icon(
+                            Icons.tag_outlined,
+                            color: AppColors.textSecondary.withValues(alpha: 0.9),
+                            size: 22,
+                          ),
+                        ),
                       ),
                     )
                   ],
@@ -113,7 +119,7 @@ class FilterBottomSheet extends StatelessWidget {
               HBox(Get.height * 0.028),
               Row(
                 children: [
-                  Expanded(child: CommonButton(textVal: 'Reset', bgColor: AppColors.primaryColor.withOpacity(0.2),style: AppTextStyle.regularTextStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: 0.5, color: AppColors.primaryColor),
+                  Expanded(child: CommonButton(textVal: 'Reset', bgColor: AppColors.primaryColor.withValues(alpha: 0.2),style: AppTextStyle.regularTextStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: 0.5, color: AppColors.primaryColor),
                       onPressed: () {
                         Get.back();
                         biddingDashboardController.vrController.clear();

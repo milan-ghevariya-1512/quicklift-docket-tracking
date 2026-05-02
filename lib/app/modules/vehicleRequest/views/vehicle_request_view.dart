@@ -29,18 +29,6 @@ import '../../../data/model/getGeneralMasterModel.dart';
 import '../../../data/service/api_url_list.dart';
 import '../controllers/vehicle_request_controller.dart';
 
-String legLocationDropdownCaption(LegLocationList e) {
-  final d = (e.codeDesc ?? '').trim();
-  if (d.isNotEmpty) return d;
-  return (e.address ?? '').trim();
-}
-
-String legCityDropdownCaption(GetAutoCompleteCityModel e) {
-  final d = (e.codeDesc ?? '').trim();
-  if (d.isNotEmpty) return d;
-  return (e.cityAbrv ?? '').trim();
-}
-
 class VehicleRequestView extends GetView<VehicleRequestController> {
   VehicleRequestView({super.key});
 
@@ -198,22 +186,12 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                       },
                       enabled: (c.getFieldData("VR_CUSTOMERID")?.isEnable ?? false),
                       decoration: CustomDropdownDecoration(
-                        closedFillColor: AppColors.whiteColor,
-                        expandedFillColor: AppColors.whiteColor,
-                        closedBorderRadius: BorderRadius.circular(30),
-                        expandedBorderRadius: BorderRadius.circular(30),
-                        searchFieldDecoration: SearchFieldDecoration(
-                          fillColor: (c.getFieldData("VR_CUSTOMERID")?.isEnable ?? false) ? AppColors.whiteColor : AppColors.borderColor.withOpacity(0.5),
-                          contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.01, horizontal: Get.width * 0.02),
-                          hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-                          textStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
-                          prefixIcon: Padding(
-                            padding: EdgeInsets.only(top: Get.height * 0.013, bottom: Get.height * 0.013, left: Get.height * 0.01),
-                            child: Image.asset(AppImage.searchIcon, height: Get.height * 0.01, width: Get.height * 0.01, fit: BoxFit.contain,),
-                          ),
-                          constraints: BoxConstraints(),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
+                        closedFillColor: vrFieldFillForId(c, "VR_CUSTOMERID"),
+                        expandedFillColor: vrFieldFillForId(c, "VR_CUSTOMERID"),
+                        closedBorderRadius: BorderRadius.circular(AppFormDecor.radius),
+                        expandedBorderRadius: BorderRadius.circular(AppFormDecor.radius),
+                        searchFieldDecoration: vrCustomDropdownSearchField(
+                          fillColor: vrFieldFillForId(c, "VR_CUSTOMERID"),
                         ),
                         closedBorder: Border.all(color: AppColors.borderColor),
                         expandedBorder: Border.all(color: AppColors.borderColor),
@@ -251,7 +229,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                     child: TextFField(
                       hintText: c.getFieldData("VR_CUSTOMERID")?.fieldCaption ?? '',
                       controller: c.customerController,
-                      fillColor: (c.getFieldData("VR_CUSTOMERID")?.isEnable ?? false) ? AppColors.whiteColor : AppColors.borderColor.withOpacity(0.5),
+                      fillColor: vrFieldFillForId(c, "VR_CUSTOMERID"),
                       enabled: (c.getFieldData("VR_CUSTOMERID")?.isEnable ?? false),
                       readOnly: !(c.getFieldData("VR_CUSTOMERID")?.isEnable ?? false),
                       validator: (value) {
@@ -270,6 +248,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
               buildDynamicField("VR_REQUESTDATE",
                 customInput: Obx(() => TextFField(
                     readOnly: true,
+                    enabled: c.getFieldData("VR_REQUESTDATE")?.isEnable ?? false,
+                    fillColor: vrFieldFillForId(c, "VR_REQUESTDATE"),
                     controller: TextEditingController(
                       text: Utils().formatDateTime(c.requestDateTime.value),
                     ),
@@ -320,31 +300,15 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                     }
                     return null;
                   },
+                  enabled: c.getFieldData("VR_FROMLOCATION")?.isEnable ?? false,
                   searchHintText: c.getFieldData("VR_FROMLOCATION")?.fieldCaption ?? '',
                   decoration: CustomDropdownDecoration(
-                    closedFillColor: AppColors.whiteColor,
-                    expandedFillColor: AppColors.whiteColor,
-                    closedBorderRadius: BorderRadius.circular(30),
-                    expandedBorderRadius: BorderRadius.circular(30),
-                    searchFieldDecoration: SearchFieldDecoration(
-                      fillColor: AppColors.whiteColor,
-                      contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.01, horizontal: Get.width * 0.02),
-                      hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-                      textStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
-                      prefixIcon: Padding(
-                        padding: EdgeInsets.only(top: Get.height * 0.013, bottom: Get.height * 0.013, left: Get.height * 0.01),
-                        child: Image.asset(
-                          AppImage.searchIcon,
-                          height: Get.height * 0.01,
-                          width: Get.height * 0.01,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      constraints: BoxConstraints(),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    ),
-                    closedErrorBorderRadius: BorderRadius.circular(30),
+                    closedFillColor: vrFieldFillForId(c, "VR_FROMLOCATION"),
+                    expandedFillColor: vrFieldFillForId(c, "VR_FROMLOCATION"),
+                    closedBorderRadius: BorderRadius.circular(AppFormDecor.radius),
+                    expandedBorderRadius: BorderRadius.circular(AppFormDecor.radius),
+                    searchFieldDecoration: vrCustomDropdownSearchField(fillColor: vrFieldFillForId(c, "VR_FROMLOCATION")),
+                    closedErrorBorderRadius: BorderRadius.circular(AppFormDecor.radius),
                     closedErrorBorder: Border.all(color: AppColors.redColor),
                     errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
                     closedBorder: Border.all(color: AppColors.borderColor),
@@ -393,31 +357,15 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                     }
                     return null;
                   },
+                  enabled: c.getFieldData("VR_TOLOCATION")?.isEnable ?? false,
                   searchHintText: c.getFieldData("VR_TOLOCATION")?.fieldCaption ?? '',
                   decoration: CustomDropdownDecoration(
-                    closedFillColor: AppColors.whiteColor,
-                    expandedFillColor: AppColors.whiteColor,
-                    closedBorderRadius: BorderRadius.circular(30),
-                    expandedBorderRadius: BorderRadius.circular(30),
-                    searchFieldDecoration: SearchFieldDecoration(
-                      fillColor: AppColors.whiteColor,
-                      contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.01, horizontal: Get.width * 0.02),
-                      hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-                      textStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
-                      prefixIcon: Padding(
-                        padding: EdgeInsets.only(top: Get.height * 0.013, bottom: Get.height * 0.013, left: Get.height * 0.01),
-                        child: Image.asset(
-                          AppImage.searchIcon,
-                          height: Get.height * 0.01,
-                          width: Get.height * 0.01,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      constraints: BoxConstraints(),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    ),
-                    closedErrorBorderRadius: BorderRadius.circular(30),
+                    closedFillColor: vrFieldFillForId(c, "VR_TOLOCATION"),
+                    expandedFillColor: vrFieldFillForId(c, "VR_TOLOCATION"),
+                    closedBorderRadius: BorderRadius.circular(AppFormDecor.radius),
+                    expandedBorderRadius: BorderRadius.circular(AppFormDecor.radius),
+                    searchFieldDecoration: vrCustomDropdownSearchField(fillColor: vrFieldFillForId(c, "VR_TOLOCATION")),
+                    closedErrorBorderRadius: BorderRadius.circular(AppFormDecor.radius),
                     closedErrorBorder: Border.all(color: AppColors.redColor),
                     errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
                     closedBorder: Border.all(color: AppColors.borderColor),
@@ -456,6 +404,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
               buildDynamicField("VR_EXPLOADINGDATE",
                   customInput: Obx(() => TextFField(
                     readOnly: true,
+                    enabled: c.getFieldData("VR_EXPLOADINGDATE")?.isEnable ?? false,
+                    fillColor: vrFieldFillForId(c, "VR_EXPLOADINGDATE"),
                     controller: TextEditingController(
                       text: Utils().formatDateTime(c.expLoadingDateTime.value),
                     ),
@@ -502,6 +452,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
               buildDynamicField("VR_EXPDELIVERYTIME",
                 customInput: Obx(() => TextFField(
                     readOnly: true,
+                    enabled: c.getFieldData("VR_EXPDELIVERYTIME")?.isEnable ?? false,
+                    fillColor: vrFieldFillForId(c, "VR_EXPDELIVERYTIME"),
                     controller: TextEditingController(
                       text: Utils().formatDateTime(c.expDeliveryDateTime.value),
                     ),
@@ -540,6 +492,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
               buildDynamicField("VR_EXP_VEHICLE_DATE",
                 customInput: Obx(() => TextFField(
                     readOnly: true,
+                    enabled: c.getFieldData("VR_EXP_VEHICLE_DATE")?.isEnable ?? false,
+                    fillColor: vrFieldFillForId(c, "VR_EXP_VEHICLE_DATE"),
                     controller: TextEditingController(
                       text: Utils().formatDateTime(c.vehicleExpReportingDateTime.value),
                     ),
@@ -695,19 +649,24 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                                       googleAPIKey: ApiUrlList.googleMapKey,
                                       inputDecoration: InputDecoration(
                                         border: InputBorder.none,
-                                        fillColor: AppColors.whiteColor,
-                                        contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.02),
                                         hintText: "Enter a location",
-                                        hintStyle: AppTextStyle.regularTextStyle.copyWith(color:AppColors.hintTextColor,fontSize: 14),
+                                        hintStyle: AppTextStyle.regularTextStyle.copyWith(
+                                          color: AppColors.hintTextColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                        ),
                                       ),
                                       textStyle: AppTextStyle.regularTextStyle.copyWith(
                                         color: AppColors.textBlackColor,
-                                        fontSize: 14,
+                                        fontSize: 16,
                                         fontWeight: FontWeight.w500,
+                                        letterSpacing: 0.3,
                                       ),
                                       boxDecoration: BoxDecoration(
                                         color: AppColors.whiteColor,
-                                        borderRadius: BorderRadius.circular(30),
+                                        borderRadius: BorderRadius.circular(AppFormDecor.radius),
                                         border: Border.all(color: AppColors.borderColor),
                                       ),
                                       isLatLngRequired: true,
@@ -797,19 +756,24 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                                       googleAPIKey: ApiUrlList.googleMapKey,
                                       inputDecoration: InputDecoration(
                                         border: InputBorder.none,
-                                        fillColor: AppColors.whiteColor,
-                                        contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.02),
                                         hintText: "Enter a location",
-                                        hintStyle: AppTextStyle.regularTextStyle.copyWith(color:AppColors.hintTextColor,fontSize: 14),
+                                        hintStyle: AppTextStyle.regularTextStyle.copyWith(
+                                          color: AppColors.hintTextColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                        ),
                                       ),
                                       textStyle: AppTextStyle.regularTextStyle.copyWith(
                                         color: AppColors.textBlackColor,
-                                        fontSize: 14,
+                                        fontSize: 16,
                                         fontWeight: FontWeight.w500,
+                                        letterSpacing: 0.3,
                                       ),
                                       boxDecoration: BoxDecoration(
                                         color: AppColors.whiteColor,
-                                        borderRadius: BorderRadius.circular(30),
+                                        borderRadius: BorderRadius.circular(AppFormDecor.radius),
                                         border: Border.all(color: AppColors.borderColor),
                                       ),
                                       isLatLngRequired: true,
@@ -910,6 +874,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                                       items: c.customLocationList,
                                       itemLabel: legLocationDropdownCaption,
                                       hintText: startCfg?.fieldCaption ?? '',
+                                      fillColor: vrFieldFillForSetup(startCfg),
                                       enabled: startCfg?.isEnable ?? false,
                                       onChanged: (value) {
                                         c.applyStartCustomLegLocation(index, value);
@@ -987,6 +952,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                                       items: c.customLocationList,
                                       itemLabel: legLocationDropdownCaption,
                                       hintText: endCfg?.fieldCaption ?? '',
+                                      fillColor: vrFieldFillForSetup(endCfg),
                                       enabled: endCfg?.isEnable ?? false,
                                       onChanged: (value) {
                                         c.applyEndCustomLegLocation(index, value);
@@ -1099,6 +1065,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                               items: c.cityList,
                               itemLabel: legCityDropdownCaption,
                               hintText: fromCfg?.fieldCaption ?? '',
+                              fillColor: vrFieldFillForSetup(fromCfg),
                               enabled: fromCfg?.isEnable ?? false,
                               onChanged: (value) {
                                 c.setLegFromCity(index, value);
@@ -1116,6 +1083,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                               items: c.cityList,
                               itemLabel: legCityDropdownCaption,
                               hintText: toCfg?.fieldCaption ?? '',
+                              fillColor: vrFieldFillForSetup(toCfg),
                               enabled: toCfg?.isEnable ?? false,
                               onChanged: (value) {
                                 c.setLegToCity(index, value);
@@ -1192,6 +1160,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
 
               if ((c.getFieldData("VR_ISBIDDING") != null && (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)Obx(() => TextFField(
                 readOnly: true,
+                enabled: c.getFieldData("VR_ISBIDDING")?.isEnable ?? false,
+                fillColor: vrFieldFillForId(c, "VR_ISBIDDING"),
                 controller: TextEditingController(
                   text: Utils().formatDateTime(c.biddingStartDateTime.value),
                 ),
@@ -1240,6 +1210,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
               if ((c.getFieldData("VR_ISBIDDING") != null && (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)HBox(Get.height * 0.015),
               if ((c.getFieldData("VR_ISBIDDING") != null && (c.getFieldData("VR_ISBIDDING")?.isInUse ?? false)) && c.isBiddingRequired.value)Obx(() => TextFField(
                 readOnly: true,
+                enabled: c.getFieldData("VR_ISBIDDING")?.isEnable ?? false,
+                fillColor: vrFieldFillForId(c, "VR_ISBIDDING"),
                 controller: TextEditingController(
                   text: Utils().formatDateTime(c.biddingEndDateTime.value),
                 ),
@@ -1295,9 +1267,11 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                       controller: c.maxAmountController,
                       hintText: c.getFieldData("VR_ISCAPRATE")?.fieldCaption ?? '',
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      enabled: c.isMaxAmount.value,
-                      readOnly: !c.isMaxAmount.value,
-                      fillColor: c.isMaxAmount.value ? AppColors.whiteColor : AppColors.borderColor.withOpacity(0.5),
+                      enabled: c.isMaxAmount.value && (c.getFieldData("VR_ISCAPRATE")?.isEnable ?? false),
+                      readOnly: !c.isMaxAmount.value || !(c.getFieldData("VR_ISCAPRATE")?.isEnable ?? false),
+                      fillColor: (c.isMaxAmount.value && (c.getFieldData("VR_ISCAPRATE")?.isEnable ?? false))
+                          ? AppColors.whiteColor
+                          : AppColors.borderColor.withValues(alpha: 0.5),
                       validator: (value) {
                         if(c.getFieldData("VR_ISCAPRATE")?.isRequired==true){
                           if(value == null || value.trim().isEmpty){
@@ -1383,7 +1357,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                   },
                   builder: (fieldState) {
                     return InkWell(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(AppFormDecor.radius),
                       onTap: () {
                         FocusScope.of(context).unfocus();
                         if (!context.mounted) return;
@@ -1395,27 +1369,10 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                         );
                       },
                       child: InputDecorator(
-                        decoration: InputDecoration(
-                          counterText: "",
-                          filled: true,
-                          fillColor: AppColors.whiteColor,
-                          contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.012, horizontal: Get.width * 0.035),
+                        decoration: AppFormDecor.outlinedField(
                           hintText: c.getFieldData("VR_BIDVENDOR")?.fieldCaption ?? '',
-                          hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-                          disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.012, horizontal: Get.width * 0.035),
                           errorText: fieldState.errorText,
-                          errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
                           suffixIcon: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -1502,7 +1459,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                   },
                   builder: (fieldState) {
                     return InkWell(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(AppFormDecor.radius),
                       onTap: () {
                         FocusScope.of(context).unfocus();
                         if (!context.mounted) return;
@@ -1516,27 +1473,10 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                         });
                       },
                       child: InputDecorator(
-                        decoration: InputDecoration(
-                          counterText: "",
-                          filled: true,
-                          fillColor: AppColors.whiteColor,
-                          contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.012, horizontal: Get.width * 0.035),
+                        decoration: AppFormDecor.outlinedField(
                           hintText: c.getFieldData("VR_BIDLANE")?.fieldCaption ?? '',
-                          hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-                          disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.012, horizontal: Get.width * 0.035),
                           errorText: fieldState.errorText,
-                          errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
                           suffixIcon: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -1647,7 +1587,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                     return null;
                   },
                   isExpanded: true,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(AppFormDecor.radius),
                   menuMaxHeight: Get.height * 0.5,
                   value: c.selectedServiceMode == null ? null : c.selectedServiceMode,
                   icon: const Icon(
@@ -1662,26 +1602,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                       fontSize: 14,
                     ),
                   ),
-                  decoration: InputDecoration(
-                    counterText: "",
-                    filled: true,
-                    fillColor: AppColors.whiteColor,
-                    contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                  decoration: AppFormDecor.outlinedField(
                     hintText: c.getFieldData("VR_SERVICEMODE")?.fieldCaption ?? '',
-                    hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-                    disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                    ),
-                    errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
                   ),
                   onChanged: (value) {
                     c.selectedServiceMode = value;
@@ -1712,7 +1634,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                     return null;
                   },
                   isExpanded: true,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(AppFormDecor.radius),
                   menuMaxHeight: Get.height * 0.5,
                   value: c.selectedVehicleFtlType == null ? null : c.selectedVehicleFtlType,
                   icon: const Icon(
@@ -1727,26 +1649,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                       fontSize: 14,
                     ),
                   ),
-                  decoration: InputDecoration(
-                    counterText: "",
-                    filled: true,
-                    fillColor: AppColors.whiteColor,
-                    contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                  decoration: AppFormDecor.outlinedField(
                     hintText: c.getFieldData("VR_FTLTYPE")?.fieldCaption ?? '',
-                    hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-                    disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                    ),
-                    errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
                   ),
                   onChanged: (value) {
                     c.selectedVehicleFtlType = value;
@@ -1779,7 +1683,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                     return null;
                   },
                   isExpanded: true,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(AppFormDecor.radius),
                   menuMaxHeight: Get.height * 0.5,
                   value: c.selectedVehicleType == null ? null : c.selectedVehicleType,
                   icon: const Icon(
@@ -1794,26 +1698,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                       fontSize: 14,
                     ),
                   ),
-                  decoration: InputDecoration(
-                    counterText: "",
-                    filled: true,
-                    fillColor: AppColors.whiteColor,
-                    contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                  decoration: AppFormDecor.outlinedField(
                     hintText: c.getFieldData("VR_VEHICLETYPE")?.fieldCaption ?? '',
-                    hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-                    disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                    ),
-                    errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
                   ),
                   onChanged: (value) {
                     c.selectedVehicleType = value;
@@ -1862,7 +1748,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                     return null;
                   },
                   isExpanded: true,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(AppFormDecor.radius),
                   menuMaxHeight: Get.height * 0.5,
                   value: c.selectedMaterialType == null ? null : c.selectedMaterialType,
                   icon: const Icon(
@@ -1877,26 +1763,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                       fontSize: 14,
                     ),
                   ),
-                  decoration: InputDecoration(
-                    counterText: "",
-                    filled: true,
-                    fillColor: AppColors.whiteColor,
-                    contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                  decoration: AppFormDecor.outlinedField(
                     hintText: c.getFieldData("VR_MATERIALTYPE")?.fieldCaption ?? '',
-                    hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-                    disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                    ),
-                    errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
                   ),
                   onChanged: (GetGeneralMasterModel? newValue) {
                     c.selectedMaterialType = newValue!;
@@ -1927,7 +1795,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                     return null;
                   },
                   isExpanded: true,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(AppFormDecor.radius),
                   menuMaxHeight: Get.height * 0.5,
                   value: c.selectedPackagingType == null ? null : c.selectedPackagingType,
                   icon: const Icon(
@@ -1942,26 +1810,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                       fontSize: 14,
                     ),
                   ),
-                  decoration: InputDecoration(
-                    counterText: "",
-                    filled: true,
-                    fillColor: AppColors.whiteColor,
-                    contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                  decoration: AppFormDecor.outlinedField(
                     hintText: c.getFieldData("VR_PACKAGINTYPE")?.fieldCaption ?? '',
-                    hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-                    disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                    ),
-                    errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
                   ),
                   onChanged: (GetGeneralMasterModel? newValue) {
                     c.selectedPackagingType = newValue!;
@@ -2007,6 +1857,9 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                       child: TextFField(
                         controller: c.freightChargeRateController,
                         keyboardType: TextInputType.number,
+                        enabled: c.getFieldData("VR_RATEAMOUNT")?.isEnable ?? false,
+                        readOnly: !(c.getFieldData("VR_RATEAMOUNT")?.isEnable ?? false),
+                        fillColor: vrFieldFillForId(c, "VR_RATEAMOUNT"),
                         hintText: c.getFieldData("VR_RATEAMOUNT")?.fieldCaption ?? '',
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
@@ -2027,31 +1880,14 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                       flex: 3,
                       child: DropdownButtonFormField<RateTypeList>(
                         isExpanded: true,
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(AppFormDecor.radius),
                         menuMaxHeight: Get.height * 0.5,
                         value: c.selectedRateType == null ? null : c.selectedRateType,
                         icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textBlackColor, size: 20),
                         style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 11, fontWeight: FontWeight.w600),
-                        decoration: InputDecoration(
-                          counterText: "",
-                          filled: true,
-                          fillColor: AppColors.whiteColor,
-                          contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+                        decoration: AppFormDecor.outlinedField(
+                          fillColor: vrFieldFillForId(c, "VR_RATEAMOUNT"),
                           hintText: c.getFieldData("VR_RATEAMOUNT")?.fieldCaption ?? '',
-                          hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-                          disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-                          ),
-                          errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
                         ),
                         items: c.rateTypeList.map((m) {
                           return DropdownMenuItem<RateTypeList>(
@@ -2059,7 +1895,9 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                             child: Text(m.codeDesc ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),),
                           );
                         }).toList(),
-                        onChanged: c.onFreightChargeModeChanged,
+                        onChanged: (c.getFieldData("VR_RATEAMOUNT")?.isEnable ?? false)
+                            ? c.onFreightChargeModeChanged
+                            : null,
                       ),
                     ),
                   ],
@@ -2070,6 +1908,9 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                 customInput: TextFField(
                   controller: c.freightChargeTotalController,
                   keyboardType: TextInputType.number,
+                  enabled: c.getFieldData("VR_FREIGHTCHARGE")?.isEnable ?? false,
+                  readOnly: !(c.getFieldData("VR_FREIGHTCHARGE")?.isEnable ?? false),
+                  fillColor: vrFieldFillForId(c, "VR_FREIGHTCHARGE"),
                   hintText: c.getFieldData("VR_FREIGHTCHARGE")?.fieldCaption ?? '',
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
@@ -2149,7 +1990,7 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                 hintText: config.fieldCaption,
                 enabled: enabled ?? config.isEnable,
                 readOnly: enabled ?? !config.isEnable,
-                fillColor: (enabled ?? config.isEnable) ? AppColors.whiteColor : AppColors.borderColor.withOpacity(0.5),
+                fillColor: (enabled ?? config.isEnable) ? AppColors.whiteColor : AppColors.borderColor.withValues(alpha: 0.5),
                 validator: customValidator ?? (value) {
                   if (config.isRequired && (value == null || value.trim().isEmpty)) {
                     return "Required";
@@ -2215,4 +2056,60 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
       ),
     );
   }
+
+  String legLocationDropdownCaption(LegLocationList e) {
+    final d = (e.codeDesc ?? '').trim();
+    if (d.isNotEmpty) return d;
+    return (e.address ?? '').trim();
+  }
+
+  String legCityDropdownCaption(GetAutoCompleteCityModel e) {
+    final d = (e.codeDesc ?? '').trim();
+    if (d.isNotEmpty) return d;
+    return (e.cityAbrv ?? '').trim();
+  }
+
+  Color vrFieldFillForId(VehicleRequestController c, String fieldId) {
+    return (c.getFieldData(fieldId)?.isEnable ?? false)
+        ? AppColors.whiteColor
+        : AppColors.borderColor.withValues(alpha: 0.5);
+  }
+
+  Color vrFieldFillForSetup(FieldSetupModel? config) {
+    return (config?.isEnable ?? false)
+        ? AppColors.whiteColor
+        : AppColors.borderColor.withValues(alpha: 0.5);
+  }
+
+  Widget vrCustomDropdownSearchPrefix() {
+    return Padding(
+      padding: EdgeInsets.only(top: Get.height * 0.013, bottom: Get.height * 0.013, left: Get.height * 0.01),
+      child: Image.asset(
+        AppImage.searchIcon,
+        height: Get.height * 0.01,
+        width: Get.height * 0.01,
+        fit: BoxFit.contain,
+      ),
+    );
+  }
+
+  SearchFieldDecoration vrCustomDropdownSearchField({required Color fillColor}) {
+    return SearchFieldDecoration(
+      fillColor: fillColor,
+      contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.01, horizontal: Get.width * 0.02),
+      hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppFormDecor.radius),
+        borderSide: const BorderSide(color: AppColors.borderColor),
+      ),
+      textStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
+      prefixIcon: vrCustomDropdownSearchPrefix(),
+      constraints: const BoxConstraints(),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppFormDecor.radius),
+        borderSide: const BorderSide(color: AppColors.primaryColor, width: 1.5),
+      ),
+    );
+  }
+
 }

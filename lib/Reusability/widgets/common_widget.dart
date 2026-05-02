@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_images.dart';
@@ -117,7 +116,7 @@ class CommonButton extends StatelessWidget {
         width: btnWidth ?? Get.width,
         decoration: BoxDecoration(
           color: bgColor ?? AppColors.primaryColor,
-          borderRadius: BorderRadius.circular(btnRadius ?? 30),
+          borderRadius: BorderRadius.circular(btnRadius ?? 14),
           boxShadow: [
             if (bgColor == null || bgColor == AppColors.primaryColor)
               BoxShadow(
@@ -147,6 +146,7 @@ class TextFField extends StatelessWidget {
   final bool? readOnly;
   final bool? obscureText;
   final bool? enabled;
+  final bool? isDense;
   final Function()? onTap;
   final Function(String)? onChanged;
   final Function(String?)? onSaved;
@@ -164,6 +164,8 @@ class TextFField extends StatelessWidget {
   final double? radius;
   final EdgeInsetsGeometry? margin;
   final TextInputAction? textInputAction;
+  final TextStyle? textStyle;
+  final AutovalidateMode? autovalidateMode;
 
   const TextFField(
       {this.hintText,
@@ -191,7 +193,19 @@ class TextFField extends StatelessWidget {
         this.suffixIcon,
         this.suffixIconColor,
         this.validator,
+        this.isDense,
+        this.textStyle,
+        this.autovalidateMode,
         super.key});
+
+  static const double defaultRadius = 14;
+
+  OutlineInputBorder border(Color color, {double width = 1}) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(radius ?? defaultRadius),
+      borderSide: BorderSide(color: color, width: width),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -200,11 +214,18 @@ class TextFField extends StatelessWidget {
       focusNode: focusNode,
       enabled: enabled,
       maxLines: maxLine ?? 1,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: autovalidateMode ?? AutovalidateMode.onUserInteraction,
       keyboardType: keyboardType,
       readOnly: readOnly ?? false,
       initialValue: initialValue,
-      style: AppTextStyle.regularTextStyle.copyWith(color: AppColors.textBlackColor, fontSize: 14, fontWeight: FontWeight.w500),
+      style: textStyle ??
+          AppTextStyle.regularTextStyle.copyWith(
+            overflow: TextOverflow.ellipsis,
+            color: AppColors.textBlackColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.3,
+          ),
       controller: controller,
       onChanged: onChanged,
       onTap: onTap,
@@ -221,23 +242,22 @@ class TextFField extends StatelessWidget {
       decoration: InputDecoration(
         counterText: "",
         filled: true,
+        isDense: isDense ?? true,
         fillColor: fillColor ?? AppColors.whiteColor,
         errorText: errorText,
-        contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+        contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.02),
         hintText: hintText,
-        hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(radius ?? 30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-        disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(radius ?? 30), borderSide: BorderSide(color: AppColors.borderColor)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(radius ?? 30), borderSide: BorderSide(color: AppColors.borderColor)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(radius ?? 30), borderSide: BorderSide(color: AppColors.borderColor)),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius ?? 30),
-          borderSide: const BorderSide(width: 1, color: AppColors.redColor),
+        hintStyle: AppTextStyle.regularTextStyle.copyWith(
+          color: AppColors.hintTextColor,
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
         ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radius ?? 30),
-          borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-        ),
+        border: border(AppColors.borderColor),
+        disabledBorder: border(AppColors.borderColor),
+        enabledBorder: border(AppColors.borderColor),
+        focusedBorder: border(AppColors.primaryColor, width: 1.5),
+        errorBorder: border(AppColors.redColor),
+        focusedErrorBorder: border(AppColors.redColor, width: 1.5),
         errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
         prefixIcon: prefixIcon,
         prefixIconColor: AppColors.hintTextColor,
@@ -253,8 +273,55 @@ class TextFField extends StatelessWidget {
           maxWidth: Get.width * 0.1,
           minWidth: Get.width * 0.1,
         ),
-        // suffixIcon: Icon(Icons.arrow_drop_down)
       ),
+    );
+  }
+}
+
+class AppFormDecor {
+  AppFormDecor._();
+
+  static const double radius = 14;
+
+  static OutlineInputBorder outlineBorder(Color color, {double width = 1}) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(radius),
+      borderSide: BorderSide(color: color, width: width),
+    );
+  }
+
+  static InputDecoration outlinedField({
+    Color fillColor = AppColors.whiteColor,
+    EdgeInsetsGeometry? contentPadding,
+    String? hintText,
+    TextStyle? hintStyle,
+    Widget? suffixIcon,
+    String? errorText,
+    bool isDense = true,
+  }) {
+    return InputDecoration(
+      counterText: '',
+      filled: true,
+      isDense: isDense,
+      fillColor: fillColor,
+      contentPadding: contentPadding ??
+          EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.02),
+      hintText: hintText,
+      hintStyle: hintStyle ??
+          AppTextStyle.regularTextStyle.copyWith(
+            color: AppColors.hintTextColor,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+          ),
+      border: outlineBorder(AppColors.borderColor),
+      disabledBorder: outlineBorder(AppColors.borderColor),
+      enabledBorder: outlineBorder(AppColors.borderColor),
+      focusedBorder: outlineBorder(AppColors.primaryColor, width: 1.5),
+      errorBorder: outlineBorder(AppColors.redColor),
+      focusedErrorBorder: outlineBorder(AppColors.redColor, width: 1.5),
+      errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
+      suffixIcon: suffixIcon,
+      errorText: errorText,
     );
   }
 }
@@ -404,6 +471,7 @@ class DropdownTextField<T> extends StatelessWidget {
   final String? Function(T?)? validator;
   final bool enabled;
   final AutovalidateMode autovalidateMode;
+  final Color? fillColor;
 
   const DropdownTextField({
     super.key,
@@ -413,6 +481,7 @@ class DropdownTextField<T> extends StatelessWidget {
     required this.onChanged,
     this.hintText,
     this.validator,
+    this.fillColor,
     this.enabled = true,
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
   });
@@ -438,26 +507,9 @@ class DropdownTextField<T> extends StatelessWidget {
           fontSize: 14,
         ),
       ),
-      decoration: InputDecoration(
-        counterText: "",
-        filled: true,
-        fillColor: AppColors.whiteColor,
-        contentPadding: EdgeInsets.symmetric(vertical: Get.height * 0.018, horizontal: Get.width * 0.04),
+      decoration: AppFormDecor.outlinedField(
+        fillColor: fillColor ?? AppColors.whiteColor,
         hintText: hintText,
-        hintStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.hintTextColor, fontSize: 14),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.hintTextColor)),
-        disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide(color: AppColors.borderColor)),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: const BorderSide(width: 1, color: AppColors.redColor),
-        ),
-        errorStyle: AppTextStyle.regularTextStyle.copyWith(color: AppColors.redColor, fontSize: 12),
       ),
       onChanged: enabled ? onChanged : null,
       items: items.map((option) {

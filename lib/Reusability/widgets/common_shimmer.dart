@@ -95,7 +95,7 @@ class FormShimmer extends StatelessWidget {
           ShimmerBox(
             width: double.infinity,
             height: Get.height * 0.058,
-            borderRadius: 30,
+            borderRadius: 14,
             color: AppColors.shimmerBaseDark,
           ),
         ],

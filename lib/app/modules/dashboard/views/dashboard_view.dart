@@ -377,7 +377,7 @@ class DashboardView extends GetView<DashboardController> {
     return Container(
       padding: EdgeInsets.all(Get.height * 0.007),
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
+        color: AppColors.whiteColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: AppColors.borderColor.withValues(alpha: 0.9),
@@ -480,8 +480,6 @@ class DashboardView extends GetView<DashboardController> {
             child: TextFField(
               focusNode: controller.fd,
               controller: controller.docketController,
-              fillColor: AppColors.surfaceElevated,
-              radius: 14,
               prefixIcon: Padding(
                 padding: EdgeInsets.only(left: Get.width * 0.02),
                 child: Icon(
@@ -504,14 +502,12 @@ class DashboardView extends GetView<DashboardController> {
             onPressed: controller.validate,
             textVal: 'Track',
             bgColor: AppColors.primaryColor,
-            btnRadius: 14,
           ),
           HBox(Get.height * 0.012),
           CommonButton(
             onPressed: () => Get.toNamed(Routes.BIDDING_DASHBOARD),
             textVal: 'Enquiry',
             bgColor: AppColors.primaryColor.withValues(alpha: 0.12),
-            btnRadius: 14,
             style: AppTextStyle.regularTextStyle.copyWith(
               fontSize: 16,
               color: AppColors.primaryColor,
