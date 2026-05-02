@@ -16,12 +16,12 @@ class DashboardView extends GetView<DashboardController> {
   @override
   final controller = Get.put(DashboardController());
 
-  static const Duration step = Duration(milliseconds: 90);
+  static const Duration step = Duration(milliseconds: 48);
 
-  static const int tVisitStrip = 640;
-  static const int tHero = tVisitStrip + 420;
-  static const int tTrackBox = tHero + 500;
-  static const int tFooter = tTrackBox + 520;
+  static const int tVisitStrip = 300;
+  static const int tHero = tVisitStrip + 200;
+  static const int tTrackBox = tHero + 220;
+  static const int tFooter = tTrackBox + 220;
 
   @override
   Widget build(BuildContext context) {
@@ -107,14 +107,14 @@ class DashboardView extends GetView<DashboardController> {
                     .animate()
                     .fadeIn(
                       delay: Duration(milliseconds: tVisitStrip),
-                      duration: 400.ms,
+                      duration: 260.ms,
                       curve: Curves.easeOutCubic,
                     )
                     .move(
                       delay: Duration(milliseconds: tVisitStrip),
-                      begin: const Offset(0, 36),
+                      begin: const Offset(0, 28),
                       end: Offset.zero,
-                      duration: 400.ms,
+                      duration: 260.ms,
                       curve: Curves.easeOutCubic,
                     ),
                 Expanded(
@@ -130,21 +130,21 @@ class DashboardView extends GetView<DashboardController> {
                               .animate()
                               .fadeIn(
                                 delay: Duration(milliseconds: tHero),
-                                duration: 480.ms,
+                                duration: 300.ms,
                                 curve: Curves.easeOutCubic,
                               )
                               .move(
                                 delay: Duration(milliseconds: tHero),
-                                begin: const Offset(0, 48),
+                                begin: const Offset(0, 36),
                                 end: Offset.zero,
-                                duration: 480.ms,
+                                duration: 300.ms,
                                 curve: Curves.easeOutCubic,
                               )
                               .scale(
                                 delay: Duration(milliseconds: tHero),
-                                begin: const Offset(0.92, 0.92),
+                                begin: const Offset(0.94, 0.94),
                                 end: const Offset(1, 1),
-                                duration: 480.ms,
+                                duration: 300.ms,
                                 curve: Curves.easeOutCubic,
                               ),
                           HBox(Get.height * 0.01),
@@ -152,21 +152,21 @@ class DashboardView extends GetView<DashboardController> {
                               .animate()
                               .fadeIn(
                                 delay: Duration(milliseconds: tTrackBox),
-                                duration: 480.ms,
+                                duration: 300.ms,
                                 curve: Curves.easeOutCubic,
                               )
                               .move(
                                 delay: Duration(milliseconds: tTrackBox),
-                                begin: const Offset(0, 44),
+                                begin: const Offset(0, 32),
                                 end: Offset.zero,
-                                duration: 480.ms,
+                                duration: 300.ms,
                                 curve: Curves.easeOutCubic,
                               )
                               .scale(
                                 delay: Duration(milliseconds: tTrackBox),
-                                begin: const Offset(0.94, 0.94),
+                                begin: const Offset(0.95, 0.95),
                                 end: const Offset(1, 1),
-                                duration: 480.ms,
+                                duration: 300.ms,
                                 curve: Curves.easeOutCubic,
                               ),
                           HBox(Get.height * 0.02),
@@ -210,14 +210,14 @@ class DashboardView extends GetView<DashboardController> {
                     .animate()
                     .fadeIn(
                       delay: Duration(milliseconds: tFooter),
-                      duration: 420.ms,
+                      duration: 260.ms,
                       curve: Curves.easeOutCubic,
                     )
                     .move(
                       delay: Duration(milliseconds: tFooter),
-                      begin: const Offset(0, 24),
+                      begin: const Offset(0, 18),
                       end: Offset.zero,
-                      duration: 420.ms,
+                      duration: 260.ms,
                       curve: Curves.easeOutCubic,
                     ),
               ],
@@ -231,7 +231,7 @@ class DashboardView extends GetView<DashboardController> {
   Widget dashStep({
     required Duration delay,
     required Widget child,
-    Duration duration = const Duration(milliseconds: 360),
+    Duration duration = const Duration(milliseconds: 240),
     Offset moveBegin = const Offset(20, 0),
   }) {
     return child
@@ -351,21 +351,21 @@ class DashboardView extends GetView<DashboardController> {
               .animate()
               .fadeIn(
             delay: Duration(milliseconds: step.inMilliseconds * 3),
-            duration: 360.ms,
+            duration: 240.ms,
             curve: Curves.easeOutCubic,
           )
               .move(
             delay: Duration(milliseconds: step.inMilliseconds * 3),
-            begin: const Offset(14, 0),
+            begin: const Offset(10, 0),
             end: Offset.zero,
-            duration: 360.ms,
+            duration: 240.ms,
             curve: Curves.easeOutCubic,
           )
               .scale(
             delay: Duration(milliseconds: step.inMilliseconds * 3),
-            begin: const Offset(0.88, 0.88),
+            begin: const Offset(0.9, 0.9),
             end: const Offset(1, 1),
-            duration: 340.ms,
+            duration: 220.ms,
             curve: Curves.easeOutCubic,
           ),
         ],

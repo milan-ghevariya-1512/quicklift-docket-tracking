@@ -284,6 +284,14 @@ class VehicleRequestController extends GetxController {
     return a != null && a.trim().isNotEmpty;
   }
 
+  static bool customLegRowHasSelection(LegLocationList? sel) {
+    if (sel == null) return false;
+    if ((sel.address ?? '').trim().isNotEmpty) return true;
+    if ((sel.codeDesc ?? '').trim().isNotEmpty) return true;
+    if ((sel.codeId ?? '').trim().isNotEmpty) return true;
+    return false;
+  }
+
   String? validateGoogleLegGroup(
       String fieldId,
       List<TextEditingController> controllers,
@@ -292,9 +300,24 @@ class VehicleRequestController extends GetxController {
     final config = getFieldData(fieldId);
     if (config == null || !config.isInUse) return null;
     if (fieldId == 'VR_STARTPOINT' || fieldId == 'VR_ENDPOINT') {
+      final isGoogle = selectPreferenceType.value == 'google';
+      final isCustom = selectPreferenceType.value == 'custom';
       for (var i = 0; i < controllers.length; i++) {
-        if (!rowHasResolvedAddress(legs, i)) {
-          return '    Required';
+        if (isGoogle) {
+          if (controllers[i].text.trim().isEmpty || !rowHasResolvedAddress(legs, i)) {
+            return '    Required';
+          }
+        } else if (isCustom) {
+          final LegLocationList? row = fieldId == 'VR_STARTPOINT'
+              ? (i < selectedStartCustomAddress.length ? selectedStartCustomAddress[i] : null)
+              : (i < selectedEndCustomAddress.length ? selectedEndCustomAddress[i] : null);
+          if (!customLegRowHasSelection(row)) {
+            return '    Required';
+          }
+        } else {
+          if (!rowHasResolvedAddress(legs, i)) {
+            return '    Required';
+          }
         }
       }
       return null;
@@ -963,7 +986,7 @@ class VehicleRequestController extends GetxController {
     if (Get.isDialogOpen!) Get.back();
     FocusScope.of(context).unfocus();
     if (result != null) {
-      Get.back();
+      Get.back(result: true);
       Utils.toastOk(result['Message']);
     }
     update();

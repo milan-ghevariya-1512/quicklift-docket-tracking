@@ -10,7 +10,6 @@ class BiddingDashboardController extends GetxController {
   //TODO: Implement BiddingDashboardController
 
   final isLoaded = false.obs;
-  final pageNumber = 1.obs;
   DateTime startDate = DateTime.now().subtract(Duration(days: 60));
   DateTime endDate = DateTime.now();
   TextEditingController vrController = TextEditingController();
@@ -20,7 +19,7 @@ class BiddingDashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    getBiddingList(pageNumber: pageNumber.value);
+    getBiddingList();
   }
 
   Future<GetVehicleRequestModel?> fetchBiddingListPage({required int pageNumber, String? statusId}) {

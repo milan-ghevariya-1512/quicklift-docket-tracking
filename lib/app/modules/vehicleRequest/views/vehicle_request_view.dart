@@ -572,6 +572,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                                 highlightColor: Colors.transparent,
                                 onTap: () {
                                   c.selectPreferenceType.value = 'custom';
+                                  c.scheduleGoogleStartFieldRevalidate();
+                                  c.scheduleGoogleEndFieldRevalidate();
                                   c.update();
                                 },
                                 child: Image.asset(c.selectPreferenceType.value == 'custom' ? AppImage.radioSelectIcon : AppImage.radioIcon, color: AppColors.primaryColor, height: Get.height * 0.025, width: Get.height * 0.025, fit: BoxFit.contain)),
@@ -594,6 +596,8 @@ class VehicleRequestView extends GetView<VehicleRequestController> {
                                 highlightColor: Colors.transparent,
                                 onTap: () {
                                   c.selectPreferenceType.value = 'google';
+                                  c.scheduleGoogleStartFieldRevalidate();
+                                  c.scheduleGoogleEndFieldRevalidate();
                                   c.update();
                                 },
                                 child: Image.asset(c.selectPreferenceType.value == "google" ? AppImage.radioSelectIcon : AppImage.radioIcon, color: AppColors.primaryColor, height: Get.height * 0.025, width: Get.height * 0.025, fit: BoxFit.contain)),

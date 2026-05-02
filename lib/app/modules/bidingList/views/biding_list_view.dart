@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_animate/flutter_animate.dart';
@@ -471,7 +473,7 @@ class BidingListView extends GetView<BidingListController> {
                         ),
                         HBox(Get.height * 0.006),
                         Text(
-                          'Manual no. · ${biddingStr(data.manualNo)}',
+                          'Manual no :- ${biddingStr(data.manualNo)}',
                           style: AppTextStyle.regularTextStyle.copyWith(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -562,39 +564,7 @@ class BidingListView extends GetView<BidingListController> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Column(
-              children: [
-                locationTimelineDot(
-                  color: AppColors.primaryColor,
-                  icon: Icons.trip_origin_rounded,
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: Get.height * 0.004),
-                    child: Center(
-                      child: Container(
-                        width: 2,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(2),
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              AppColors.primaryColor.withValues(alpha: 0.35),
-                              AppColors.blueColor.withValues(alpha: 0.35),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                locationTimelineDot(
-                  color: AppColors.blueColor,
-                  icon: Icons.location_on_rounded,
-                ),
-              ],
-            ),
+            TimelinePulseColumn(),
             WBox(Get.width * 0.032),
             Expanded(
               child: Column(
@@ -646,27 +616,6 @@ class BidingListView extends GetView<BidingListController> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget locationTimelineDot({required Color color, required IconData icon}) {
-    return Container(
-      width: Get.height * 0.032,
-      height: Get.height * 0.032,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: color.withValues(alpha: 0.35),
-          width: 1.5,
-        ),
-      ),
-      child: Icon(
-        icon,
-        size: Get.height * 0.016,
-        color: color,
       ),
     );
   }
@@ -744,17 +693,133 @@ class BidingListView extends GetView<BidingListController> {
 
   String biddingStr(String? v) {
     final s = v?.trim() ?? '';
-    if (s.isEmpty || s == 'null') return '—';
+    if (s.isEmpty || s == 'null') return '--';
     return s;
   }
 
   String biddingDateStr(String? v) {
     final s = v?.trim() ?? '';
-    if (s.isEmpty || s == 'null') return '—';
+    if (s.isEmpty || s == 'null') return '--';
     try {
       return DateFormat('dd/MM/yyyy · hh:mm a').format(DateTime.parse(s));
     } catch (_) {
       return s;
     }
+  }
+}
+
+class TimelinePulseColumn extends StatefulWidget {
+  const TimelinePulseColumn();
+
+  @override
+  State<TimelinePulseColumn> createState() => _TimelinePulseColumnState();
+}
+
+class _TimelinePulseColumnState extends State<TimelinePulseColumn> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1900),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final v = _controller.value;
+        final wave = math.sin(v * math.pi * 2);
+        final lineAlpha = 0.34 + 0.28 * v;
+        return Column(
+          children: [
+            pulseDot(
+              color: AppColors.primaryColor,
+              icon: Icons.trip_origin_rounded,
+              wave: wave,
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: Get.height * 0.004),
+                child: Center(
+                  child: RepaintBoundary(
+                    child: Container(
+                      width: 3,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primaryColor.withValues(alpha: 0.12 + 0.16 * v),
+                            blurRadius: 3 + 5 * v,
+                            spreadRadius: 0,
+                          ),
+                        ],
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            AppColors.primaryColor.withValues(alpha: lineAlpha),
+                            Color.lerp(
+                              AppColors.primaryColor,
+                              AppColors.blueColor,
+                              v,
+                            )!.withValues(alpha: 0.52 + 0.12 * wave.abs()),
+                            AppColors.blueColor.withValues(alpha: lineAlpha),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            pulseDot(
+              color: AppColors.blueColor,
+              icon: Icons.location_on_rounded,
+              wave: -wave,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget pulseDot({
+    required Color color,
+    required IconData icon,
+    required double wave,
+  }) {
+    final scale = 1.0 + 0.065 * wave;
+    return Transform.scale(
+      scale: scale,
+      child: Container(
+        width: Get.height * 0.032,
+        height: Get.height * 0.032,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.10 + 0.08 * wave.abs()),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: color.withValues(alpha: 0.30 + 0.22 * (0.5 + 0.5 * wave)),
+            width: 1.5,
+          ),
+        ),
+        child: Icon(
+          icon,
+          size: Get.height * 0.016,
+          color: color,
+        ),
+      ),
+    );
   }
 }

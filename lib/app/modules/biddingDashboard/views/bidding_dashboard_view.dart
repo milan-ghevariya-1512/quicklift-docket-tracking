@@ -147,7 +147,12 @@ class BiddingDashboardView extends GetView<BiddingDashboardController> {
         borderRadius: radius,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: () => Get.toNamed(Routes.VEHICLE_REQUEST),
+          onTap: () async {
+            var result = await Get.toNamed(Routes.VEHICLE_REQUEST);
+            if(result != null && result){
+              await c.getBiddingList();
+            }
+          },
           splashColor: Colors.white.withValues(alpha: 0.2),
           highlightColor: Colors.white.withValues(alpha: 0.08),
           child: Padding(

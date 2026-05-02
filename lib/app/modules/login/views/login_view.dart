@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 import 'package:quicklift_docket_tracking/Reusability/widgets/common_widget.dart';
@@ -34,7 +35,18 @@ class _LoginViewState extends State<LoginView> {
                   AppImage.quickLiftLogoImage,
                   width: Get.width * 0.52,
                   fit: BoxFit.contain,
-                ),
+                )
+                    .animate()
+                    .fadeIn(
+                      duration: 520.ms,
+                      curve: Curves.easeOutCubic,
+                    )
+                    .scale(
+                      begin: const Offset(0.9, 0.9),
+                      end: const Offset(1, 1),
+                      duration: 520.ms,
+                      curve: Curves.easeOutCubic,
+                    ),
                 HBox(Get.height * 0.01),
                 Text(
                   'Sign in to continue',
@@ -45,7 +57,20 @@ class _LoginViewState extends State<LoginView> {
                     fontWeight: FontWeight.w500,
                     height: 1.35,
                   ),
-                ),
+                )
+                    .animate()
+                    .fadeIn(
+                      delay: 120.ms,
+                      duration: 400.ms,
+                      curve: Curves.easeOut,
+                    )
+                    .slideY(
+                      begin: 0.08,
+                      end: 0,
+                      delay: 120.ms,
+                      duration: 400.ms,
+                      curve: Curves.easeOutCubic,
+                    ),
               ],
             ),
           ),
@@ -82,14 +107,44 @@ class _LoginViewState extends State<LoginView> {
                       MediaQuery.paddingOf(context).bottom + Get.height * 0.04,
                     ),
                     child: Obx(
-                          () => controller.isPin.value
-                          ? buildOtpSection(context)
-                          : buildPhoneSection(context),
+                      () {
+                        final isOtp = controller.isPin.value;
+                        return KeyedSubtree(
+                          key: ValueKey(isOtp),
+                          child: (isOtp
+                                  ? buildOtpSection(context)
+                                  : buildPhoneSection(context))
+                              .animate()
+                              .fadeIn(
+                                duration: 360.ms,
+                                curve: Curves.easeOutCubic,
+                              )
+                              .slideY(
+                                begin: 0.04,
+                                end: 0,
+                                duration: 360.ms,
+                                curve: Curves.easeOutCubic,
+                              ),
+                        );
+                      },
                     ),
                   ),
                 ),
               ),
-            ),
+            )
+                .animate()
+                .fadeIn(
+                  delay: 90.ms,
+                  duration: 480.ms,
+                  curve: Curves.easeOutCubic,
+                )
+                .slideY(
+                  begin: 0.1,
+                  end: 0,
+                  delay: 90.ms,
+                  duration: 500.ms,
+                  curve: Curves.easeOutCubic,
+                ),
           ),
         ],
       ),
