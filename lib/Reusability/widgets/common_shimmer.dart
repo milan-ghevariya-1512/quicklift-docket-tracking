@@ -213,3 +213,179 @@ class HomeCardsShimmer extends StatelessWidget {
     );
   }
 }
+
+class BiddingListShimmer extends StatelessWidget {
+  const BiddingListShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CommonShimmer(
+      child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(
+          Get.width * 0.05,
+          Get.height * 0.004,
+          Get.width * 0.05,
+          0,
+        ),
+        child: Column(
+          children: [
+            for (int i = 0; i < 4; i++) ...[
+              if (i > 0) HBox(Get.height * 0.012),
+              _listCardSkeleton(),
+            ],
+            HBox(Get.height * 0.06),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _listCardSkeleton() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.borderColor.withValues(alpha: 0.95),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.textBlackColor.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+            spreadRadius: -2,
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: EdgeInsets.fromLTRB(
+              Get.width * 0.04,
+              Get.height * 0.016,
+              Get.width * 0.04,
+              Get.height * 0.014,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.shimmerBase,
+              border: Border(
+                bottom: BorderSide(
+                  color: AppColors.borderColor.withValues(alpha: 0.7),
+                ),
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ShimmerBox(
+                        width: Get.width * 0.18,
+                        height: 10,
+                        borderRadius: 4,
+                        color: AppColors.shimmerBaseDark,
+                      ),
+                      HBox(Get.height * 0.008),
+                      ShimmerBox(
+                        width: Get.width * 0.42,
+                        height: 18,
+                        borderRadius: 6,
+                        color: AppColors.shimmerBaseDark,
+                      ),
+                      HBox(Get.height * 0.008),
+                      ShimmerBox(
+                        width: Get.width * 0.5,
+                        height: 12,
+                        borderRadius: 4,
+                        color: AppColors.shimmerBaseDark,
+                      ),
+                    ],
+                  ),
+                ),
+                ShimmerBox(
+                  width: Get.width * 0.14,
+                  height: Get.height * 0.034,
+                  borderRadius: 22,
+                  color: AppColors.shimmerBaseDark,
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              Get.width * 0.04,
+              Get.height * 0.014,
+              Get.width * 0.04,
+              Get.height * 0.016,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ShimmerBox(
+                  width: Get.width * 0.22,
+                  height: 10,
+                  borderRadius: 4,
+                  color: AppColors.shimmerBaseDark,
+                ),
+                HBox(Get.height * 0.012),
+                ShimmerBox(
+                  width: double.infinity,
+                  height: 12,
+                  borderRadius: 6,
+                  color: AppColors.shimmerBaseDark,
+                ),
+                HBox(Get.height * 0.01),
+                ShimmerBox(
+                  width: Get.width * 0.72,
+                  height: 12,
+                  borderRadius: 6,
+                  color: AppColors.shimmerBaseDark,
+                ),
+                HBox(Get.height * 0.01),
+                ShimmerBox(
+                  width: Get.width * 0.55,
+                  height: 12,
+                  borderRadius: 6,
+                  color: AppColors.shimmerBaseDark,
+                ),
+                HBox(Get.height * 0.014),
+                ShimmerBox(
+                  width: Get.width * 0.28,
+                  height: 10,
+                  borderRadius: 4,
+                  color: AppColors.shimmerBaseDark,
+                ),
+                HBox(Get.height * 0.01),
+                ShimmerBox(
+                  width: double.infinity,
+                  height: Get.height * 0.05,
+                  borderRadius: 12,
+                  color: AppColors.shimmerBaseDark,
+                ),
+                HBox(Get.height * 0.012),
+                ShimmerBox(
+                  width: double.infinity,
+                  height: 12,
+                  borderRadius: 6,
+                  color: AppColors.shimmerBaseDark,
+                ),
+                HBox(Get.height * 0.008),
+                ShimmerBox(
+                  width: Get.width * 0.65,
+                  height: 12,
+                  borderRadius: 6,
+                  color: AppColors.shimmerBaseDark,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 
 import '../../../../Reusability/utils/app_colors.dart';
@@ -38,53 +39,86 @@ class BiddingDashboardView extends GetView<BiddingDashboardController> {
                 child: AppPageHeader(
                   title: "Bidding Dashboard",
                   onBack: () => Get.back(),
-                  leading: GestureDetector(
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) => FilterBottomSheet(biddingDashboardController: c),
-                      );
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(Get.width * 0.025),
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceColor,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.borderColor),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.textBlackColor.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Image.asset(
-                        AppImage.filterIcon,
-                        height: Get.height * 0.025,
-                        width: Get.height * 0.025,
-                        fit: BoxFit.contain,
+                  leading: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => FilterBottomSheet(biddingDashboardController: c),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        padding: EdgeInsets.all(Get.width * 0.028),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceColor,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: AppColors.borderColor),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.textBlackColor.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Image.asset(
+                          AppImage.filterIcon,
+                          height: Get.height * 0.024,
+                          width: Get.height * 0.024,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),
-                ),
+                )
+                    .animate()
+                    .fadeIn(
+                      duration: 200.ms,
+                      curve: Curves.easeOutCubic,
+                    )
+                    .slideX(
+                      begin: -0.02,
+                      end: 0,
+                      duration: 200.ms,
+                      curve: Curves.easeOutCubic,
+                    ),
               ),
               HBox(Get.height * 0.015),
               Expanded(
-                child: Obx(() => c.isLoaded.value
-                    ? Padding(
-                      padding: EdgeInsets.symmetric(horizontal: Get.width * 0.05),
-                      child: const HomeCardsShimmer(),
-                    )
-                    : cardsGrid(context)),
+                child: Obx(
+                  () => c.isLoaded.value
+                      ? Padding(
+                          padding: EdgeInsets.symmetric(horizontal: Get.width * 0.05),
+                          child: HomeCardsShimmer()
+                              .animate()
+                              .fadeIn(
+                                duration: 160.ms,
+                                curve: Curves.easeOut,
+                              ),
+                        )
+                      : cardsGrid(context),
+                ),
               ),
             ],
           )
         ],
       ),
-      floatingActionButton: buildAddFab(),
+      floatingActionButton: buildAddFab()
+          .animate()
+          .fadeIn(
+            duration: 220.ms,
+            curve: Curves.easeOutCubic,
+          )
+          .scale(
+            begin: const Offset(0.94, 0.94),
+            end: const Offset(1, 1),
+            duration: 220.ms,
+            curve: Curves.easeOutCubic,
+          ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
@@ -96,13 +130,13 @@ class BiddingDashboardView extends GetView<BiddingDashboardController> {
         borderRadius: radius,
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryColor.withOpacity(0.38),
+            color: AppColors.primaryColor.withValues(alpha: 0.38),
             blurRadius: 18,
             offset: const Offset(0, 8),
             spreadRadius: -2,
           ),
           BoxShadow(
-            color: AppColors.textBlackColor.withOpacity(0.07),
+            color: AppColors.textBlackColor.withValues(alpha: 0.07),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -114,8 +148,8 @@ class BiddingDashboardView extends GetView<BiddingDashboardController> {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () => Get.toNamed(Routes.VEHICLE_REQUEST),
-          splashColor: Colors.white.withOpacity(0.2),
-          highlightColor: Colors.white.withOpacity(0.08),
+          splashColor: Colors.white.withValues(alpha: 0.2),
+          highlightColor: Colors.white.withValues(alpha: 0.08),
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal: Get.width * 0.055,
@@ -217,7 +251,7 @@ class BiddingDashboardView extends GetView<BiddingDashboardController> {
           border: Border.all(color: AppColors.borderColor),
           boxShadow: [
             BoxShadow(
-              color: AppColors.textBlackColor.withOpacity(0.06),
+              color: AppColors.textBlackColor.withValues(alpha: 0.06),
               blurRadius: 12,
               offset: const Offset(0, 3),
             ),
@@ -257,7 +291,7 @@ class BiddingDashboardView extends GetView<BiddingDashboardController> {
                   width: Get.height * 0.06,
                   height: Get.height * 0.06,
                   decoration: BoxDecoration(
-                    color: item.color.withOpacity(0.1),
+                    color: item.color.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
@@ -282,24 +316,38 @@ class BiddingDashboardView extends GetView<BiddingDashboardController> {
       physics: const BouncingScrollPhysics(),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: Get.width * 0.05),
-        child: Column(
-          children: [
-            for (int row = 0; row < rowCount; row++) ...[
-              if (row > 0) HBox(Get.height * 0.015),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(child: buildStatusCard(list[row * 2])),
-                  if (row * 2 + 1 < list.length) ...[
-                    WBox(Get.width * 0.035),
-                    Expanded(child: buildStatusCard(list[row * 2 + 1])),
-                  ] else
-                    Expanded(child: Container()),
-                ],
-              ),
+        child: KeyedSubtree(
+          key: const ValueKey('bidding_dashboard_grid'),
+          child: Column(
+            children: [
+              for (int row = 0; row < rowCount; row++) ...[
+                if (row > 0) HBox(Get.height * 0.015),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: buildStatusCard(list[row * 2])),
+                    if (row * 2 + 1 < list.length) ...[
+                      WBox(Get.width * 0.035),
+                      Expanded(child: buildStatusCard(list[row * 2 + 1])),
+                    ] else
+                      Expanded(child: Container()),
+                  ],
+                ),
+              ],
+              HBox(MediaQuery.of(context).padding.bottom + Get.height * 0.08),
             ],
-            HBox(MediaQuery.of(context).padding.bottom + Get.height * 0.08),
-          ],
+          )
+              .animate()
+              .fadeIn(
+                duration: 220.ms,
+                curve: Curves.easeOutCubic,
+              )
+              .slideY(
+                begin: 0.012,
+                end: 0,
+                duration: 220.ms,
+                curve: Curves.easeOutCubic,
+              ),
         ),
       ),
     );
