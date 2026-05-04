@@ -19,6 +19,12 @@ class _QuickLiftDocketTrackingState extends State<QuickLiftDocketTracking> with 
       debugShowCheckedModeBanner: false,
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
+      routingCallback: (routing) {
+        if (routing?.current != Routes.DASHBOARD) return;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          FocusManager.instance.primaryFocus?.unfocus();
+        });
+      },
       theme: ThemeData(
         primaryColor: AppColors.primaryColor,
         colorScheme: const ColorScheme.light(primary: AppColors.primaryColor),

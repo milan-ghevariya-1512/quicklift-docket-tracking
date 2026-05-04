@@ -10,6 +10,7 @@ import 'package:quicklift_docket_tracking/Reusability/utils/util.dart';
 import '../../../../Reusability/utils/app_colors.dart';
 import '../../../../Reusability/utils/app_images.dart';
 import '../../../../Reusability/utils/app_textstyle.dart';
+import '../../../../Reusability/widgets/animated_track_connector_line.dart';
 import '../../../../Reusability/widgets/common_shimmer.dart';
 import '../../../../Reusability/widgets/common_widget.dart';
 import '../../../data/model/getBiddingListModel.dart';
@@ -699,9 +700,21 @@ class BidingListView extends GetView<BidingListController> {
 
   String biddingDateStr(String? v) {
     final s = v?.trim() ?? '';
-    if (s.isEmpty || s == 'null') return '--';
+    if (s.isEmpty || s.toLowerCase() == 'null') return '--';
     try {
-      return DateFormat('dd/MM/yyyy · hh:mm a').format(DateTime.parse(s));
+      final parsed = DateTime.parse(s);
+      final utc = DateTime.utc(
+        parsed.year,
+        parsed.month,
+        parsed.day,
+        parsed.hour,
+        parsed.minute,
+        parsed.second,
+        parsed.millisecond,
+        parsed.microsecond,
+      );
+      final local = utc.toLocal();
+      return DateFormat('dd/MM/yyyy · hh:mm a').format(local);
     } catch (_) {
       return s;
     }
@@ -738,9 +751,7 @@ class _TimelinePulseColumnState extends State<TimelinePulseColumn> with SingleTi
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final v = _controller.value;
-        final wave = math.sin(v * math.pi * 2);
-        final lineAlpha = 0.34 + 0.28 * v;
+        final wave = math.sin(_controller.value * math.pi * 2);
         return Column(
           children: [
             pulseDot(
@@ -749,36 +760,14 @@ class _TimelinePulseColumnState extends State<TimelinePulseColumn> with SingleTi
               wave: wave,
             ),
             Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: Get.height * 0.004),
-                child: Center(
-                  child: RepaintBoundary(
-                    child: Container(
-                      width: 3,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primaryColor.withValues(alpha: 0.12 + 0.16 * v),
-                            blurRadius: 3 + 5 * v,
-                            spreadRadius: 0,
-                          ),
-                        ],
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            AppColors.primaryColor.withValues(alpha: lineAlpha),
-                            Color.lerp(
-                              AppColors.primaryColor,
-                              AppColors.blueColor,
-                              v,
-                            )!.withValues(alpha: 0.52 + 0.12 * wave.abs()),
-                            AppColors.blueColor.withValues(alpha: lineAlpha),
-                          ],
-                        ),
-                      ),
-                    ),
+              child: Center(
+                child: RepaintBoundary(
+                  child: AnimatedTrackConnectorLine(
+                    mode: TrackConnectorMode.progressing,
+                    axis: Axis.vertical,
+                    extent: 10,
+                    lightColor: AppColors.primaryColor.withValues(alpha: 0.48),
+                    darkColor: AppColors.blueColor,
                   ),
                 ),
               ),

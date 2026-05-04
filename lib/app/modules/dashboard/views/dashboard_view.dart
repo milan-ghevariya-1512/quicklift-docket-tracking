@@ -148,7 +148,7 @@ class DashboardView extends GetView<DashboardController> {
                                 curve: Curves.easeOutCubic,
                               ),
                           HBox(Get.height * 0.01),
-                          trackShipmentCard()
+                          trackShipmentCard(context)
                               .animate()
                               .fadeIn(
                                 delay: Duration(milliseconds: tTrackBox),
@@ -423,7 +423,7 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  Widget trackShipmentCard() {
+  Widget trackShipmentCard(context) {
     return Container(
       clipBehavior: Clip.antiAlias,
       padding: EdgeInsets.all(Get.width * 0.035),
@@ -499,7 +499,7 @@ class DashboardView extends GetView<DashboardController> {
           ),
           HBox(Get.height * 0.028),
           CommonButton(
-            onPressed: controller.validate,
+            onPressed: () => controller.validate(context),
             textVal: 'Track',
             bgColor: AppColors.primaryColor,
           ),

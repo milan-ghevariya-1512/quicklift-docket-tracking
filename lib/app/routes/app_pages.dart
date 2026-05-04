@@ -8,8 +8,6 @@ import '../modules/dashboard/bindings/dashboard_binding.dart';
 import '../modules/dashboard/views/dashboard_view.dart';
 import '../modules/docket_details/bindings/docket_details_binding.dart';
 import '../modules/docket_details/views/docket_details_view.dart';
-import '../modules/docket_search/bindings/docket_search_binding.dart';
-import '../modules/docket_search/views/docket_search_view.dart';
 import '../modules/internetCheck/bindings/internet_check_binding.dart';
 import '../modules/internetCheck/views/internet_check_view.dart';
 import '../modules/login/bindings/login_binding.dart';
@@ -37,11 +35,6 @@ class AppPages {
       name: _Paths.DASHBOARD,
       page: () => DashboardView(),
       binding: DashboardBinding(),
-    ),
-    GetPage(
-      name: _Paths.DOCKETSEARCH,
-      page: () => DocketSearchView(),
-      binding: DocketSearchBinding(),
     ),
     GetPage(
       name: _Paths.DOCKETDETAILS,

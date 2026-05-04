@@ -1,11 +1,8 @@
-import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import '../../../../Reusability/utils/storage_util.dart';
 import '../../../../Reusability/utils/util.dart';
-import '../../../../Reusability/widgets/common_widget.dart';
 import '../../../data/model/getLoginClaimModel.dart';
-import '../../../data/model/get_organization_model.dart';
 import '../../../data/service/api_services.dart';
 import '../../../data/service/vehicle_service.dart';
 import '../../../routes/app_pages.dart';
@@ -13,7 +10,6 @@ import '../../../routes/app_pages.dart';
 class DashboardController extends GetxController {
 
   var isLoaded = true.obs;
-  List<GetOrganizationModel> organizationList = [];
   List<String> organizationIdList = ['1'];
   DashBoardService dashBoardService = DashBoardService();
 
@@ -28,41 +24,19 @@ class DashboardController extends GetxController {
     // TODO: implement onInit
     super.onInit();
     getClaims();
-    // getOrganization(filter: true);
   }
 
-  getOrganization({bool filter = false}) async {
-    isLoaded.value = true;
-    organizationList.clear();
-    var result = await dashBoardService.getOrganization();
-    if(result != null) {
-      if (filter) {
-        result.forEach((element) {
-          for(int i=0;i<organizationIdList.length;i++){
-            if(element.organizationId == organizationIdList[i]){
-              organizationList.add(element);
-            }
-          }
-        });
-      } else{
-        organizationList.addAll(result);
-      }
-    }
-    isLoaded.value = false;
-    update();
-  }
-
-  validate(){
+  validate(context){
     if(formKey.currentState!.validate()) {
       fd.unfocus();
-      searchDocket();
+      searchDocket(context);
     } else {
       autoValidateMode.value = AutovalidateMode.disabled;
     }
     update();
   }
 
-  searchDocket() async {
+  searchDocket(context) async {
     Utils.showLoadingDialog();
     var body = {
       "dockets": [
@@ -71,6 +45,7 @@ class DashboardController extends GetxController {
     };
     var result = await dashBoardService.searchDocket(body: body);
     if(Get.isDialogOpen!) Get.back();
+    FocusScope.of(context).unfocus();
     if(result != null
         && result.isNotEmpty
         && result.first.apiDocket != null
@@ -108,4 +83,10 @@ class DashboardController extends GetxController {
     }
   }
 
+  @override
+  void onClose() {
+    fd.dispose();
+    docketController.dispose();
+    super.onClose();
+  }
 }

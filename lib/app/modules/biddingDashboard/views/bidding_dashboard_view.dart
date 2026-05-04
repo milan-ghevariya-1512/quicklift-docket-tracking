@@ -209,7 +209,7 @@ class BiddingDashboardView extends GetView<BiddingDashboardController> {
       ('tripCompletedCount', (c) => countStr(c?.tripCompletedCount)),
     ];
     final statuses = <(String field, String code)>[
-      ('totalCount', 'null'),
+      ('totalCount', ''),
       ('generatedCount', 'BAR'),
       ('inProcessCount', 'AN6'),
       ('tripGeneratedCount', 'ANC'),
@@ -317,42 +317,47 @@ class BiddingDashboardView extends GetView<BiddingDashboardController> {
   Widget cardsGrid(BuildContext context) {
     final list = statusItems(c.vehicleRequestCounts);
     final rowCount = (list.length + 1) ~/ 2;
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: Get.width * 0.05),
-        child: KeyedSubtree(
-          key: const ValueKey('bidding_dashboard_grid'),
-          child: Column(
-            children: [
-              for (int row = 0; row < rowCount; row++) ...[
-                if (row > 0) HBox(Get.height * 0.015),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: buildStatusCard(list[row * 2])),
-                    if (row * 2 + 1 < list.length) ...[
-                      WBox(Get.width * 0.035),
-                      Expanded(child: buildStatusCard(list[row * 2 + 1])),
-                    ] else
-                      Expanded(child: Container()),
-                  ],
-                ),
+    return RefreshIndicator(
+      onRefresh: () => c.getBiddingList(),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: Get.width * 0.05),
+          child: KeyedSubtree(
+            key: const ValueKey('bidding_dashboard_grid'),
+            child: Column(
+              children: [
+                for (int row = 0; row < rowCount; row++) ...[
+                  if (row > 0) HBox(Get.height * 0.015),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: buildStatusCard(list[row * 2])),
+                      if (row * 2 + 1 < list.length) ...[
+                        WBox(Get.width * 0.035),
+                        Expanded(child: buildStatusCard(list[row * 2 + 1])),
+                      ] else
+                        Expanded(child: Container()),
+                    ],
+                  ),
+                ],
+                HBox(MediaQuery.of(context).padding.bottom + Get.height * 0.02),
               ],
-              HBox(MediaQuery.of(context).padding.bottom + Get.height * 0.08),
-            ],
-          )
-              .animate()
-              .fadeIn(
-                duration: 220.ms,
-                curve: Curves.easeOutCubic,
-              )
-              .slideY(
-                begin: 0.012,
-                end: 0,
-                duration: 220.ms,
-                curve: Curves.easeOutCubic,
-              ),
+            )
+                .animate()
+                .fadeIn(
+                  duration: 220.ms,
+                  curve: Curves.easeOutCubic,
+                )
+                .slideY(
+                  begin: 0.012,
+                  end: 0,
+                  duration: 220.ms,
+                  curve: Curves.easeOutCubic,
+                ),
+          ),
         ),
       ),
     );

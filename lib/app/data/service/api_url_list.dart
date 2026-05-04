@@ -1,8 +1,5 @@
 class ApiUrlList {
 
-   static String baseUrl1 = "https://logibrisk.azurewebsites.net/ApiV2/";
-   static String baseUrl2 = "https://satpl.erp.logibrisk.com/ApiV2/";
-
    static String url = "https://express.erp.logibrisk.com";
    static String googleMapKey = "AIzaSyC-SC-VSkuluh_1JkVwtmc5v1YMm6nSeVo";
    static String loginType = "AFK"; // Customer:AFK, Employee:AFJ, Vendor:AFL
@@ -13,8 +10,7 @@ class ApiUrlList {
    static String accountUrl = '$url/ApiV2/ApiAccount/';
 
   ///Auth APIs
-  static String getOrganizationDetailsApi = '${baseUrl1}ApiAccount/GetOrganizationDetails';
-  static String searchDocketApi = '${baseUrl2}ApiDocket/DocketDetails';
+  static String searchDocketApi = '${url}/ApiV2/ApiDocket/DocketDetails';
   static String loginApi = '${url}/ApiV2/MobileAuthentication/SendMobileOtp';
   static String verifyOtpApi = '${url}/ApiV2/MobileAuthentication/VerifyMobileOtp';
 

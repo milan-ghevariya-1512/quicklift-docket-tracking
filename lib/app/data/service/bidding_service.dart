@@ -30,8 +30,9 @@ class BiddingService {
     if (customerID != null && customerID.toString().isNotEmpty) {
       params.add("CustomerId=$customerID");
     }
-    final statusForQuery = ((statusId ?? '').isNotEmpty && (statusId ?? '') != 'null') ? (statusId ?? '') : null;
-    params.add("StatusId=$statusForQuery");
+    if (statusId != null && statusId.toString().isNotEmpty) {
+      params.add("StatusId=$statusId");
+    }
     if (pageNumber != null) {
       params.add("PageNumber=$pageNumber");
     }
