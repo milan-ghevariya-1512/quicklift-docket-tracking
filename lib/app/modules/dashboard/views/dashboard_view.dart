@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
@@ -179,7 +181,7 @@ class DashboardView extends GetView<DashboardController> {
                   padding: EdgeInsets.only(
                     left: Get.width * 0.05,
                     right: Get.width * 0.05,
-                    bottom: MediaQuery.paddingOf(context).bottom + Get.height * 0.014,
+                    bottom: MediaQuery.paddingOf(context).bottom + (Platform.isIOS ? 0 : Get.height*0.015),
                     top: Get.height * 0.006,
                   ),
                   child: Center(

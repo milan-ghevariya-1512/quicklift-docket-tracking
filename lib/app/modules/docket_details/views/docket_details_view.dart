@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -191,8 +192,6 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
           Obx(() => SingleChildScrollView(
             child: Column(
               children: [
-
-                HBox(Get.height*0.015),
 
                 if(controller.isType.value == 0)Padding(
                   padding: EdgeInsets.symmetric(horizontal: Get.width*0.05,vertical: Get.height*0.012),
@@ -653,7 +652,7 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
         ],
       ),
       bottomNavigationBar: Container(
-        padding: EdgeInsets.symmetric(vertical: Get.height*0.015),
+        padding: EdgeInsets.only(top: Get.height*0.015, bottom: MediaQuery.of(context).padding.bottom + (Platform.isIOS ? 0 : Get.height*0.015)),
         decoration: BoxDecoration(
           color: AppColors.whiteColor,
           boxShadow: [
