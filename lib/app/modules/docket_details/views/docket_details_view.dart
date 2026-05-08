@@ -193,13 +193,27 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
             child: Column(
               children: [
 
-                if(controller.isType.value == 0)Padding(
-                  padding: EdgeInsets.symmetric(horizontal: Get.width*0.05,vertical: Get.height*0.012),
+                if(controller.isType.value == 0)Container(
+                  margin: EdgeInsets.symmetric(horizontal: Get.width*0.04,vertical: Get.height*0.012),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.borderColor),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.textBlackColor.withValues(alpha: 0.04),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
                   child: Column(
                     children: [
 
                       Container(
-                        color: AppColors.whiteColor,
+                        decoration: BoxDecoration(
+                          color: AppColors.whiteColor,
+                          borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))
+                        ),
                         padding: EdgeInsets.symmetric(vertical: Get.height*0.01,horizontal: Get.width*0.02),
                         child: Row(
                           children: [
@@ -479,7 +493,10 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
                       Divider(color: AppColors.greyColor.withOpacity(0.2),height: 0),
 
                       Container(
-                        color: AppColors.whiteColor,
+                        decoration: BoxDecoration(
+                          color: AppColors.whiteColor,
+                          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20))
+                        ),
                         padding: EdgeInsets.symmetric(vertical: Get.height*0.01,horizontal: Get.width*0.02),
                         child: Row(
                           children: [
@@ -490,14 +507,12 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
                         ),
                       ),
 
-                      Divider(color: AppColors.greyColor.withOpacity(0.2),height: 0),
-
                     ],
                   ),
                 ),
 
                 if(controller.isType.value == 1)Container(
-                  height: Get.height * 0.77,
+                  height: Get.height * 0.79,
                   child: HorizontalDataTable(
                     leftHandSideColumnWidth: Get.width*0.15,
                     rightHandSideColumnWidth: Get.width*0.5 + Get.width*0.4,
