@@ -38,6 +38,10 @@ class Utils {
     }
   }
 
+  void setToken(String val) {
+    box.write(StorageUtil.token, val);
+  }
+
   String? getToken() {
     try {
       return "${box.read(StorageUtil.token)}";
@@ -131,7 +135,7 @@ class Utils {
       Get.find<FieldSetupController>().clearCache();
     }
     Utils().setLogin(false);
-    Get.offNamedUntil(Routes.LOGIN, (route) => false);
+    if(Get.currentRoute != Routes.LOGIN)Get.offNamedUntil(Routes.LOGIN, (route) => false);
   }
 
   Future<bool> hasInternetConnection({bool navigateToCheck = false}) async {

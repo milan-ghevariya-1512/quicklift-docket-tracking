@@ -4,6 +4,7 @@ class ApiUrlList {
    static String googleMapKey = "AIzaSyC-SC-VSkuluh_1JkVwtmc5v1YMm6nSeVo";
    static String loginType = "AFK"; // Customer:AFK, Employee:AFJ, Vendor:AFL
    static String organizationId = "E"; // 1
+   static String organizationPrefix = "express"; // quicklift
 
    static String commonMasterUrl = '$url/ApiV2/ApiCommonMaster/';
    static String vehicleRequestUrl = '$url/apiv2/ApiVehicleRequest/';
@@ -12,6 +13,7 @@ class ApiUrlList {
   ///Auth APIs
   static String searchDocketApi = '${url}/ApiV2/ApiDocket/DocketDetails';
   static String loginApi = '${url}/ApiV2/MobileAuthentication/SendMobileOtp';
+  static String loginWithUsernameApi = '${url}/ApiV2/ApiAccount/CreateToken';
   static String verifyOtpApi = '${url}/ApiV2/MobileAuthentication/VerifyMobileOtp';
 
    static String getFieldSetupApi = '${commonMasterUrl}GetFieldSetup?ModuleCode=';

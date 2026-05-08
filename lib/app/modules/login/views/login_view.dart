@@ -108,23 +108,48 @@ class _LoginViewState extends State<LoginView> {
                     ),
                     child: Obx(
                       () {
+                        final mode = controller.loginEntryMode.value;
                         final isOtp = controller.isPin.value;
-                        return KeyedSubtree(
-                          key: ValueKey(isOtp),
-                          child: (isOtp
-                                  ? buildOtpSection(context)
-                                  : buildPhoneSection(context))
-                              .animate()
-                              .fadeIn(
-                                duration: 360.ms,
-                                curve: Curves.easeOutCubic,
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            buildLoginModeSwitcher(context, mode),
+                            HBox(Get.height * 0.022),
+                            if (mode == LoginEntryMode.phoneOtp)
+                              KeyedSubtree(
+                                key: ValueKey(isOtp),
+                                child: (isOtp
+                                        ? buildOtpSection(context)
+                                        : buildPhoneSection(context))
+                                    .animate()
+                                    .fadeIn(
+                                      duration: 360.ms,
+                                      curve: Curves.easeOutCubic,
+                                    )
+                                    .slideY(
+                                      begin: 0.04,
+                                      end: 0,
+                                      duration: 360.ms,
+                                      curve: Curves.easeOutCubic,
+                                    ),
                               )
-                              .slideY(
-                                begin: 0.04,
-                                end: 0,
-                                duration: 360.ms,
-                                curve: Curves.easeOutCubic,
+                            else
+                              KeyedSubtree(
+                                key: const ValueKey('username_login'),
+                                child: buildUsernameSection(context)
+                                    .animate()
+                                    .fadeIn(
+                                      duration: 360.ms,
+                                      curve: Curves.easeOutCubic,
+                                    )
+                                    .slideY(
+                                      begin: 0.04,
+                                      end: 0,
+                                      duration: 360.ms,
+                                      curve: Curves.easeOutCubic,
+                                    ),
                               ),
+                          ],
                         );
                       },
                     ),
@@ -148,6 +173,185 @@ class _LoginViewState extends State<LoginView> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget buildLoginModeSwitcher(BuildContext context, LoginEntryMode mode) {
+    Widget segment(String label, LoginEntryMode value) {
+      final selected = mode == value;
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => controller.setLoginEntryMode(value),
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: AnimatedDefaultTextStyle(
+              duration: 260.ms,
+              curve: Curves.easeOutCubic,
+              style: AppTextStyle.regularTextStyle.copyWith(
+                color: selected
+                    ? AppColors.whiteColor
+                    : AppColors.textSecondary,
+                overflow: TextOverflow.ellipsis,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceElevated,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.borderColor),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final half = constraints.maxWidth / 2;
+          final phoneSelected = mode == LoginEntryMode.phoneOtp;
+          return Stack(
+            children: [
+              AnimatedPositioned(
+                duration: 260.ms,
+                curve: Curves.easeOutCubic,
+                left: phoneSelected ? 0 : half,
+                top: 0,
+                bottom: 0,
+                width: half,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  Expanded(child: segment('Mobile number', LoginEntryMode.phoneOtp)),
+                  Expanded(child: segment('Username', LoginEntryMode.usernamePassword)),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildUsernameSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Welcome',
+          style: AppTextStyle.regularTextStyle.copyWith(
+            color: AppColors.textBlackColor,
+            fontWeight: FontWeight.w700,
+            fontSize: 26,
+            letterSpacing: -0.5,
+            height: 1.2,
+          ),
+        ),
+        HBox(Get.height * 0.008),
+        Text(
+          'QuickLift Delivery Pvt Ltd.',
+          style: AppTextStyle.regularTextStyle.copyWith(
+            color: AppColors.textSecondary,
+            fontWeight: FontWeight.w500,
+            fontSize: 15,
+            height: 1.35,
+          ),
+        ),
+        HBox(Get.height * 0.032),
+        Text(
+          'Username',
+          style: AppTextStyle.regularTextStyle.copyWith(
+            color: AppColors.textBlackColor,
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+            letterSpacing: 0.2,
+          ),
+        ),
+        HBox(Get.height * 0.012),
+        Obx(
+          () => Form(
+            key: controller.formKeyUsername,
+            autovalidateMode: controller.autoValidateModeUsername.value,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFField(
+                  controller: controller.userNameController,
+                  keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.next,
+                  prefixIcon: Icon(
+                    Icons.person_outline_rounded,
+                    color: AppColors.textSecondary.withValues(alpha: 0.85),
+                    size: 22,
+                  ),
+                  hintText: 'Enter username',
+                  validator: (value) {
+                    if ((value ?? '').trim().isEmpty) {
+                      return 'Please enter your username';
+                    }
+                    return null;
+                  },
+                  onEditingComplete: () {
+                    FocusScope.of(context).nextFocus();
+                  },
+                ),
+                HBox(Get.height * 0.02),
+                Text(
+                  'Password',
+                  style: AppTextStyle.regularTextStyle.copyWith(
+                    color: AppColors.textBlackColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+                HBox(Get.height * 0.012),
+                TextFField(
+                  controller: controller.passwordController,
+                  obscureText: true,
+                  textInputAction: TextInputAction.done,
+                  prefixIcon: Icon(
+                    Icons.lock_outline_rounded,
+                    color: AppColors.textSecondary.withValues(alpha: 0.85),
+                    size: 22,
+                  ),
+                  hintText: 'Enter password',
+                  validator: (value) {
+                    if ((value ?? '').isEmpty) {
+                      return 'Please enter your password';
+                    }
+                    return null;
+                  },
+                  onEditingComplete: () {
+                    FocusScope.of(context).unfocus();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        HBox(Get.height * 0.04),
+        CommonButton(
+          bgColor: AppColors.primaryColor,
+          textVal: 'Sign in',
+          onPressed: () => controller.validateUsernameLogin(),
+        ),
+      ],
     );
   }
 

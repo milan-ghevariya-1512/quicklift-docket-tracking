@@ -27,11 +27,12 @@ class DashBoardService {
     }
   }
 
-  login({client,body}) async {
+  login({client,body, bool isLoginWithUsername = false}) async {
     client ??= http.Client();
 
-    var url = ApiUrlList.loginApi;
-    var result = await networkHandler.postWithoutToken(url ,client,isResponseVersion: true,model: body,showError: true);
+    var url = isLoginWithUsername ? ApiUrlList.loginWithUsernameApi : ApiUrlList.loginApi;
+    var result = isLoginWithUsername ? await networkHandlerStander.postWithoutToken(url ,client,isResponseVersion: true,model: body,showError: true)
+                                     : await networkHandler.postWithoutToken(url ,client,isResponseVersion: true,model: body,showError: true);
 
     if(result != null) {
       return jsonDecode(result);
