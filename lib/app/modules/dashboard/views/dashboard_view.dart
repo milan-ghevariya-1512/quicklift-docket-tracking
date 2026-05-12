@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
+import 'package:quicklift_docket_tracking/Reusability/utils/util.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../../../../Reusability/utils/app_colors.dart';
 import '../../../../Reusability/utils/app_images.dart';
@@ -349,7 +350,7 @@ class DashboardView extends GetView<DashboardController> {
               ],
             ),
           ),
-          appBarLogoChip()
+          appBarLogoutChip()
               .animate()
               .fadeIn(
             delay: Duration(milliseconds: step.inMilliseconds * 3),
@@ -375,27 +376,28 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  Widget appBarLogoChip() {
-    return Container(
-      padding: EdgeInsets.all(Get.height * 0.007),
-      decoration: BoxDecoration(
-        color: AppColors.whiteColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: AppColors.borderColor.withValues(alpha: 0.9),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.textBlackColor.withValues(alpha: 0.05),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
+  Widget appBarLogoutChip() {
+    return GestureDetector(
+      onTap: () {
+        Utils().logOutUser();
+      },
+      child: Container(
+        padding: EdgeInsets.all(Get.height * 0.007),
+        decoration: BoxDecoration(
+          color: AppColors.whiteColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: AppColors.borderColor.withValues(alpha: 0.9),
           ),
-        ],
-      ),
-      child: Image.asset(
-        AppImage.quickLiftLogoImage,
-        height: Get.height * 0.036,
-        fit: BoxFit.contain,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.textBlackColor.withValues(alpha: 0.05),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(Icons.logout_rounded)
       ),
     );
   }
@@ -417,9 +419,9 @@ class DashboardView extends GetView<DashboardController> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Image.asset(
-          AppImage.quickLift,
+          AppImage.quickLiftLogoImage,
           fit: BoxFit.contain,
-          height: Get.height * 0.22,
+          height: Get.height * 0.21,
         ),
       ),
     );
