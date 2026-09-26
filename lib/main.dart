@@ -6,6 +6,7 @@ import 'package:quicklift_docket_tracking/app.dart';
 import 'app/data/service/field_setup_service.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
   Get.put(FieldSetupController(), permanent: true);
   SystemChrome.setPreferredOrientations([

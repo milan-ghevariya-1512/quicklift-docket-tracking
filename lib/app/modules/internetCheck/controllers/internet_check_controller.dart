@@ -21,7 +21,7 @@ class InternetCheckController extends GetxController {
   Future<void> checkInternetConnection() async {
     isLoading.value = true;
     try {
-      var connectivityResult = await Connectivity().checkConnectivity();
+      var connectivityResult = await Utils.readConnectivity();
 
       if (connectivityResult.contains(ConnectivityResult.mobile)) {
         isConnected.value = true;
@@ -32,6 +32,9 @@ class InternetCheckController extends GetxController {
       } else if (connectivityResult.contains(ConnectivityResult.ethernet)) {
         isConnected.value = true;
         connectionType.value = 'Ethernet';
+      } else if (Utils.isOnline(connectivityResult)) {
+        isConnected.value = true;
+        connectionType.value = 'Connected';
       } else {
         isConnected.value = false;
         connectionType.value = 'No Connection';

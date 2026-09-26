@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -138,13 +139,35 @@ class Utils {
     if(Get.currentRoute != Routes.LOGIN)Get.offNamedUntil(Routes.LOGIN, (route) => false);
   }
 
+  static bool isOnline(List<ConnectivityResult> results) {
+    if (results.contains(ConnectivityResult.mobile) ||
+        results.contains(ConnectivityResult.wifi) ||
+        results.contains(ConnectivityResult.ethernet)) {
+      return true;
+    }
+    if (defaultTargetPlatform == TargetPlatform.iOS && results.contains(ConnectivityResult.other)) {
+      return true;
+    }
+    return false;
+  }
+
+  static Future<List<ConnectivityResult>> readConnectivity() async {
+    var results = await Connectivity().checkConnectivity();
+    if (defaultTargetPlatform != TargetPlatform.iOS || isOnline(results)) {
+      return results;
+    }
+    try {
+      await for (final update in Connectivity().onConnectivityChanged.timeout(const Duration(seconds: 2))) {
+        results = update;
+        if (isOnline(results)) break;
+      }
+    } catch (_) {}
+    return results;
+  }
+
   Future<bool> hasInternetConnection({bool navigateToCheck = false}) async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult.contains(ConnectivityResult.mobile)) {
-      return true;
-    } else if (connectivityResult.contains(ConnectivityResult.wifi)) {
-      return true;
-    } else if (connectivityResult.contains(ConnectivityResult.ethernet)) {
+    var connectivityResult = await readConnectivity();
+    if (isOnline(connectivityResult)) {
       return true;
     } else{
       if(Get.isDialogOpen ?? false) Get.back();
