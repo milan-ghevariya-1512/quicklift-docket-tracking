@@ -38,6 +38,9 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
   }
 
   Widget _generateFirstColumnRow(BuildContext context, int index) {
+    if (index >= controller.apiDocketEvents.length) {
+      return SizedBox(height: Get.height * 0.05);
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -64,6 +67,9 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
   }
 
   Widget _generateRightHandSideColumnRow(BuildContext context, int index) {
+    if (index >= controller.apiDocketEvents.length) {
+      return SizedBox(height: Get.height * 0.05);
+    }
     return IntrinsicHeight(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,11 +195,14 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
             height: Get.height,
             width: Get.width,
           ),
-          Obx(() => SingleChildScrollView(
-            child: Column(
-              children: [
-
-                if(controller.isType.value == 0)Container(
+          Obx(() => IndexedStack(
+            index: controller.isType.value,
+            sizing: StackFit.expand,
+            children: [
+              SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
                   margin: EdgeInsets.symmetric(horizontal: Get.width*0.04,vertical: Get.height*0.012),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
@@ -510,8 +519,14 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
                     ],
                   ),
                 ),
-
-                if(controller.isType.value == 1)Container(
+                    HBox(Get.height*0.02),
+                  ],
+                ),
+              ),
+              SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
                   height: Get.height * 0.79,
                   child: HorizontalDataTable(
                     leftHandSideColumnWidth: Get.width*0.15,
@@ -520,14 +535,20 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
                     headerWidgets: _getTitleWidget(),
                     leftSideItemBuilder: _generateFirstColumnRow,
                     rightSideItemBuilder: _generateRightHandSideColumnRow,
-                    itemCount: controller.apiDocketEvents.length,
+                    itemCount: controller.apiDocketEvents.length + 1,
                     leftHandSideColBackgroundColor: Colors.transparent,
                     rightHandSideColBackgroundColor: Colors.transparent,
                     scrollPhysics: BouncingScrollPhysics(),
                   ),
                 ),
-
-                if(controller.isType.value == 2)Padding(
+                    HBox(Get.height*0.02),
+                  ],
+                ),
+              ),
+              SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Padding(
                   padding: EdgeInsets.symmetric(horizontal: Get.width*0.05,vertical: Get.height*0.012),
                   child: ListView.separated(
                       itemCount: 5,
@@ -658,16 +679,16 @@ class DocketDetailsView extends GetView<DocketDetailsController> {
                       },
                   ),
                 ),
-
-                HBox(Get.height*0.02),
-
-              ],
-            ),
+                    HBox(Get.height*0.02),
+                  ],
+                ),
+              ),
+            ],
           )),
         ],
       ),
       bottomNavigationBar: Container(
-        padding: EdgeInsets.only(top: Get.height*0.015, bottom: MediaQuery.of(context).padding.bottom + (Platform.isIOS ? 0 : Get.height*0.015)),
+        padding: EdgeInsets.only(top: Get.height*0.015, bottom: Get.height*0.018),
         decoration: BoxDecoration(
           color: AppColors.whiteColor,
           boxShadow: [
